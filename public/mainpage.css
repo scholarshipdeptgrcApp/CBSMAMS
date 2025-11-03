@@ -1,0 +1,798 @@
+/* Global Styles and Resets */
+:root {
+    --blue-main: #2a428c;
+    --blue-dark: #1e5999;
+    --yellow-main: #ffcc33;
+    --text-dark: #333;
+    --text-light: #fff;
+    --bg-light: #f4f4f4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background-color: var(--yellow-main);
+    color: var(--text-dark);
+    border: none;
+}
+
+.primary-btn:hover {
+    background-color: #e6b800;
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background-color: var(--blue-dark);
+    color: var(--text-light);
+    border: none;
+}
+
+.secondary-btn:hover {
+    background-color: var(--blue-main);
+    transform: translateY(-1px);
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content:space-between ;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: var(--blue-main);
+    color: var(--text-light);
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.header-buttons a {
+    margin-left: 25px;
+    padding: 5px 0;
+    border-bottom: 3px solid transparent;
+    transition: border-bottom 0.3s;
+}
+
+.header-buttons .nav-link:hover,
+.header-buttons .nav-link.active {
+    border-bottom: 3px solid var(--yellow-main);
+}
+
+/* Login Button Styling Update */
+.login-btn {
+    /* 10px top/bottom padding, 25px left/right padding */
+    padding: 10px 25px; 
+    
+    /* You also need to set it to display as a block or inline-block 
+       to ensure padding/width are respected correctly, just like your .btn class. */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    background-color: white; 
+    color: black;
+    border-radius: 5px;
+    margin-left: 30px;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    
+
+}
+
+.login-btn:hover {
+    background-color: whitesmoke;
+    color: black;
+}
+
+/* --- Section Styling --- */
+section {
+    padding: 80px 50px;
+    padding-top: 120px; /* Offset for fixed header */
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+/* --- Home Section (Hero) --- */
+.hero-section {
+    padding-top: 120px;
+    min-height: 80vh; 
+    background-color: var(--blue-main);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative; 
+    padding-bottom: 0; /* Keep this at 0 for clipping */
+    
+    /* === CORRECTED Clip Path for the Triangle Shape (High-Left, Low-Right) === */
+    /*
+        1. 0% 0% (Top-Left)
+        2. 100% 0% (Top-Right)
+        3. 100% 100% (Bottom-Right corner, which is the low point)
+        4. 0% 85% (Point on the left side, 85% down from the top, which is the high/sharp point)
+    */
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 90%); 
+    z-index: 2; 
+}
+
+
+.hero-content {
+    max-width: 50%;
+    margin-left: 50px;
+}
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.hero-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.hero-image-container {
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Aligned to the top of the container */
+    position: relative;
+    margin-right: 80px; /* Apply margin-right much more */
+}
+
+/* Updated Motortrade Logo Structure */
+.motortrade-logo {
+    text-align: right;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+.logo-name {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+.logo-sub-line1 {
+    font-size: 1.2rem;
+    font-weight: normal;
+    text-transform: uppercase;
+}
+.logo-sub-line2 {
+    font-size: 1rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* MLALAF Image Styling */
+.mlalaf-image {
+    width: 550px; /* Made bigger */
+    height: auto; 
+    object-fit: contain; /* Use contain to handle the transparent background (PNG) */
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+/* --- About Us Section --- */
+.about-section {
+    background-image: url('pictures/Graduates.jpg'); /* Your existing background image */
+    background-size: cover;
+    background-position: center;
+    padding: 100px 50px;
+    background-color: var(--bg-light); 
+    position: relative; 
+    z-index: 1; 
+    margin-top: -15vh; /* Keep this value to overlap the cut-out area */
+    opacity: 0.7;
+}
+.about-content-box {
+    background-color: rgba(255, 255, 255, 1); /* Slightly more transparent white */
+    padding: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 100px;
+}
+
+.about-content-box .section-title {
+    margin-bottom: 20px;
+    color: var(--blue-dark);
+}
+
+.about-content-box p {
+    margin-bottom: 20px;
+    text-align: justify;
+    color: black;
+}
+
+/* --- Contact Us Section --- */
+.contact-section {
+    background-color: var(--blue-main);
+    color: var(--text-light);
+}
+
+.contact-text-image {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 50px;
+    gap: 20px;
+}
+
+.contact-text h2 {
+    color: #ffcc33;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.contact-text p {
+    font-size: 1.1rem;
+}
+
+/* Contact Image width adjustment */
+.contact-image {
+    width: 850px; /* Increased width */
+    height: 250px;
+    background-color: #ffd699; 
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.contact-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    text-align: center;
+}
+
+.contact-cards .card {
+    background-color: var(--text-light);
+    color: var(--text-dark);
+    padding: 30px 20px;
+    border-radius: 10px;
+    flex: 1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon i {
+    font-size: 2rem;
+    color: var(--blue-main);
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.card-details {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    min-height: 40px; 
+}
+
+/* --- What's New Section --- */
+.whats-new-section {
+    background-color: var(--bg-light);
+}
+
+.whats-new-content {
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    align-items: stretch; /* IMPORTANT: This makes the columns equal height */
+}
+
+.scholarship-info {
+    flex: 2;
+    background-color: var(--text-light);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.scholarship-info h3 {
+    color: var(--blue-dark);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.info-group {
+    margin-bottom: 25px;
+}
+
+.info-group h4 {
+    color: var(--blue-main);
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--yellow-main);
+    display: inline-block;
+    padding-bottom: 3px;
+}
+
+.scholarship-info ul, .scholarship-info ol {
+    padding-left: 20px;
+    font-size: 0.95rem;
+}
+
+.scholarship-info ul li, .scholarship-info ol li {
+    margin-bottom: 8px;
+    text-align: justify;
+}
+
+.apply-btn {
+    margin-top: 20px;
+}
+
+.updates-and-renewal {
+    flex: 1;
+    min-width: 350px;
+    display: flex; /* To make its children align vertically */
+    flex-direction: column;
+    justify-content: space-between; /* Pushes updates to top and renewal to bottom */
+    min-height: 100%; /* Ensures this side stretches to match scholarship-info */
+}
+
+.updates-container {
+    background-color: var(--text-light);
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.whats-new-div-placeholder {
+    width: 100%;
+    height: 350px;
+    background-color: #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.renewal-info {
+    background-color: var(--text-light);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.renewal-info h3 {
+    color: var(--blue-dark);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.renew-btn {
+    margin-top: 20px;
+}
+
+/* --- Footer --- */
+footer {
+    background-color: var(--blue-dark);
+    color: var(--text-light);
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.footer-links p {
+    display: inline;
+    margin-right: 15px;
+}
+
+.footer-links a {
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.footer-policy a {
+    margin-left: 10px;
+}
+
+footer a:hover {
+    color: var(--yellow-main);
+}
+
+/* New styles for disabled buttons */
+.disabled-link {
+    /* Visual deactivation */
+    opacity: 0.6;
+    pointer-events: none; /* Crucial: Makes the link unclickable */
+    cursor: not-allowed;
+    text-decoration: none !important;
+}
+
+.whats-new-div-placeholder {
+    width: 100%;
+    height: 350px; /* Fixed height */
+    background-color: #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    /* ⭐ NEW: Setup for image containment */
+    overflow: hidden; /* Hide parts of image that go outside the box */
+    display: flex; /* Helps center the image */
+    justify-content: center;
+    align-items: center;
+}
+
+/* ⭐ NEW: Style to make the image fit and cover the placeholder */
+.whats-new-div-placeholder .event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This is the key: it makes the image fill the container, cropping if necessary */
+    display: block; /* Removes any extra spacing */
+}
+
+/* Update the .updates-container to be the context for the slider */
+.updates-container {
+   background-color: var(--text-light);
+   padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    /* ⭐ NEW: Set to relative for absolute positioning of slider arrows */
+    position: relative; 
+    padding-bottom: 55px; /* Adjust padding for dots/navigation */
+}
+
+/* ⭐ NEW: Styling for the slider component */
+.event-slider {
+    position: relative;
+    width: 100%;
+    height: 350px; /* Fixed height for the event area */
+    margin-bottom: 20px;
+    overflow: hidden; /* Important: Hides slides not currently visible */
+    border-radius: 8px;
+}
+
+.slides-wrapper {
+    /* Set the wrapper to a width of 300% to hold 3 events (3 x 100%) */
+    width: 300%; 
+    height: 100%;
+    display: flex; /* Aligns slides horizontally */
+    transition: transform 0.5s ease-in-out; /* Smooth transition when sliding */
+}
+
+.event-slide {
+    height: 100%;
+    display: flex; /* To center content */
+    justify-content: center;
+    align-items: center;
+    background-color: #ccc;
+    flex-shrink: 0;
+}
+
+/* Style for the image inside the slide */
+.event-slide .event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Navigation Arrows */
+.slide-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    line-height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.slide-nav:hover {
+    opacity: 1;
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+/* Navigation Dots */
+.slide-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: #aaa;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dot.active {
+    background-color: var(--primary-color); /* Assuming you have a CSS variable for your primary color */
+}
+
+/* Remove the old placeholder style */
+.whats-new-div-placeholder {
+    display: none; /* Hide the old placeholder, its function is replaced by .event-slider */
+}
+
+/* ========================================= */
+/* --- Mobile Responsiveness (Media Query) --- */
+/* ========================================= */
+
+@media (max-width: 768px) {
+    
+    /* --- Global Adjustments --- */
+    body {
+        font-size: 14px;
+    }
+    
+    section {
+        padding: 60px 20px;
+        padding-top: 100px; /* Adjust header offset for smaller padding */
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    /* --- Navigation Bar --- */
+    .navbar {
+        padding: 10px 20px;
+        flex-direction: column; /* Stack header content vertically */
+        align-items: flex-start;
+    }
+    
+    .header-left {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .header-buttons {
+        /* Full width and centered links for better touch targets */
+        display: flex;
+        flex-wrap: wrap; /* Allow buttons to wrap to a new line */
+        justify-content: center;
+        width: 100%;
+    }
+
+    .header-buttons a {
+        margin: 5px 8px; /* Reduce margin to fit more links */
+        font-size: 0.7em;
+        padding: 1px 4px;
+    }
+
+    .login-btn {
+        width: 50px;
+        padding: 8px 15px;
+        margin: 5px 8px; /* Use same margin as other links */
+        font-size: 0.9em;
+    }
+
+    /* --- Home Section (Hero) --- */
+    .hero-section {
+        flex-direction: column; /* Stack content vertically */
+        text-align: center;
+        min-height: auto;
+        padding-top: 150px; /* Increased offset due to stacked header */
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 95%); /* Adjust clip path for less curve */
+        position: relative;
+    }
+    .hero-image-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0.35; /* optional: fade image behind text */
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 100%;
+        margin-left: 0;
+        padding-top: 20px;
+        padding-bottom: 30px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .hero-content h1,
+    .hero-content h2,
+    .hero-content p {
+        /* Shadow behind light text: 1px black shadow, slightly blurred */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 1); 
+    }
+    .hero-image-container {
+        max-width: 100%;
+        margin-right: 0;
+        padding-bottom: 50px;
+    }
+
+    .mlalaf-image {
+        width: 90%; /* Scale image down */
+        max-width: 400px;
+    }
+    
+    /* --- About Us Section --- */
+    .about-section {
+        margin-top: -5vh; /* Reduce overlap */
+        padding: 50px 20px;
+    }
+    
+    .about-content-box {
+        padding: 20px;
+        margin-top: 0;
+    }
+
+    /* --- Contact Us Section --- */
+    .contact-text-image {
+        flex-direction: column; /* Stack text and image */
+        margin-bottom: 30px;
+    }
+
+    .contact-text h2 {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .contact-text p {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .contact-image {
+        width: 100%; /* Full width */
+        height: auto;
+        margin-right: 0;
+    }
+
+    .contact-cards {
+        flex-direction: column; /* Stack cards vertically */
+        gap: 15px;
+    }
+
+    .contact-cards .card {
+        padding: 20px 15px;
+    }
+
+    .card-details {
+        min-height: auto; /* Allow height to collapse */
+    }
+
+    /* --- What's New Section --- */
+    .whats-new-content {
+        flex-direction: column; /* Stack the scholarship and updates sections */
+        gap: 20px;
+    }
+
+    .scholarship-info {
+        padding: 20px;
+    }
+
+    .updates-and-renewal {
+        min-width: auto;
+        min-height: auto;
+        gap: 20px;
+    }
+    
+    .updates-container {
+        margin-bottom: 0; /* Remove extra margin */
+        padding: 20px;
+    }
+
+    .renewal-info {
+        padding: 20px;
+    }
+
+    .event-slider {
+        height: 250px; /* Reduce slider height */
+    }
+
+    .slide-nav {
+        padding: 8px;
+        width: 35px;
+        height: 35px;
+        line-height: 19px;
+        font-size: 1.2em;
+    }
+
+    /* --- Footer --- */
+    footer {
+        flex-direction: column; /* Stack footer content */
+        text-align: center;
+        padding: 15px 20px;
+    }
+
+    .footer-links p {
+        display: block;
+        margin: 10px 0 5px 0;
+    }
+
+    .footer-policy {
+        margin-top: 10px;
+    }
+    
+    .footer-policy a {
+        display: block;
+        margin: 5px 0;
+    }
+    .application-button {
+        margin-bottom: 30px;
+    }
+}

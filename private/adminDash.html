@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="adminDash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="profile-container">
+                <img src="/images/default-profile-pic.png" alt="Profile Picture" class="profile-pic" id="profile-pic">
+                <div class="profile-info">
+                    <h1 class="dashboard-title">Admin Dashboard</h1>
+                    <span id="profileEmail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="menu-container">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="dropdown-menu" class="menu-dropdown">
+                    <a href="#" id="openProfileModalBtn" onclick="openModal('profileModal')">Profile Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="button-container" id="adminMenuButtons">
+            <button class="menu-btn" id="mainSemesterBtn">Semester</button>
+            <button class="menu-btn" id="reportBtn">Report</button>
+            <button class="menu-btn" id="churchBtn">Church</button>
+            <button class="menu-btn" id="openAccountModalBtn">Create Account</button>
+            <button class="menu-btn" id="violationManagementBtn">Violation Management</button>
+            <button class="menu-btn" id="mpManageBtn">Mainpage Management</button>
+            <button class="menu-btn" id="certBtn">Certificate</button>
+            <button class="menu-btn" id="requestBtn">Request</button>
+        </div>
+    </div>
+
+    <div id="modal-semester-initial" class="initial-semester-backdrop">
+        <div class="initial-semester-content">
+            <span class="close-initial-semester">&times;</span>
+            <h2>🚀 Initial Semester Setup</h2>
+            <p>It looks like no semester has been configured yet. Please set the **Semester Name** and **Upload the Scholars Excel File** to begin.</p>
+            
+            <form id="initialSemesterForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="semNameInput">Semester Name</label>
+                    <input type="text" id="semNameInput" name="semNameInput" placeholder="e.g., 1st Semester A.Y. 2024-2025" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scholarsFileInput">Upload Scholars (Excel)</label>
+                    <input type="file" id="scholarsFileInput" name="scholarsFile" accept=".xlsx, .xls" required>
+                </div>
+
+                <button type="submit" class="set-semester-btn" id="setSemesterBtn">Set Semester</button>
+            </form>
+            
+            <div id="semesterMessage" class="message-area"></div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Profile Settings</h2>
+            <img id="modalProfilePic" src="/images/default-profile-pic.png" alt="Profile Picture" class="modal-profile-pic">
+
+            <form id="uploadProfilePicForm" class="profile-form">
+                <label for="file-upload" class="custom-file-upload" id="chProfilePic">
+                    Change Profile Picture
+                </label>
+                <input id="file-upload" type="file" name="profilePicture" accept="image/*" required>
+                <button type="submit" class="submit-btn">Upload</button>
+            </form>
+
+            <form id="changeEmailForm" class="profile-form">
+                <label for="newEmail">Change Email:</label>
+                <input type="email" id="newEmail" name="newEmail" required>
+                <button type="submit" class="submit-btn">Update Email</button>
+            </form>
+
+            <form id="changePasswordForm" class="profile-form">
+                <label for="currentPassword">Current Password:</label>
+                <div class="password-container">
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('currentPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+
+                <label for="newPassword">New Password:</label>
+                <div class="password-container">
+                    <input type="password" id="newPassword" name="newPassword" required>
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+
+                <button type="submit" class="submit-btn">Update Password</button>
+            </form>
+        </div>
+    </div>
+    <div id="securityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('securityOtpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your registered email. Please enter it below.</p>
+            <form id="securityOtpForm">
+                <label for="securityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="otpAction" name="otpAction" value="">
+                <input type="hidden" id="otpData" name="otpData" value="">
+                
+                <input type="text" id="securityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="securityOtpMessage" class="message"></p>
+        </div>
+    </div>
+    <div id="mainSemesterModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('mainSemesterModal')">&times;</span>
+            <h2>Semester Management</h2>
+            <div class="semester-options-container">
+                <button class="menu-btn" id="currentSemesterBtn">Current Semester</button>
+                <button class="menu-btn" id="startNewSemesterOptionBtn">Start New Semester</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="otpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('otpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your admin email. Please enter it below.</p>
+            <form id="otpForm">
+                <label for="otpInput">Enter OTP:</label>
+                <input type="text" id="otpInput" name="otpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="otpMessage" class="message"></p>
+        </div>
+    </div>
+
+    <div id="newSemesterModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newSemesterModal')">&times;</span>
+            <h2>Start New Semester</h2>
+            <form id="newSemesterForm">
+                <label for="semName">Semester Name:</label>
+                <input type="text" id="semName" name="semName" required>
+
+                <label for="dateEnd">End Date:</label>
+                <input type="date" id="dateEnd" name="dateEnd" required>
+
+                <label for="gratis">Gratis:</label>
+                <input type="number" id="gratis" name="gratis" required>
+
+                <label for="fellowship">Fellowship:</label>
+                <input type="number" id="fellowship" name="fellowship" required>
+
+                <label for="penalty">Penalty:</label>
+                <input type="number" id="penalty" name="penalty" required>
+
+                <label for="sService">Sunday Service:</label>
+                <input type="number" id="sService" name="sService" required>
+
+                <button type="submit" class="submit-btn" id="setSemesterBtn">Set Semester Information</button>
+            </form>
+            <div id="semesterManagementContainer" class="hidden">
+                <div class="modal-section">
+                    <h3>Scholar Slot Management</h3>
+                    <div class="slot-summary-container">
+                        <strong>Current Slots: </strong><span id="slotSummary">Loading...</span>
+                    </div>
+
+                    <div class="form-group scholar-slot-row">
+                        <label for="scholarSlotInput">Set Total Scholar Slots</label>
+                        
+                        <div class="scholar-slot-controls">
+                            <input type="number" id="scholarSlotInput" min="0" required placeholder="Enter new slot count">
+                            
+                            <button class="submit-btn apply-btn" id="applyLastSlotBtn">Apply Last Slot</button>
+                            <button class="submit-btn" id="setScholarSlotBtn">Set Scholar Slot</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>Department Slot Management</h3>
+                    <div id="departmentList" class="department-list">
+                        </div>
+                    <div class="add-department-container">
+                        <button class="add-btn" id="showAddDeptFormBtn">Add Department</button>
+                        <form id="addDepartmentForm" class="hidden">
+                            <input type="text" id="newDeptName" placeholder="Department Name" required>
+                            <input type="number" id="newDeptSlot" placeholder="Scholar Slots" min="0" required>
+                            <button type="submit" class="submit-btn">Add</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h3>Church Schedule Management</h3>
+                    <div id="churchList" class="church-list">
+                    </div>
+                    <div class="add-church-container">
+                        <button class="add-btn" id="showAddChurchFormBtn">Add Church</button>
+                        <form id="addChurchForm" class="hidden">
+                        <input type="text" id="newChurchName" placeholder="Church Name" required>
+                        <button type="submit" class="submit-btn">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <button id="saveSemesterBtn" class="hidden">Set Semester</button>
+        </div>
+    </div>
+
+    <div id="currentSemesterInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('currentSemesterInfoModal')">&times;</span>
+            <h2>Current Semester Info</h2>
+            <form id="editSemesterForm">
+                <div class="modal-section">
+                    <h3>Semester Information</h3>
+                    <p><strong>Semester Name:</strong> <span id="currentSemName"></span></p> 
+                    <p><strong>Date Start:</strong> <span id="currentDateStart"></span></p>
+                    <p><strong>Date End:</strong> <span id="currentDateEnd"></span></p>
+                    <p><strong>Gratis:</strong> <span id="currentGratis"></span></p>
+                    <p><strong>Fellowship:</strong> <span id="currentFellowship"></span></p>
+                    <p><strong>Penalty:</strong> <span id="currentPenalty"></span></p>
+                    <p><strong>Sunday Service:</strong> <span id="currentSService"></span></p>
+                    <div class="button-list">
+                        <button type="button" class="modal-btn" id="extendSemesterBtn">Extend Semester</button>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Scholar Slot Management</h3>
+                    <p><strong>Total Scholar Slot:</strong> <input type="number" id="currentScholarSlot" class="editable" disabled></p>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>Department Management</h3>
+                    <div id="currentDeptList"></div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Church Management</h3>
+                    <div id="currentChurchList"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="extendSemesterModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('extendSemesterModal')">&times;</span>
+            <h2>Extend Semester End Date</h2>
+            <form id="extendSemesterForm">
+                <label for="newEndDate">New End Date:</label>
+                <input type="date" id="newEndDate" name="newEndDate" required>
+                <button type="submit" class="submit-btn">Extend Semester</button>
+            </form>
+        </div>
+    </div>
+    
+    <!--CREATE ACCOUNT-->
+    <div id="accountOtpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('accountOtpModal')">&times;</span>
+            <h2 id="accountOtpModalTitle">Verify Account Creation OTP</h2>
+            <form id="accountOtpForm">
+                <p>An OTP has been sent to your email. Please enter it below.</p>
+                <input type="text" id="accountOtpInput" placeholder="Enter OTP" required>
+                <button type="submit" id="verify-account-otp">Verify OTP</button>
+            </form>
+            <p id="accountOtpMessage" class="message"></p>
+        </div>
+    </div>
+    <div id="createAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createAccountModal')">&times;</span>
+            <h2>Create New Account</h2>
+            <form id="createAccountForm">
+                <label for="surname">Surname:</label>
+                <input type="text" id="surname" name="surname" required>
+
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="firstname" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                </select>
+
+                <div id="churchSelectContainer" style="display: none;">
+                    <label for="church">Church:</label>
+                    <select id="church" name="church">
+                        <option value="">Select Church</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+            
+            <hr style="margin: 20px 0;">
+            <p style="text-align: center;">Or</p>
+            <form id="multipleAccountForm" enctype="multipart/form-data">
+                <button type="button" class="submit-btn" id="uploadExcelBtn">Create Multiple Accounts</button>
+                <input type="file" id="excelFileInput" name="excelFile" accept=".xlsx, .xls" style="display: none;">
+            </form>
+
+        </div>
+    </div>
+    <div id="violationOtpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('violationOtpModal')">&times;</span>
+            <h2 id="violationOtpModalTitle">Verify Violation Management OTP</h2>
+            <form id="violationOtpForm">
+                <p>An OTP has been sent to your email. Please enter it below to access Violation Management.</p>
+                <input type="text" id="violationOtpInput" placeholder="Enter OTP" required>
+                <button type="submit" id="verify-violation-otp">Verify OTP</button>
+            </form>
+            <p id="violationOtpMessage" class="message"></p>
+        </div>
+    </div>
+
+    <div id="violationLogModal" class="modal">
+        <div class="modal-content large-modal"> <span class="close" onclick="closeModal('violationLogModal')">&times;</span>
+            <h2>Violation Management Log</h2>
+            <div class="violation-controls">
+                <select id="violationDateFilter">
+                    <option value="">DATE</option>
+                    </select>
+                <input type="text" id="violationNameSearch" placeholder="Enter Full Name">
+                <button id="violationSearchBtn">Search</button>
+            </div>
+            
+            <div class="violation-data-container">
+                <div class="violation-header row">
+                    <div class="col-name">Name</div>
+                    <div class="col-reason">Violation Reason</div>
+                    <div class="col-validator">Assigned Validator Name</div>
+                    <div class="col-action">Action</div>
+                </div>
+
+                <div id="violationLogBody">
+                    <p>Loading violations...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="churchModal" class="modal-fellowship" style="display:none;">
+        <div class="modal-fellowship-content large-modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Fellowship Management</h2>
+
+            <div class="new-fellowship-controls">
+                <input type="text" id="fellowshipTitle" placeholder="type the title or topic">
+                <select id="selectChurch" required>
+                    <option value="">Select Church</option>
+                    </select>
+                <select id="typeOfFellowship" required>
+                    <option value="">type of fellowship</option>
+                    <option value="fellowship">Fellowship</option>
+                    <option value="Grand Fellowship">Grand Fellowship</option>
+                </select>
+                <input type="date" id="selectDate" required>
+                <input type="time" id="selectTimeStart" required>
+                <button class="add-btn" id="addFellowshipBtn">Add Fellowship</button>
+            </div>
+            
+            <hr>
+
+            <div id="fellowshipsList" class="fellowship-list-container">
+                <div class="fellowship-header-row">
+                    <span style="flex: 2;">Title or Topic</span>
+                    <span style="flex: 1.5;">Church name</span>
+                    <span style="flex: 1.5;">Fellowship Type</span>
+                    <span style="flex: 1;">Date</span>
+                    <span style="flex: 1;">Time Start</span>
+                    <span style="flex: 1;">Action</span>
+                </div>
+                </div>
+
+        </div>
+    </div>
+
+    <div id="changeDateModal" class="modal-change-date" style="display:none;">
+        <div class="modal-change-date-content small-modal-content">
+            <span class="close-btn-change">&times;</span>
+            <h2>Change Fellowship Date/Time</h2>
+            <input type="hidden" id="fellowshipToUpdateId">
+            <label for="newDate">New Date:</label>
+            <input type="date" id="newDate" required>
+            <label for="newTime">New Time:</label>
+            <input type="time" id="newTime" required>
+            <button class="save-btn" id="saveNewDateTimeBtn">Save Changes</button>
+        </div>
+    </div>
+    
+    <div id="requestModal" class="modal-request">
+        <div class="modal-content-request">
+            <span class="close-btn-request">&times;</span>
+            <h2>Fellowship Absent Request</h2>
+            
+            <div id="requestListContainer">
+                </div>
+
+            <div id="requestDetailContainer" style="display: none;">
+                
+                <div class="detail-header">
+                    <h3 id="detailName">Name</h3>
+                </div>
+                
+                <div class="detail-body">
+                    <p><strong>Fellowship Date:</strong> <span id="detailFellowshipDate"></span></p>
+                    <div class="reason-box">
+                        <strong>Reason</strong>
+                        <p id="detailReason"></p>
+                    </div>
+                </div>
+                
+                <div class="detail-actions">
+                    <button class="action-btn accept-btn" id="acceptBtn">ACCEPT</button>
+                    <button class="action-btn reject-btn" id="rejectBtn">REJECT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="mp-manage-modal" class="custom-modal" style="display:none;">
+        <div class="custom-modal-content event-manage-modal-content">
+            <span class="close-btn" onclick="closeCustomModal('mp-manage-modal')">&times;</span>
+            <h2>Event Management</h2>
+
+            <div class="control-group">
+                <div class="control-item">
+                    <label for="renewalSwitch">Renewal Status:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="renewalSwitch">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="renewalStatusText" class="switch-status">OFF</span>
+                </div>
+                <div class="control-item">
+                    <label for="applicationSwitch">Application Status:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="applicationSwitch">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="applicationStatusText" class="switch-status">OFF</span>
+                </div>
+            </div>
+
+            <button class="action-btn primary-action-btn" id="addEventBtn">Add Event</button>
+
+            <div class="event-list-container">
+                <h3>Posted Events</h3>
+                <div class="event-table-header">
+                    <div class="header-cell title-cell">Title/Topic</div>
+                    <div class="header-cell date-cell">Date</div>
+                    <div class="header-cell link-cell">Link</div>
+                    <div class="header-cell recipient-cell">Recipients</div>
+                    <div class="header-cell price-cell">Price (Hrs)</div>
+                    <div class="header-cell actions-cell">Actions</div>
+                </div>
+                <div id="eventListBody" class="event-table-body">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="modal-event-post" class="custom-modal" style="display:none;">
+        <div class="custom-modal-content event-post-modal-content">
+            <span class="close-btn" onclick="closeCustomModal('modal-event-post')">&times;</span>
+            <h2>Event Posting</h2>
+            <form id="eventPostForm">
+                <label for="eventTitle">Event Title:</label>
+                <input type="text" id="eventTitle" name="eventTitle" required maxlength="255">
+
+                <label for="eventDate">Event Date:</label>
+                <input type="date" id="eventDate" name="eventDate" required>
+
+                <label for="eventDescription">Event Description:</label>
+                <textarea id="eventDescription" name="eventDescription" required></textarea>
+
+                <label for="eventPrice">Event Price (Hours):</label>
+                <input type="number" id="eventPrice" name="eventPrice" min="1" max="8" required>
+
+                <label for="eventLink">Event Link (URL):</label>
+                <input type="url" id="eventLink" name="eventLink" required>
+
+                <label for="eventImage">Upload Image (JPG/PNG):</label>
+                <input type="file" id="eventImage" name="eventImage" accept="image/jpeg,image/png" required>
+
+                <label for="eventReceiver">Max Recipients:</label>
+                <input type="number" id="eventReceiver" name="eventReceiver" min="1" required>
+
+                <div class="form-submit-container">
+                    <button type="submit" class="action-btn primary-action-btn">Upload Post & Email Scholars</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-send-price" class="custom-modal" style="display:none;">
+        <div class="custom-modal-content send-price-modal-content">
+            <span class="close-btn" onclick="closeCustomModal('modal-send-price')">&times;</span>
+            <h2>Send Price/Duty Hours</h2>
+            <p>Event: <strong id="sendPriceEventTitle"></strong></p>
+            <p>Reward: <strong id="sendPriceEventHours"></strong> hours</p>
+            <form id="sendPriceForm">
+                <input type="hidden" id="currentEventId" name="currentEventId">
+                <label for="scholarNameSearch">Scholar Name (Surname, Firstname):</label>
+                <input type="text" id="scholarNameSearch" name="scholarNameSearch" placeholder="e.g., Dela Cruz, Juan" required>
+                <button type="button" class="action-btn secondary-action-btn" id="searchScholarBtn">Search Scholar</button>
+            </form>
+
+            <div id="scholarSearchResults" class="search-results-container">
+                </div>
+        </div>
+    </div>
+    
+    <div id="Modal-cert" class="modal-signature">
+        <div class="modal-content-signature">
+            <span class="close-signature">&times;</span>
+            <h2>Signature Upload for Certificates</h2>
+            <form id="signatureUploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="fullNameInput">Full Name:</label>
+                    <input type="text" id="fullNameInput" name="fullname" required
+                        pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed">
+                    <small>Only letters and spaces are allowed.</small>
+                </div>
+                <div class="form-group">
+                    <label for="signatureFileInput">Upload Signature (PNG only):</label>
+                    <input type="file" id="signatureFileInput" name="signature" accept="image/png" required>
+                </div>
+                <button type="submit" id="saveSignatureBtn">Save Signature</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-report" class="modal-report">
+        <div class="modal-content-report">
+            <span class="modal-exit">&times;</span>
+            <div class="report-header">REPORT</div>
+
+            <div class="slides-wrapper">
+                <button class="slide-nav-arrow" id="slide-arrow-left" style="display: none;">&lt;</button>
+
+                <div class="slides-container" id="slides-container">
+                    <div class="report-slide" id="slide1">
+                        <div class="slide-title">1st slide: Total Applicants per Semester</div>
+                        <button class="download-img-btn" data-slide="slide1">DOWNLOAD</button>
+                        <div class="chart-container">
+                            <canvas id="semester-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-slide" id="slide2">
+                        <div class="slide-title">2nd slide: Scholars per Schedule Day (Current Sem)</div>
+                        <button class="download-img-btn" data-slide="slide2">DOWNLOAD</button>
+                        <div class="chart-container">
+                            <canvas id="schedule-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-slide" id="slide3">
+                        <div class="slide-title">3rd Slide: Weekly Late Gratis Logs (Last 6 Weeks)</div>
+                        <button class="download-img-btn" data-slide="slide3">DOWNLOAD</button>
+                        <div class="chart-container">
+                            <canvas id="late-gratis-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-slide" id="slide4">
+                        <div class="slide-title">4th slide: Top 5 Scholars by Total Duty</div>
+                        <button class="download-img-btn" data-slide="slide4">DOWNLOAD</button>
+                        <div class="chart-container">
+                            <canvas id="top-duty-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="slide-nav-arrow" id="slide-arrow-right">&gt;</button>
+            </div>
+            
+            <div class="report-tabs">
+                <button class="report-tab-btn active" data-tab="department">Department</button>
+                <button class="report-tab-btn" data-tab="church">Church</button>
+                <button class="report-tab-btn" data-tab="fellowship">Fellowship</button>
+                <button class="report-tab-btn" data-tab="semester">Semester</button>
+            </div>
+
+            <div class="text-report-content" id="text-report-content">
+                <button id="downloadDocsBtn" style="display:none;">download as docs</button>
+                <div id="department-report" class="report-view active">
+                    <p>Loading Department Report...</p>
+                </div>
+                <div id="church-report" class="report-view" style="display:none;">
+                    <p>Loading Church Report...</p>
+                </div>
+                <div id="fellowship-report" class="report-view" style="display:none;">
+                    <p>Fellowship report not yet implemented.</p>
+                </div>
+                <div id="semester-report" class="report-view" style="display:none;">
+                    <p>Semester report not yet implemented.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="adminDash.js"></script>
+</body>
+</html>

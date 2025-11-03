@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Church Personnel Dashboard</title>
+    <link rel="stylesheet" href="chPersonnelDash.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="profile-container">
+                <img src="/images/default-profile-pic.png" alt="Profile Picture" class="profile-pic" id="profile-pic">
+                <div class="profile-info">
+                    <h1 class="dashboard-title">Church Personnel Dashboard</h1> <!-- Change this title per dashboard -->
+                    <span id="profileEmail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="menu-container">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="dropdown-menu" class="menu-dropdown">
+                    <a href="#" id="openProfileModalBtn" onclick="openModal('profileModal')">Profile Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="profile-modal-backdrop">          
+        <div class="profile-modal-content-unique">       
+            <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Profile Settings</h2>
+            <div class="profile-modal-grid"> 
+                <div class="profile-info-column">
+                    <img id="modalProfilePic" src="/images/default-profile-pic.png" alt="Profile Picture" class="modal-profile-pic">
+
+                    <form id="uploadProfilePicForm" class="profile-form">
+                        <label for="file-upload" class="custom-file-upload" id="chProfilePic">
+                            Change Profile Picture
+                        </label>
+                        <input id="file-upload" type="file" name="profilePicture" accept="image/*" required>
+                        <button type="submit" class="submit-btn">Upload</button>
+                    </form>
+                </div>
+
+                <div class="form-column">
+
+                    <form id="changeEmailForm" class="profile-form">
+                        <label for="newEmail">Change Email:</label>
+                        <input type="email" id="newEmail" name="newEmail" required>
+                        <button type="submit" class="submit-btn">Update Email</button>
+                    </form>
+
+                    <form id="changePasswordForm" class="profile-form">
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('currentPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <label for="newPassword">New Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="newPassword" name="newPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Update Password</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="securityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('securityOtpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your registered email. Please enter it below.</p>
+            <form id="securityOtpForm">
+                <label for="securityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="otpAction" name="otpAction" value="">
+                <input type="hidden" id="otpData" name="otpData" value="">
+                
+                <input type="text" id="securityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="securityOtpMessage" class="message"></p>
+        </div>
+    </div>
+    <div id="successPopup" class="success-popup">
+        <div class="success-popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <p id="successMessage"></p>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div id="qrScannerModal" class="qr-scanner-backdrop">
+        <div class="modal-content scanner-content">
+            <span class="close-btn" onclick="closeModal('qrScannerModal')">&times;</span>
+            <h2>QR Code Scanner</h2>
+            <div class="scanner-viewport-container">
+                <video id="qr-video" class="qr-video-feed"></video>
+                <div class="scanner-overlay">
+                    <div class="scanner-guide"></div>
+                </div>
+            </div>
+            <p id="scanner-status" class="status-message">
+                Please grant camera access and center a QR code.
+            </p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="button-container">
+            <button class="menu-btn" id="scannerBtn" onclick="openModal('qrScannerModal')">Scanner</button>
+            <button class="menu-btn" id="manualBtn" onclick="openModal('manualSearchModal')">Manual Recording</button>
+            <button class="menu-btn" id="recordsBtn">Records</button>
+        </div>
+    </div>
+    <div id="scholarInfoModal" class="scholar-info-backdrop">
+        <div class="modal-content info-content">
+            <span class="close-btn" onclick="closeModal('scholarInfoModal')">&times;</span>
+            
+            <div class="scholar-profile-card">
+                <div class="profile-pic-container">
+                    <img id="scholarProfilePic" src="placeholder.png" alt="Profile" class="profile-pic-large">
+                </div>
+                <h3 id="scholarName" class="name-text">NAME</h3>
+                <p class="role-text">Scholar</p>
+                <p id="scholarSemester" class="semester-text">Current Semester Name(datestart)</p>
+            </div>
+
+            <div id="requestRow" class="info-row status-row">
+                <p id="requestStatusText">Request: Already Scanned/Not</p>
+            </div>
+            <div id="scheduleRow" class="info-row">
+                <p id="scheduleText">Schedule: Sched Description</p> 
+            </div>
+            <div id="departmentRow" class="info-row">
+                <p id="departmentText">Department: Dept Name</p>
+            </div>
+            <div id="churchRow" class="info-row status-row conditional-bg">
+                <p id="churchText">Church: Church Name</p>
+            </div>
+            
+            <select id="typeOfFellowshipSelect" class="dropdown-select">
+                <option value="" disabled selected>Type of Fellowship</option>
+            </select>
+
+            <button class="record-btn" onclick="recordAttendance()">RECORD</button>
+        </div>
+    </div>
+    <div id="manualSearchModal" class="manual-search-backdrop">
+        <div class="modal-content info-content manual-search-content">
+            <span class="close-btn" onclick="closeModal('manualSearchModal')">&times;</span>
+
+            <h2 style="color: #00BFFF; margin-bottom: 25px;">Manual Attendance Recording</h2>
+
+            <div class="search-form-container">
+                <input type="text" id="manualSurname" placeholder="Scholar Surname" required class="manual-input">
+                <input type="text" id="manualFirstname" placeholder="Scholar Firstname" required class="manual-input">
+                <button id="manualSearchBtn" class="record-btn manual-search-btn-override">Search Scholar</button>
+            </div>
+
+            <div id="manualSearchResults" class="manual-results-area">
+                <p id="manualSearchStatus" class="status-message">Enter the scholar's full name to manually search and record attendance.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordsModal" class="modal modal-records">
+        <div class="modal-content info-content records-content">
+            <span class="close-btn" onclick="closeModal('recordsModal')">&times;</span>
+            <h2 style="color: #00BFFF; margin-bottom: 25px;">Attendance Records</h2>
+            
+            <div class="records-filter-container">
+                <input type="date" id="recordsDatePicker" class="date-input" style="width: 150px;">
+                <input type="text" id="recordsNameSearch" placeholder="Enter Full Name" class="manual-input" style="flex-grow: 1;">
+            </div>
+
+            <div id="recordsList" class="records-list-area">
+                <div class="record-row header-row">
+                    <span class="record-col name-col">Name</span>
+                    <span class="record-col church-col">Church</span>
+                    <span class="record-col status-col">Status</span>
+                </div>
+                <p id="recordsStatus" class="status-message" style="text-align: center; padding: 20px;">Select a date to view records.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <script src="chPersonnelDash.js"></script>
+</body>
+</html>

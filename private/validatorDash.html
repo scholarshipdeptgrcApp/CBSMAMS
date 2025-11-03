@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Validator Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="validatorDash.css">
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="profile-container">
+                <img src="/images/default-profile-pic.png" alt="Profile Picture" class="profile-pic" id="profile-pic">
+                <div class="profile-info">
+                    <h1 class="dashboard-title">Scholar Personnel Dashboard</h1>
+                    <span id="profileEmail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="menu-container">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="dropdown-menu" class="menu-dropdown">
+                    <a href="#" id="openProfileModalBtn" onclick="openModal('profileModal')">Profile Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="profileModal" class="profile-modal-backdrop">          
+        <div class="profile-modal-content-unique">      
+            <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Profile Settings</h2>
+            <div class="profile-modal-grid"> 
+                <div class="profile-info-column">
+                    <img id="modalProfilePic" src="/images/default-profile-pic.png" alt="Profile Picture" class="modal-profile-pic">
+
+                    <form id="uploadProfilePicForm" class="profile-form">
+                        <label for="file-upload" class="custom-file-upload" id="chProfilePic">
+                            Change Profile Picture
+                        </label>
+                        <input id="file-upload" type="file" name="profilePicture" accept="image/*" required>
+                        <button type="submit" class="submit-btn">Upload</button>
+                    </form>
+                </div>
+
+                <div class="form-column">
+
+                    <form id="changeEmailForm" class="profile-form">
+                        <label for="newEmail">Change Email:</label>
+                        <input type="email" id="newEmail" name="newEmail" required>
+                        <button type="submit" class="submit-btn">Update Email</button>
+                    </form>
+
+                    <form id="changePasswordForm" class="profile-form">
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('currentPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <label for="newPassword">New Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="newPassword" name="newPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Update Password</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="securityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('securityOtpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your registered email. Please enter it below.</p>
+            <form id="securityOtpForm">
+                <label for="securityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="otpAction" name="otpAction" value="">
+                <input type="hidden" id="otpData" name="otpData" value="">
+                
+                <input type="text" id="securityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="securityOtpMessage" class="message"></p>
+        </div>
+    </div>
+    <div id="avbl-slot-container">
+        <div id="avbl-slot">
+            Available Slot: <span id="avbl-slot-number"></span>
+        </div>
+    </div>
+    
+    <div class="main-content" id="applicant-main-content">
+        
+        <div class="request-card-container" id="request-card-container">
+            <div class="request-card">
+                <p class="remaining-count" id="remaining-count"></p>
+                <h2 class="request-number" id="request-number">Loading...</h2>
+                <p class="request-type" id="request-type-label"></p>
+                <button class="validate-btn" id="validate-btn">VALIDATE</button>
+            </div>
+            
+        </div>
+        <div id="no-requests-message" class="hidden">
+            <h2>No pending requests at this time.</h2>
+            <p>Please check back later.</p>
+        </div>
+    </div>
+
+    <div id="detailsModal" class="details-modal-backdrop">
+        <div class="details-modal-content large-modal">
+            <span class="close-btn" id="closeDetailsModalBtn">&times;</span>
+            <div id="details-content">
+            </div>
+            <div class="validation-actions">
+                <button class="accept-btn" id="acceptBtn">Accept</button>
+                <button class="reject-btn" id="rejectBtn">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="reject-modal-backdrop">
+        <div class="reject-modal-content small-modal">
+            <span class="close-btn" id="closeRejectModalBtn">&times;</span>
+            <h2>Reject Request</h2>
+            <form id="rejectForm">
+                <div class="rejection-options">
+                    <p class="section-title">Invalid Documents:</p>
+                    <div class="checkbox-container" id="reject-docs-container">
+                        </div>
+                </div>
+                <div class="rejection-options">
+                    <label for="rejectionCategory">Rejection Category:</label>
+                    <select id="rejectionCategory" name="rejectionCategory">
+                        <option value="invalid_documents">Invalid Documents</option>
+                        <option value="not_qualified_renewer">Not Qualified Applicant</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="rejection-options">
+                    <label for="rejectRemarks">Remarks (Reason for rejection, required):</label>
+                    <textarea id="rejectRemarks" name="remarks" rows="5" placeholder="Please provide a detailed reason for the rejection..."></textarea>
+                </div>
+                <button type="submit" class="reject-btn">Reject Request</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="imageZoomModal" class="zoom-modal-backdrop">
+        <span class="close-btn" id="closeImageZoomBtn">&times;</span>
+        <img id="zoomedImage" class="modal-image">
+    </div>
+
+    
+
+    <div id="successPopup" class="success-popup">
+        <div class="success-popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <p id="successMessage"></p>
+        </div>
+    </div>
+
+    <script src="validatorDash.js"></script>
+</body>
+</html>

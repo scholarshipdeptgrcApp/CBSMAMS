@@ -1,0 +1,800 @@
+/* --- Global Styles & Layout --- */
+body {
+    /* Set body and html to 100% height to allow content to fill */
+    height: 100vh;
+    display: flex; /* Stack header and main-content vertically */
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f9;
+    color: #333;
+}
+
+.form-submit-container {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #2A324A;
+    border-bottom: 1px solid #00BFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00BFFF;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#profileEmail {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: -5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger div {
+    width: 100%;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #2A324A;
+    min-width: 180px;
+    box-shadow: 0 4px 12px #00BFFF;
+    z-index: 100;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+    color: #2A324A;
+    background-color: #f5f5f5;
+}
+
+.show-menu {
+    display: block;
+}
+
+
+
+.main-content {
+    /* Use padding to create space from the edges, but let the content inside stretch */
+    padding: 40px; 
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-grow: 1; /* Makes main-content fill ALL remaining vertical space */
+    width: 100%; /* Important: Use full width before padding is applied */
+    box-sizing: border-box; /* Include padding in the element's total size */
+    background-color: #1A2035;
+}
+
+.button-container {
+    /* 🌟 KEY CHANGE: Using Flexbox to center the single button */
+    display: flex;
+    justify-content: center; /* Horizontally center the content (the button) */
+    align-items: center;  /* Vertically center the content (the button) */
+    
+    width: 100%; /* Fill the full width of .main-content */
+    height: 100%; /* Fill the full height of .main-content */
+    /* Removed grid properties */
+}
+.menu-btn {
+    /* 🌟 KEY CHANGE: Set a fixed size for the single, centered button */
+    width: 450px; 
+    height: 350px; /* Use a fixed size instead of 100% of the previous grid cell */
+    
+    border: none;
+    border-radius: 12px;
+    background-color: #2A324A;
+    color: #FFFFFF;
+    font-size: 25px; /* Increased font size for prominence */
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Center text inside the button */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    margin-left: 20px;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px #00BFFF;
+}
+
+/* --- Media Query for Responsiveness --- */
+@media (max-width: 900px) {
+    /* Removed grid-template-columns: repeat(2, 1fr); as it's not a grid anymore */
+}
+
+@media (max-width: 600px) {
+    /* On mobile screens, stack them in 1 column */
+    
+    .main-content {
+        /* Align to the top on smaller screens to prevent content stretching off-screen */
+        align-items: flex-start;
+        padding: 20px; /* Reduce padding on mobile */
+    }
+    .menu-btn{
+        width: 90%; /* Let it be wide, but not full screen (respect padding) */
+        height: 120px;
+    }
+}
+/*goods*/
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Profile Modal: Dark Theme and New Layout Styles --- */
+.modal-content {
+    background-color: #2A324A; /* Dark background matching the header and buttons */
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 16px; /* Slightly larger radius */
+    /* New box-shadow using the accent color for a modern glow */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    width: 850px;
+    max-width: 95%;
+    position: relative;
+    color: #E0E0E0; /* Light text color */
+}
+
+
+
+
+/* Update Modal Headings */
+.modal-content h2,
+.modal-content h3,
+.modal-content h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Update Close button */
+.close {
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #ffffff;
+}
+
+/* New Grid for Profile Layout */
+.profile-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* 1/3 for profile info, 2/3 for forms */
+    gap: 30px;
+}
+
+.profile-info-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+    text-align: center;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Original form style modified for dark mode */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.profile-form {
+    background-color: #1A2035; /* Even darker background for form sections */
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 0; /* Managed by form-column gap */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+}
+
+.profile-form label {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+#currentSemesterBtn, #startNewSemesterOptionBtn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 15px;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+#currentSemesterBtn:hover, #startNewSemesterOptionBtn:hover{
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+} 
+
+/* Update Submit Buttons for Accent Color */
+.submit-btn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+/* Update Submit Buttons for Accent Color */
+#saveSemesterBtn, #extendSemesterBtn, #verify-account-otp, #verify-violation-otp, #chProfilePic, #showAddDeptFormBtn, #showAddChurchFormBtn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 15px;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+.submit-btn:hover, #saveSemesterBtn:hover, #extendSemesterBtn:hover, #verify-account-otp:hover, #verify-violation-otp,#showAddDeptFormBtn:hover, #showAddChurchFormBtn:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+
+
+
+
+
+
+/* Update Input Styles for Dark Mode */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672; /* Darker border */
+    background-color: #3C4560; /* Dark input background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Update File Upload Button */
+.custom-file-upload {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 10px; /* Space between label and file input */
+}
+
+.custom-file-upload:hover {
+    background-color: #4CC4FF;
+}
+
+
+#file-upload {
+    display: none;
+}
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+
+
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    position: relative;
+}
+
+.popup-content.success {
+    border-left: 5px solid #4CAF50;
+}
+
+.close-popup {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+}
+
+.close-popup:hover,
+.close-popup:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#successMessage {
+    color: #333;
+    font-size: 1.1em;
+}
+
+
+/* Update Profile Picture styling */
+.modal-profile-pic {
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    display: block; 
+    margin: 0 auto 20px auto; 
+    border: 3px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.7); 
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* --- Mobile Responsiveness for Modal Layout --- */
+@media (max-width: 768px) {
+    .profile-modal-grid {
+        grid-template-columns: 1fr; /* Stack columns on mobile */
+        gap: 15px;
+    }
+    .modal-profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+    .modal-content {
+        padding: 20px;
+        margin: 20px auto;
+    }
+    .profile-info-column .profile-form {
+        flex-direction: row; /* Make file upload horizontal on mobile */
+        gap: 10px;
+        align-items: center;
+        padding: 15px;
+    }
+    .profile-info-column .custom-file-upload {
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    .profile-info-column .submit-btn {
+        margin-top: 0;
+        width: auto;
+    }
+}
+
+/* --- Modal Backdrop and Centering (CORRECTED) --- */
+
+/* --- Modal Backdrop (Only needed for full screen overlay) --- */
+.modal-security-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Allows scrolling if content is taller than viewport */
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+    /* REMOVE display: flex; here */
+}
+
+/* --- Modal Content Container (FIXED FOR CENTERING) --- */
+.modal-content-security {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* 🚀 KEY CENTERING FIX: */
+    position: fixed; /* 1. Position relative to the viewport */
+    top: 50%;        /* 2. Push down 50% from the top */
+    left: 50%;       /* 3. Push right 50% from the left */
+    transform: translate(-50%, -50%); /* 4. Shift back by half its own size */
+    
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+
+
+/* --- Heading and Text Styles --- */
+.modal-content-security h2 {
+    color: #00BFFF; /* Bright blue for the heading */
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    /* Separator line beneath the heading */
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.modal-content-security p {
+    color: #CCCCCC; /* Light gray text for readability */
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px; /* Slight padding to keep text off the edge */
+}
+
+/* --- Close Button --- */
+.modal-content-security .close {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-content-security .close:hover {
+    color: #00BFFF; /* Bright blue on hover */
+}
+
+/* --- Form and Input Styles --- */
+#securityOtpForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+#securityOtpForm label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -5px; /* Adjust spacing */
+}
+
+#securityOtpInput {
+    /* Dark input background */
+    background-color: #0F1E30; 
+    color: #FFFFFF; /* White text for contrast */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF; /* Blue border */
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 4px; 
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#securityOtpInput:focus {
+    border-color: #00FFFF; /* Lighter blue on focus */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7); /* Stronger glow on focus */
+    outline: none;
+}
+
+/* --- Verify Button --- */
+.submit-btn {
+    /* Full width, bright blue button to match the image */
+    background-color: #00BFFF; 
+    color: #1A2E44; /* Dark text on bright button */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #00FFFF; /* Brighter on hover */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.submit-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Message Area --- */
+#securityOtpMessage {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #00BFFF; /* Blue text for informational messages */
+}
+
+/* --- Admin Modal Base Styles (You may need to define .modal-content, .modal, etc., if not already present) --- */
+.create-admin-modal .modal-content, 
+.admin-account-modal .modal-content {
+    background-color: #1A2E44; /* Dark blue background */
+    margin: 10% auto;
+    padding: 30px;
+    border: 1px solid #00BFFF;
+    width: 90%;
+    max-width: 900px;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 191, 255, 0.2);
+}
+
+.create-admin-modal h2, 
+.admin-account-modal h2 {
+    color: #00BFFF;
+    border-bottom: 2px solid rgba(0, 191, 255, 0.3);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    text-align: center;
+}
+
+/* --- Form Group Styling (for Create Admin Modal) --- */
+.create-admin-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.create-admin-modal label {
+    display: block;
+    color: #CCCCCC;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.create-admin-modal input[type="text"],
+.create-admin-modal input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #0F1E30;
+    border: 1px solid #00BFFF;
+    border-radius: 5px;
+    color: #FFFFFF;
+    box-sizing: border-box;
+}
+
+/* --- Table Styles (for Admin Accounts Modal) --- */
+.admin-account-modal .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+#adminAccountsTable {
+    width: 100%;
+    border-collapse: collapse;
+    color: #CCCCCC;
+}
+
+#adminAccountsTable th, 
+#adminAccountsTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3);
+}
+
+#adminAccountsTable th {
+    background-color: #0F1E30;
+    color: #00FFFF;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+/* --- Status Switch Styling --- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #00BFFF; /* Active/Checked color */
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #00BFFF;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}

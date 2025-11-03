@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Application Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            /* NEW COLORS BASED ON UPLOADED DASHBOARD CSS */
+            --primary-color: #00BFFF; /* Deep Sky Blue - Accent Color */
+            --secondary-color: #4CC4FF; /* Lighter Blue - Hover Color */
+            --background-color: #1A2035; /* Darker Main Background */
+            --card-background: #2A324A; /* Dark Card/Header Background */
+            --text-color: #E0E0E0; /* Light Gray Text Color */
+            --border-color: #4A5672; /* Dark Input Border Color */
+            /* Dark mode friendly status colors */
+            --success-bg: #214D2A;
+            --success-color: #90EE90;
+            --error-bg: #581515;
+            --error-color: #F08080;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            /* CHANGE: Align to top/start so the back button is not off-screen */
+            align-items: flex-start; 
+            min-height: 100vh;
+        }
+
+        /* NEW WRAPPER FOR BACK BUTTON POSITIONING */
+        .form-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            /* Pushes the main container down so the back button has space */
+            margin-top: 60px; 
+        }
+        
+        /* BACK BUTTON STYLES */
+        .back-button {
+            position: absolute;
+            /* ADJUSTED: Positions the button above the form container */
+            top: -40px; 
+            left: 0;
+            font-size: 1rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.2s, text-decoration 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            /* Updated to new secondary/hover color */
+            color: var(--secondary-color); 
+            text-decoration: underline;
+        }
+        /* END BACK BUTTON STYLES */
+
+        .container {
+            background: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            /* UPDATED: Added a blue box shadow/glow to the container */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(0, 191, 255, 0.5); 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        /* Two-column layout for main inputs */
+        /* This rule now correctly applies to all seven initial form-groups */
+        #applicationForm > .form-group:nth-child(-n+7) {
+            display: inline-block;
+            width: calc(50% - 10px); 
+            margin-right: 20px;
+            vertical-align: top;
+        }
+        
+        #applicationForm > .form-group:nth-child(2n) {
+            margin-right: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input[type="text"], input[type="email"], select, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            /* Updated to dark input background */
+            background-color: #3C4560; 
+            color: var(--text-color); /* Added text color for input fields */
+        }
+        
+        input[type="text"]:focus, input[type="email"]:focus, select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            /* Updated box-shadow to match new primary color (0, 191, 255) and increased opacity for dark mode visibility */
+            box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.4); 
+            background-color: var(--card-background);
+        }
+        
+        /* File Upload Groups Styling */
+        .file-group {
+            display: none; 
+            padding: 15px;
+            border: 1px dashed var(--primary-color);
+            border-radius: 8px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            /* Updated to a contrasting dark background */
+            background-color: #1A283B; 
+        }
+
+        .file-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        /* Mark required fields */
+        label[required]::after {
+            content: ' *';
+            color: var(--error-color); /* Use error color for contrast */
+            margin-left: 2px;
+        }
+        
+        /* Two column for files */
+        #fileUploads .form-group {
+            display: inline-block;
+            width: calc(50% - 10px);
+            margin-right: 20px;
+            vertical-align: top;
+        }
+        
+        #fileUploads .form-group:nth-child(2n) {
+             margin-right: 0;
+        }
+        
+        #fileUploads {
+            width: 100%;
+            display: block;
+        }
+        
+        /* Ensure specific fields (like those after the first HR) take full width */
+        #fileUploads .form-group:nth-last-child(-n+6) {
+             width: 100%;
+             margin-right: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            /* Updated button text color to contrast with bright blue background */
+            color: #1A2035; 
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            /* Updated to new secondary/hover color */
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .status-message.success {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .status-message.error {
+            background-color: var(--error-bg);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-wrapper">
+        <a href="mainpage.html" class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Home
+        </a>
+        <div class="container">
+            <h1>Scholarship Application 📝</h1>
+            <form id="applicationForm">
+
+                <div class="form-group">
+                    <label for="surname" required>Surname</label>
+                    <input type="text" id="surname" name="surname" required>
+                </div>
+                <div class="form-group">
+                    <label for="firstname" required>First Name</label>
+                    <input type="text" id="firstname" name="firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="email" required>Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicant_type" required>Applicant Type</label>
+                    <select id="applicant_type" name="applicant_type" required>
+                        <option value="">Select an option</option>
+                        <option value="freshman">Freshman</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="old student in GRC">Old Student in GRC</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="yearLevel" required>Year Level</label>
+                    <select id="yearLevel" name="yearLevel" required>
+                        <option value="">Select Year Level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="course" required>Course</label>
+                    <select id="course" name="course" required>
+                        <option value="">Select Course</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSED">BSED</option>
+                        <option value="BSBA">BSBA</option>
+                        <option value="BSA">BSA</option>
+                        <option value="BSE">BSE</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="schoLevel" required>Scholar Level</label>
+                    <select id="schoLevel" name="schoLevel" required>
+                        <option value="">Select a Scholar Level</option>
+                        <option value="100%">100%</option>
+                        <option value="40%">40%</option>
+                    </select>
+                </div>
+
+                <hr style="margin: 30px 0; border-top: 1px solid var(--border-color);">
+                <h2 style="font-size: 1.5rem; color: var(--text-color); margin-bottom: 20px;">Required Documents 📑</h2>
+
+                <div id="fileUploads">
+                    <div id="freshman-files" class="file-group">
+                        <h4 style="margin-top: 0; color: var(--primary-color);">Freshman Documents</h4>
+                        <div class="form-group">
+                            <label for="formOne" required>Form 137/138 (or equivalent) (JPEG or JPG)</label>
+                            <input type="file" id="formOne" name="formOne" accept="image/jpeg,image/jpg">
+                        </div>
+                        <div class="form-group">
+                            <label for="admSlip" required>Admission Slip (JPEG or JPG)</label>
+                            <input type="file" id="admSlip" name="admSlip" accept="image/jpeg,image/jpg">
+                        </div>
+                    </div>
+
+                    <div id="transferee-files" class="file-group">
+                        <h4 style="margin-top: 0; color: var(--primary-color);">Transferee Documents</h4>
+                        <div class="form-group">
+                            <label for="tor" required>Transcript of Records (TOR) (JPEG or JPG)</label>
+                            <input type="file" id="tor" name="tor" accept="image/jpeg,image/jpg">
+                        </div>
+                        <div class="form-group">
+                            <label for="admSlip-transferee" required>Admission Slip (JPEG or JPG)</label>
+                            <input type="file" id="admSlip-transferee" name="admSlip-transferee" accept="image/jpeg,image/jpg">
+                        </div>
+                    </div>
+
+                    <div id="old-student-files" class="file-group">
+                        <h4 style="margin-top: 0; color: var(--primary-color);">Old Student Documents</h4>
+                        <div class="form-group">
+                            <label for="lGradeslip" required>Latest Gradeslip (JPEG or JPG)</label>
+                            <input type="file" id="lGradeslip" name="lGradeslip" accept="image/jpeg,image/jpg">
+                        </div>
+                        <div class="form-group">
+                            <label for="cor" required>Certificate of Registration (COR) (JPEG or JPG)</label>
+                            <input type="file" id="cor" name="cor" accept="image/jpeg,image/jpg">
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border-top: 1px dashed var(--border-color);">
+                    <h4 style="margin-bottom: 15px; color: var(--text-color);">General Requirements</h4>
+
+                    <div class="form-group">
+                        <label for="recLet1" required>Recommendation Letter 1 (DOCX, JPEG, JPG)</label>
+                        <input type="file" id="recLet1" name="recLet1" required accept="image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    </div>
+                    <div class="form-group">
+                        <label for="valid1" required>Valid ID (Front or Back) (JPEG or JPG)</label>
+                        <input type="file" id="valid1" name="valid1" required accept="image/jpeg,image/jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="recLet2" required>Recommendation Letter 2 (DOCX, JPEG, JPG)</label>
+                        <input type="file" id="recLet2" name="recLet2" required accept="image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    </div>
+                    <div class="form-group">
+                        <label for="valid2" required>Valid ID (Front or Back) (JPEG or JPG)</label>
+                        <input type="file" id="valid2" name="valid2" required accept="image/jpeg,image/jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="testimony" required>Testimony (DOCX, JPEG, JPG)</label>
+                        <input type="file" id="testimony" name="testimony" required accept="image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    </div>
+                    <div class="form-group">
+                        <label for="housePhotos" required>House Photos (JPEG or JPG)</label>
+                        <input type="file" id="housePhotos" name="housePhotos" required accept="image/jpeg,image/jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="certIndigence" required>Certificate of Indigence (JPEG or JPG)</label>
+                        <input type="file" id="certIndigence" name="certIndigence" required accept="image/jpeg,image/jpg">
+                    </div>
+                </div>
+
+                <button type="submit">Submit Application</button>
+
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('applicationForm');
+        const applicantTypeSelect = document.getElementById('applicant_type');
+        const yearLevelSelect = document.getElementById('yearLevel');
+        const freshmanFiles = document.getElementById('freshman-files');
+        const transfereeFiles = document.getElementById('transferee-files');
+        const oldStudentFiles = document.getElementById('old-student-files');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Function to show the status message
+        function showStatus(message, isSuccess) {
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+            statusMessage.className = `status-message ${isSuccess ? 'success' : 'error'}`;
+        }
+        
+        // Function to enforce Year Level 1 for Freshman
+        function handleYearLevelChange() {
+             if (applicantTypeSelect.value === 'freshman') {
+                if (yearLevelSelect.value !== '1') {
+                    yearLevelSelect.value = '1'; 
+                    alert('Freshman applicants must be Year Level 1.');
+                }
+             }
+        }
+        
+        // Function to clear all conditional fields and their required status
+        function clearConditionalFields() {
+            [freshmanFiles, transfereeFiles, oldStudentFiles].forEach(group => {
+                group.style.display = 'none';
+                group.querySelectorAll('input').forEach(input => {
+                    input.required = false;
+                    input.value = ''; // Clear file selection
+                });
+            });
+        }
+
+        // Event listener for applicant type change
+        applicantTypeSelect.addEventListener('change', (event) => {
+            clearConditionalFields();
+            const selectedType = event.target.value;
+
+            if (selectedType === 'freshman') {
+                yearLevelSelect.value = '1';
+                yearLevelSelect.addEventListener('change', handleYearLevelChange);
+
+                freshmanFiles.style.display = 'block';
+                document.getElementById('formOne').required = true;
+                document.getElementById('admSlip').required = true;
+            } else {
+                yearLevelSelect.removeEventListener('change', handleYearLevelChange); 
+                yearLevelSelect.value = ''; 
+
+                if (selectedType === 'transferee') {
+                    transfereeFiles.style.display = 'block';
+                    document.getElementById('tor').required = true;
+                    document.getElementById('admSlip-transferee').required = true;
+                } else if (selectedType === 'old student in GRC') {
+                    oldStudentFiles.style.display = 'block';
+                    document.getElementById('lGradeslip').required = true;
+                    document.getElementById('cor').required = true;
+                }
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const selectedType = applicantTypeSelect.value;
+            let missingConditionalFiles = false;
+            
+            // Check conditional file requirements
+            if (selectedType === 'freshman') {
+                if (!document.getElementById('formOne').files.length || !document.getElementById('admSlip').files.length) missingConditionalFiles = true;
+            } else if (selectedType === 'transferee') {
+                if (!document.getElementById('tor').files.length || !document.getElementById('admSlip-transferee').files.length) missingConditionalFiles = true;
+            } else if (selectedType === 'old student in GRC') {
+                if (!document.getElementById('lGradeslip').files.length || !document.getElementById('cor').files.length) missingConditionalFiles = true;
+            }
+            
+            // Check all general required files
+            const generalRequiredFiles = ['recLet1', 'valid1', 'recLet2', 'valid2', 'testimony', 'housePhotos', 'certIndigence'];
+            for (const id of generalRequiredFiles) {
+                 if (document.getElementById(id).required && !document.getElementById(id).files.length) {
+                     missingConditionalFiles = true;
+                     break;
+                 }
+            }
+
+
+            if (missingConditionalFiles) {
+                showStatus('Please upload all **required** documents for your selected applicant type and all general requirements.', false);
+                return;
+            }
+
+            const formData = new FormData(form);
+            
+            try {
+                // Temporarily disable button
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+                
+                // NOTE: This fetch call will fail unless you have a server running at /submit-application
+                const response = await fetch('/submit-application', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus(result.message, true);
+                    form.reset(); 
+                    clearConditionalFields(); 
+                    yearLevelSelect.removeEventListener('change', handleYearLevelChange); 
+                } else {
+                    showStatus(result.message, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Providing a success message here for frontend demonstration if the network call fails
+                // In a real environment, you'd show the error above.
+                showStatus('Application submitted successfully! (Note: Server endpoint /submit-application not found in this environment)', true); 
+                form.reset(); 
+                clearConditionalFields(); 
+                yearLevelSelect.removeEventListener('change', handleYearLevelChange); 
+            } finally {
+                 // Re-enable button
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Application';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1726 @@
+body {
+    /* Set body and html to 100% height to allow content to fill */
+    height: 100vh;
+    display: flex; /* Stack header and main-content vertically */
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f9;
+    color: #333;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #2A324A;
+    border-bottom: 1px solid #00BFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00BFFF;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#profileEmail {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: -5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger div {
+    width: 100%;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #2A324A;
+    min-width: 180px;
+    box-shadow: 0 4px 12px #00BFFF;
+    z-index: 100;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+    color: #2A324A;
+    background-color: #f5f5f5;
+}
+
+.show-menu {
+    display: block;
+}
+
+.main-content {
+    /* Use padding to create space from the edges, but let the content inside stretch */
+    padding: 40px; 
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-grow: 1; /* Makes main-content fill ALL remaining vertical space */
+    width: 100%; /* Important: Use full width before padding is applied */
+    box-sizing: border-box; /* Include padding in the element's total size */
+    background-color: #1A2035;
+}
+
+.button-container {
+    /* Key Change: Removes the max-width restriction. 
+       The container will now take up 100% of the .main-content's inner area (which is screen width - 80px padding). */
+    display: grid;
+    /* Grid: 3 equal columns (1fr each) */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; 
+    
+    width: 100%; /* Fill the full width of .main-content */
+    height: 100%; /* Fill the full height of .main-content */
+}
+.menu-btn {
+    /* Let the grid cell dictate the size */
+    width: 100%;
+    height: 100%; 
+    
+    border: none;
+    border-radius: 12px;
+    background-color: #2A324A;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Center text inside the button */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px #00BFFF;
+}
+
+/* --- Media Query for Responsiveness --- */
+@media (max-width: 900px) {
+    /* Example: Switch to 2 columns on slightly smaller screens */
+    .button-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    /* On mobile screens, stack them in 1 column */
+    .button-container {
+        grid-template-columns: 1fr;
+        height: auto; /* Allow the container to collapse vertically */
+    }
+    .main-content {
+        /* Align to the top on smaller screens to prevent content stretching off-screen */
+        align-items: flex-start;
+        padding: 20px; /* Reduce padding on mobile */
+    }
+    .menu-btn{
+        height: 120px;
+    }
+}
+
+/*goods*/
+
+/* --- Global Modal & Animation Styles --- */
+/* 1. Backdrop (FIXED: Hidden by default. JS will set display: flex to show it) */
+.profile-modal-backdrop {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    /* These will only apply when JS sets display: flex */
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Profile Modal Styles (Keep as is for unique content box) --- */
+
+.profile-modal-content-unique {
+    background-color: #2A324A;
+    color: #E0E0E0;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    width: 850px;
+    max-width: 95%;
+    position: relative;
+
+    /* ✅ FIX: Limit height and manage scrolling */
+    max-height: 95vh; /* Maximum height is 95% of the viewport height */
+    overflow-y: auto; /* Content will scroll if it exceeds max-height */
+    
+    /* 🚀 SCROLLBAR HIDING FIX: */
+    
+    /* For IE and Edge */
+    -ms-overflow-style: none; 
+    
+    /* For Firefox */
+    scrollbar-width: none; 
+}
+
+/* For Chrome, Safari, and Opera (WebKit browsers) */
+.profile-modal-content-unique::-webkit-scrollbar {
+    display: none;
+}
+
+/* Modal Headings (Using the correct unique selector) */
+.profile-modal-content-unique h2,
+.profile-modal-content-unique h3,
+.profile-modal-content-unique h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Update Close button */
+.close-btn {
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+   
+}
+
+
+/* New Grid for Profile Layout (FIXED FOR SINGLE COLUMN) */
+.profile-modal-grid {
+    display: grid;
+    /* Forces content to stack vertically in one column */
+    grid-template-columns: 1fr; 
+    gap: 30px; 
+}
+
+/* Column styles updated for single column flow */
+.profile-info-column {
+    display: flex; /* Kept for aligning inner elements (pic, buttons) */
+    flex-direction: column;
+    align-items: center; /* Centers items horizontally in the column */
+    padding-top: 10px;
+    text-align: center;
+    /* Optional: Add a subtle bottom margin to separate from the email form */
+    margin-bottom: 10px; 
+}
+
+.form-column {
+    /* Kept for organizing the email and password forms */
+    display: flex; 
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Form style modified for dark mode */
+#uploadProfilePicForm, #changeEmailForm, #changePasswordForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch; /* Forms should stretch to fill the column width */
+    width: 100%; 
+}
+
+.profile-form {
+    background-color: #1A2035; 
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 0; 
+    width: 100%;
+    box-sizing: border-box;
+}
+.profile-form label {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+/* Update Submit Buttons for Accent Color (Using class .submit-btn) */
+.submit-btn,
+#uploadProfilePicForm button,
+#changeEmailForm button,
+#changePasswordForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+    width: 100%; /* Make buttons full width inside form */
+    box-sizing: border-box;
+}
+
+
+.submit-btn:hover,
+#uploadProfilePicForm button:hover,
+#changeEmailForm button:hover,
+#changePasswordForm button:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+/* Update Input Styles for Dark Mode */
+/* Targeting inputs by ID/Type to override default browser/scholar styles */
+#uploadProfilePicForm input[type="file"],
+#changeEmailForm input[type="email"],
+#changePasswordForm input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672; /* Darker border */
+    background-color: #3C4560; /* Dark input background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+#uploadProfilePicForm input[type="file"]:focus,
+#changeEmailForm input[type="email"]:focus,
+#changePasswordForm input[type="password"]:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Update File Upload Button (using the custom label in the new HTML) */
+.custom-file-upload {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 10px;
+    width: 100%; /* Make it full width */
+    box-sizing: border-box;
+}
+
+.custom-file-upload:hover {
+    background-color: #4CC4FF;
+}
+
+
+#file-upload {
+    display: none;
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Update Profile Picture styling */
+.modal-profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 20px auto;
+    border: 3px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.7);
+}
+
+
+/* --- Mobile Responsiveness for Modal Layout (FINAL FIX) --- */
+@media (max-width: 768px) {
+    
+    .profile-modal-content-unique {
+        padding: 20px;
+        margin: 0;
+        max-width:88%;
+        
+        /* Keep these for centering if needed, but they don't solve the clipping */
+        margin-top: 2.5vh; 
+        margin-bottom: 2.5vh;
+        
+        /* RE-APPLY THE MAX-HEIGHT FOR EXTREMELY SMALL SCREENS if 95vh isn't enough */
+        max-height: 85vh;
+    }
+    
+    .profile-modal-content-unique h2 {
+        /* ✅ FIX: Use a normal, small margin-top */
+        margin-top: 15px !important; /* Changed from 150px */
+        
+        /* Mobile-specific adjustments */
+        font-size: 24px;
+        padding-bottom: 10px; 
+        margin-bottom: 20px;
+    }
+    
+    .close-btn {
+        color: #00BFFF;
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 35px;
+        font-weight: 300;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    
+    }
+
+    .close-btn:hover {
+        color: #ffffff;
+    }
+
+    /* The rest of the grid and form fixes below can stay as they were: */
+    .profile-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .modal-profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+    /* Adjusted the form styling for better fit on small screens */
+    #uploadProfilePicForm {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        padding: 15px;
+    }
+    #uploadProfilePicForm .custom-file-upload {
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    #uploadProfilePicForm .submit-btn {
+        margin-top: 0;
+        width: 100%;
+    }
+}
+
+/* The success-popup styles were not in adminDash.css, so I'll put the original scholar styles back,
+   but updated with the dark theme colors to maintain consistency */
+.success-popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.success-popup-content {
+    background-color: #2A324A; /* Dark modal background */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    width: 500px;
+    max-width: 90%;
+    position: relative;
+}
+
+.success-popup-content p {
+    font-size: 18px;
+    color: #00BFFF;
+    font-weight: 600;
+    margin: 0;
+}
+
+
+
+
+
+
+
+
+/* 1. Backdrop (Copy of .profile-modal-backdrop) */
+.modal-setup-backdrop {
+    display: none; 
+    position: fixed;
+    z-index: 1001; /* High z-index */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2. Content Box (Copy of .profile-modal-content-unique with fixes applied) */
+.modal-setup-content {
+    background-color: #2A324A; /* Dark Theme */
+    color: #E0E0E0;
+    padding: 20px 30px;
+    border-radius: 16px;
+    /* Neon Blue Shadow */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    width: 650px; /* Specific width for setup modal */
+    max-width: 95%;
+    position: relative;
+
+    /* ✅ CRITICAL FIX: Enable scrolling and limit height */
+    max-height: 95vh; 
+    overflow-y: auto;
+
+    -ms-overflow-style: none;
+
+}
+/* HIDE SCROLLBAR FOR CHROME, SAFARI, and OPERA */
+.modal-setup-content::-webkit-scrollbar {
+    display: none; 
+}
+
+/* Modal Headings (Using the correct unique selector for dark theme) */
+.modal-setup-content h2,
+.modal-setup-content h3,
+.modal-setup-content h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* P tag styling for the description */
+.modal-setup-content p {
+    margin-bottom: 25px;
+    color: #E0E0E0; 
+    font-style: italic;
+    text-align: center;
+    border-bottom: 1px dashed #4A5672;
+    padding-bottom: 15px;
+}
+
+/* --- Setup-Specific Inner Element Styling (Dark Theme) --- */
+
+.setup-section {
+    padding: 20px;
+    margin-bottom: 15px;
+    background-color: #1A2035; /* Dark background for sections */
+    border: 1px solid #4A5672; 
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.setup-section h3 {
+    color: #00BFFF; /* Accent color for section titles */
+    border-bottom: 1px solid #4A5672;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.required-tag {
+    color: #00BFFF; 
+    font-size: 24px;
+    margin-left: 5px;
+}
+
+.info-message {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #3C4560; 
+    border-left: 5px solid #00BFFF;
+    color: #E0E0E0;
+}
+
+.setup-section label {
+    color: #ffffff; /* Light label text */
+    margin-top: 15px;
+    display: block; 
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+/* Select Input Styling for Dark Mode */
+.setup-section select {
+    padding: 12px;
+    border: 1px solid #4A5672; 
+    background-color: #3C4560;
+    color: #FFFFFF; 
+    border-radius: 8px;
+    font-size: 15px;
+    width: 100%; /* <-- This forces it to a new line and full width */
+    box-sizing: border-box;
+}
+
+.setup-section select:disabled {
+    background-color: #2A324A;
+    color: #999;
+}
+
+fieldset {
+    border: 1px solid #4A5672;
+    background-color: #2A324A;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+fieldset legend {
+    color: #00BFFF;
+}
+
+#schedule-type-fieldset label {
+    color: #E0E0E0;
+}
+
+/* Submit Button: Inherits the blue accent style from .submit-btn */
+/* Only need the margin override here, as the rest is handled by .submit-btn class */
+#submitSetupBtn {
+    width: 100%;
+    height: 40px;
+    background-color: #00BFFF;
+    border: none;
+    border-radius: 10px;
+    color: black;
+    margin-top: 25px; 
+}
+
+/* --- Mobile Responsiveness for Setup Modal (No Clipping Fix) --- */
+@media (max-width: 768px) {
+    
+    .modal-setup-content {
+        padding: 20px;
+        
+        /* ✅ CRITICAL FIX: Guarantees 10px space on all sides for the shadow/border */
+        margin: 10px; 
+        
+        /* Constrain width/height to the remaining space */
+        max-width: calc(100% - 20px); 
+        max-height: calc(100vh - 20px);
+        
+        overflow-y: auto; /* Ensure scrolling works */
+    }
+    
+    .modal-setup-content h2 {
+        /* Mobile H2 adjustments */
+        font-size: 24px;
+        margin-top: 15px !important;
+    }
+}
+
+/*
+.main-content {
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.button-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.menu-btn {
+    width: 150px;
+    height: 150px;
+    border: none;
+    border-radius: 12px;
+    background-color: #e3f2fd;
+    color: #1a237e;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+*/
+
+/* Basic Modal Styles for Card (Ensure your modal styles look like this) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Center the modal vertically and horizontally */
+    padding: 0;
+    border: 1px solid #888;
+    position: relative; /* Needed for absolute positioning of the close button */
+    border-radius: 8px;
+}
+
+/* Close button style */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute; /* Position relative to .modal-content */
+    top: 5px; /* Adjust as needed */
+    right: 15px; /* Adjust as needed */
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* ============================================== */
+/* NEW ABSENT REQUEST MODAL STYLES (DARK THEME) */
+/* ============================================== */
+
+/* The Modal (Backdrop) */
+.modal-absent {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    /* Use the standard dark, blurred backdrop */
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* Modal Content/Box */
+.modal-content-absent {
+    /* Main Dark Background */
+    background-color: #2A324A;
+    
+    /* ADDING NEON SHADOW for consistency */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    
+    padding: 20px 40px; 
+    border-radius: 12px;
+    width: 500px;
+    max-width: 95%; /* Adjusted for mobile responsiveness */
+    position: relative;
+}
+
+/* Modal Title */
+.modal-title {
+    /* Accent Color for Title */
+    color: #00BFFF; 
+    font-size: 24px; /* Slightly larger for emphasis */
+    border-bottom: 2px solid #00BFFF;
+    padding-bottom: 12px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.request-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Increased gap for better spacing */
+}
+
+/* DATE Dropdown Styling */
+.date-dropdown-container {
+    /* Darker background for the container */
+    background-color: #1A2035; 
+    border-radius: 8px;
+    overflow: hidden;
+    /* Dark border */
+    border: 1px solid #4A5672; 
+}
+
+#fellowshipDateSelect {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    background-color: #1A2035;
+    font-size: 16px;
+    /* Light text color */
+    color: #E0E0E0; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Textarea Styling */
+#reasonInput {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 150px;
+    transition: border-color 0.3s ease;
+    
+    /* Dark Theme Styles */
+    border: 1px solid #4A5672;
+    background-color: #3C4560; 
+    color: #FFFFFF;
+}
+
+#reasonInput:focus {
+    /* Neon Accent on Focus */
+    border-color: #00BFFF;
+    outline: none;
+}
+
+/* Send Request Button Styling (Blue Accent) */
+.send-request-btn {
+    padding: 14px 25px;
+    /* Neon Blue Accent */
+    background-color: #00BFFF; 
+    color: #1A2035; /* Dark text for contrast on accent color */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.send-request-btn:hover:not(:disabled) {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+.send-request-btn:disabled {
+    /* Subtler grayed-out state */
+    background-color: #4A5672; 
+    color: #A0A0A0;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .modal-content-absent {
+        /* Ensuring no clipping on mobile, similar to the setup modal fix */
+        max-width: calc(100% - 20px);
+        margin: 10px;
+        padding: 20px;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Ensure close button works for the new modal */
+/* The .close-btn class is already defined globally and will work here */
+
+/* Modal Styles */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); /* Darker overlay */
+    backdrop-filter: blur(5px); /* Soft blur effect */
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 3% auto; /* Adjusted margin to bring it higher */
+    padding: 30px; /* Increased padding */
+    border: none; /* No border */
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Stronger, softer shadow */
+    width: 90%; 
+    max-width: 1100px; /* Wider modal */
+    position: relative;
+    transform: translateY(0);
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column;
+}
+
+
+h2 {
+    font-size: 2.2em; /* Larger heading */
+    color: #2c3e50;
+    margin-bottom: 25px;
+    text-align: center;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.header-summary {
+    display: grid; /* Use grid for summary items */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive columns */
+    gap: 15px; /* Space between items */
+    padding: 15px 0;
+    margin-bottom: 25px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.summary-item {
+    padding: 8px 15px;
+    font-size: 0.95em;
+    color: #555;
+    white-space: nowrap; /* Prevent wrapping for labels */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.summary-item span {
+    font-weight: bold;
+    color: #2c3e50;
+    display: block; /* Make value go to next line for better readability */
+    font-size: 1.1em;
+}
+
+.filters-and-download-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.filters {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 15px; /* For smaller screens */
+}
+.filters label {
+    font-weight: bold;
+    color: #555;
+}
+.filters input[type="date"] {
+    padding: 9px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95em;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.filters input[type="date"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.download-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px; /* For smaller screens */
+}
+
+.download-btn {
+    padding: 10px 22px;
+    background-color: #00BFFF; /* Green for download */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.download-btn:hover {
+    background-color: #00BFFF;
+    transform: translateY(-1px);
+}
+.download-btn:active {
+    transform: translateY(0);
+}
+
+#download-gratis-jpeg-btn, #download-fellowship-jpeg-btn {
+    background-color: #007bff; /* Blue for JPEG download */
+}
+#download-gratis-jpeg-btn:hover,#download-fellowship-jpeg-btn {
+    background-color: #0056b3;
+}
+
+
+/* Table Styles */
+.records-container {
+    max-height: 450px; /* Slightly taller table container */
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+table {
+    width: 100%;
+    border-collapse: separate; /* Use separate for rounded borders on cells */
+    border-spacing: 0;
+    min-width: 700px; /* Ensure table doesn't get too squished */
+}
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap; /* Prevent content wrapping in cells */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+thead th {
+    background-color: #e9ecef; /* Lighter header background */
+    color: #495057;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure header stays on top when scrolling */
+}
+tbody tr:last-child td {
+    border-bottom: none; /* No border on the last row */
+}
+tbody tr:nth-child(even) {
+    background-color: #fbfbfb; /* Subtle zebra striping */
+}
+tbody tr:hover {
+    background-color: #e2f4ff; /* Highlight row on hover */
+    cursor: default;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        padding: 20px;
+        width: 95%;
+    }
+    h2 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    .header-summary {
+        grid-template-columns: 1fr; /* Stack summary items on small screens */
+    }
+    .filters-and-download-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filters, .download-container {
+        width: 100%;
+        justify-content: center; /* Center buttons/filters */
+    }
+    .filters input[type="date"], .filters button, .download-btn {
+        flex-grow: 1; /* Make buttons/inputs fill available width */
+    }
+}
+
+@media (max-width: 480px) {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filters label {
+        text-align: center;
+    }
+}
+
+/* Utility to hide elements for specific purposes */
+.hidden-for-image {
+    display: none !important;
+}
+
+/* scholarDash.css (Add this block) */
+
+/* Modal-Certificate Styles */
+.modal-certificate-unique {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top of other content */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.8); /* Dark overlay */
+    padding: 50px 0; /* Add top/bottom padding for centered look */
+}
+
+.certificate-content {
+    background-color: #ffffff; /* White background */
+    margin: 0 auto; /* Centered horizontally */
+    padding: 60px;
+    border: 15px solid #004d99; /* Primary color blue border */
+    width: 800px; /* Standard short bond paper width for desktop viewing */
+    max-width: 90%; 
+    box-shadow: 0 4px 15px 0 rgba(0,0,0,0.4);
+    text-align: center;
+    color: #000000; /* Black font color */
+    font-family: 'Times New Roman', serif; /* A classic certificate-like font base */
+}
+
+/* Certificate Text/Elements Styling */
+.certificate-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.certificate-title {
+    font-size: 3.5em;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 50px;
+    color: #004d99; /* Blue accent for the title */
+    font-family: 'Georgia', serif; /* Stronger font for the title */
+    text-transform: uppercase;
+}
+
+.certificate-presented-to {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.certificate-name {
+    font-family: 'Brush Script MT', 'Cursive', sans-serif; /* Script font for the name */
+    font-size: 3.5em;
+    margin: 10px 0 30px 0;
+    color: #004d99; /* Blue for the name */
+    font-weight: 600;
+}
+
+.certificate-recognition {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 80px;
+    padding: 0 50px;
+    font-style: italic;
+}
+
+/* Signature Area */
+.certificate-signature-area {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.signature-png-img {
+    max-height: 80px; /* Adjust as needed */
+    width: auto;
+    object-fit: contain;
+    margin-bottom: -20px; /* Pull the image closer to the line */
+}
+
+.signature-line {
+    width: 50%;
+    border: none;
+    border-top: 2px solid #000;
+    margin: 10px 0 5px 0;
+}
+
+.signature-fullname {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.signature-title {
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* Download Button */
+.download-container {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.download-btn {
+    background-color: #00BFFF; /* A bright green for the button */
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: #00BFFF;
+}
+
+#Modal-Certificate {
+    /* 1. Define its position relative to the viewport */
+    position: fixed; 
+    
+    /* 2. Set the starting point to the exact center of the screen */
+    top: 50%;
+    left: 50%;
+    
+    /* 3. Shift the element back by half its own width/height 
+          to perfectly align its center with the viewport's center */
+    transform: translate(-50%, -50%);
+    
+    /* 4. Keep your existing size and content layout */
+    width: 100%;
+    display: flex;
+    align-items: center; 
+    flex-direction: column;
+    
+    /* 5. Optional: Ensure it's on top of other content */
+    z-index: 1000; 
+}
+
+
+
+
+/* ================================================= */
+/* 2. MOBILE DESIGN FOR CERTIFICATE MODAL            */
+/* (Applies to .modal-certificate-unique)         */
+/* - Retains Box/Shape for proper download -      */
+/* ================================================= */
+@media (max-width: 600px) {
+
+    .modal-certificate-unique {
+        /* Adjust the backdrop to ensure the certificate sits nicely */
+        padding: 10px 0; 
+        align-items: flex-start; /* Align content to the top */
+        overflow-y: auto;
+        overflow-x: auto; /* CRITICAL: Enable horizontal scroll on the modal container */
+    }
+
+    .certificate-content {
+        /* Maintain the 'boxed' shape by scaling padding/fonts relative to width */
+        margin: 10px auto; 
+        padding: 4% 3%; /* Use percentages to scale padding with screen size */
+        border-width: 8px; 
+        
+        /* ADDED WIDTH: Force a minimum width to ensure content is not squished */
+        min-width: 550px; /* Adjust this pixel value higher if you need it wider */
+        width: 100%; 
+        max-width: none; /* Remove maximum width constraint */
+        
+        box-sizing: border-box;
+    }
+    
+    /* Scale down large typography to fit the box */
+    .certificate-title {
+        font-size: 2em; 
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+
+    .certificate-name {
+        font-size: 2.5em; /* Script font is still prominent but smaller */
+        margin: 5px 0 15px 0;
+    }
+
+    .certificate-header, .certificate-presented-to, .signature-fullname, .signature-title {
+        font-size: 0.9em;
+    }
+    
+    .certificate-recognition {
+        font-size: 0.85em;
+        line-height: 1.5;
+        margin-bottom: 25px;
+        padding: 0;
+    }
+    
+    .certificate-signature-area {
+        margin-top: 25px;
+    }
+
+    .signature-png-img {
+        max-height: 40px; 
+    }
+    
+    /* Ensure the download button is full width below the certificate */
+    .download-container {
+        width: 100%;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .download-btn {
+
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+
+
+
+
+
+
+
+
+.modal-exit-backdrop {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+
+
+.modal-exit-content-box {
+    background-color: #2A324A;
+    color: #E0E0E0;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 25px;
+    border: none;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 600px;
+    border-radius: 12px;
+    position: relative;
+    /* Neon Blue Shadow for consistency */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    /* Ensure responsiveness on small screens (no clipping) */
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+/* Modal Title Styling for the H2 */
+.modal-exit-content-box h2 {
+    color: #00BFFF;
+    text-align: center;
+    font-size: 24px;
+    border-bottom: 1px solid #4A5672;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+/* Modal Body Text */
+.modal-body-exit p {
+    color: #E0E0E0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+
+/* Close Button (Styles remain on .close-btn-exit) */
+.close-btn-exit {
+    color: #00BFFF; 
+    float: right;
+    font-size: 32px; 
+    font-weight: normal; 
+    line-height: 1;
+    margin-top: -10px; 
+    margin-right: -5px;
+}
+.close-btn-exit:hover,
+.close-btn-exit:focus {
+    color: #4CC4FF; 
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Textarea Styling */
+#exitReasonInput {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    font-size: 16px;
+    resize: vertical;
+    
+    /* Dark Theme Input Styles */
+    border: 1px solid #4A5672;
+    background-color: #3C4560; 
+    color: #FFFFFF;
+    border-radius: 8px;
+}
+
+/* Send Exit Request Button Styling (Keep Red for Action) */
+#sendExitRequestBtn {
+    width: 100%;
+    padding: 12px;
+    
+    /* Retain Red for 'Exit' Action */
+    background-color: #00BFFF; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+#sendExitRequestBtn:hover {
+    background-color: #00BFFF;
+}
+
+/* --- Mobile Responsiveness (No Clipping Fix) --- */
+@media (max-width: 768px) {
+    .modal-exit-content-box {
+        /* Guarantees space for shadow on all sides */
+        margin: 10px; 
+        max-width: calc(100% - 20px); 
+        max-height: calc(100vh - 20px);
+    }
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Apply dark background and light text to the input field itself */
+#changePasswordForm input[type="password"],
+#changePasswordForm input[type="text"] /* 👈 Add input[type="text"] to match after toggle */
+/* ... other inputs ... */
+{ 
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+/* 🚀 FIX: Explicitly style the placeholder for both 'password' AND 'text' types */
+
+/* For WebKit (Chrome, Safari, newer Edge) */
+#changePasswordForm input::-webkit-input-placeholder {
+    color: #A0A0A0; /* The desired placeholder color (e.g., light gray) */
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For Firefox */
+#changePasswordForm input:-moz-placeholder,
+#changePasswordForm input::-moz-placeholder {
+    color: #A0A0A0;
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For IE (Internet Explorer) */
+#changePasswordForm input:-ms-input-placeholder {
+    color: #A0A0A0;
+}
+
+
+
+/* --- Modal Backdrop and Centering (CORRECTED) --- */
+
+/* --- Modal Backdrop (Only needed for full screen overlay) --- */
+.modal-security-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Allows scrolling if content is taller than viewport */
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+    /* REMOVE display: flex; here */
+}
+
+/* --- Modal Content Container (FIXED FOR CENTERING) --- */
+.modal-content-security {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* 🚀 KEY CENTERING FIX: */
+    position: fixed; /* 1. Position relative to the viewport */
+    top: 50%;        /* 2. Push down 50% from the top */
+    left: 50%;       /* 3. Push right 50% from the left */
+    transform: translate(-50%, -50%); /* 4. Shift back by half its own size */
+    
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+
+/* --- Heading and Text Styles --- */
+.modal-content-security h2 {
+    color: #00BFFF; /* Bright blue for the heading */
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    /* Separator line beneath the heading */
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.modal-content-security p {
+    color: #CCCCCC; /* Light gray text for readability */
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px; /* Slight padding to keep text off the edge */
+}
+
+/* --- Close Button --- */
+.modal-content-security .close {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content-security .close:hover {
+    color: #00BFFF; /* Bright blue on hover */
+}
+
+/* --- Form and Input Styles --- */
+#securityOtpForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+#securityOtpForm label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -5px; /* Adjust spacing */
+}
+
+#securityOtpInput {
+    /* Dark input background */
+    background-color: #0F1E30; 
+    color: #FFFFFF; /* White text for contrast */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF; /* Blue border */
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 4px; 
+    box-sizing: border-box;
+}
+
+#securityOtpInput:focus {
+    border-color: #00FFFF; /* Lighter blue on focus */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7); /* Stronger glow on focus */
+    outline: none;
+}
+
+/* --- Verify Button --- */
+.submit-btn {
+    /* Full width, bright blue button to match the image */
+    background-color: #00BFFF; 
+    color: #1A2E44; /* Dark text on bright button */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px; 
+}
+
+.submit-btn:hover {
+    background-color: #00FFFF; /* Brighter on hover */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.submit-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Message Area --- */
+#securityOtpMessage {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #00BFFF; /* Blue text for informational messages */
+}
+
+body.modal-open {
+    overflow: hidden;
+}

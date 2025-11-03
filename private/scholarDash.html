@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholar Dashboard</title>
+    <link rel="stylesheet" href="scholarDash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="profile-container">
+                <img src="/images/default-profile-pic.png" alt="Profile Picture" class="profile-pic" id="profile-pic">
+                <div class="profile-info">
+                    <h1 class="dashboard-title">Scholar Dashboard</h1> <span id="profileEmail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="menu-container">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="dropdown-menu" class="menu-dropdown">
+                    <a href="#" id="openProfileModalBtn" onclick="openModal('profileModal')">Profile Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="profile-modal-backdrop">          
+        <div class="profile-modal-content-unique">       
+            <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Profile Settings</h2>
+            <div class="profile-modal-grid"> 
+                <div class="profile-info-column">
+                    <img id="modalProfilePic" src="/images/default-profile-pic.png" alt="Profile Picture" class="modal-profile-pic">
+
+                    <form id="uploadProfilePicForm" class="profile-form">
+                        <label for="file-upload" class="custom-file-upload" id="chProfilePic">
+                            Change Profile Picture
+                        </label>
+                        <input id="file-upload" type="file" name="profilePicture" accept="image/*" required>
+                        <button type="submit" class="submit-btn">Upload</button>
+                    </form>
+                </div>
+
+                <div class="form-column">
+
+                    <form id="changeEmailForm" class="profile-form">
+                        <label for="newEmail">Change Email:</label>
+                        <input type="email" id="newEmail" name="newEmail" required>
+                        <button type="submit" class="submit-btn">Update Email</button>
+                    </form>
+
+                    <form id="changePasswordForm" class="profile-form">
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('currentPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <label for="newPassword">New Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="newPassword" name="newPassword" required>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Update Password</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="securityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('securityOtpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your registered email. Please enter it below.</p>
+            <form id="securityOtpForm">
+                <label for="securityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="otpAction" name="otpAction" value="">
+                <input type="hidden" id="otpData" name="otpData" value="">
+                
+                <input type="text" id="securityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="securityOtpMessage" class="message"></p>
+        </div>
+    </div>
+    <div id="successPopup" class="success-popup" style="display: none;">
+        <div class="success-popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <p id="successMessage"></p>
+            
+        </div>
+    </div>
+
+    <div id="setupModal" class="modal-setup-backdrop" style="display: none;">
+        <div class="modal-setup-content" id="setup-modal-content">
+            <h2>Complete Your Scholar Setup</h2>
+            <p>Please select your schedule, department, and church. Missing information will be highlighted.</p>
+            <form id="scholarSetupForm">
+                <input type="hidden" id="scholarIdInput" name="scholarId">
+                <input type="hidden" id="currentDeptId" name="currentDeptId">
+                <input type="hidden" id="currentSchedId" name="currentSchedId">
+                <input type="hidden" id="currentChurchId" name="currentChurchId">
+
+                <div class="setup-section" id="schedule-section">
+                    <h3>SCHEDULE <span class="required-tag" id="sched-required">*</span></h3>
+                    <div id="schedule-message" class="info-message"></div>
+                    <fieldset id="schedule-type-fieldset">
+                        <legend>Type:</legend>
+                        <label>
+                            <input type="radio" name="scheduleType" value="whole_day" id="wholeDayRadio" required> Whole Day
+                        </label>
+                        <label>
+                            <input type="radio" name="scheduleType" value="half_day" id="halfDayRadio"> Half Day
+                        </label>
+                    </fieldset>
+
+                    <div id="wholeDayOptions" style="display:none;">
+                        <label for="sched_id_whole">Schedule:</label>
+                        <select id="sched_id_whole" name="sched_id_whole" disabled>
+                            <option value="">Select Whole Day Schedule</option>
+                        </select>
+                    </div>
+
+                    <div id="halfDayOptions" style="display:none;">
+                        <label for="sched_id_half">Day 1 Schedule:</label>
+                        <select id="sched_id_half" name="sched_id_half" disabled>
+                            <option value="">Select Day 1 Schedule</option>
+                        </select>
+
+                        <label for="sched_id_2">Day 2 Schedule:</label>
+                        <select id="sched_id_2" name="sched_id_2" disabled>
+                            <option value="">Select Day 2 Schedule (Must be different from Day 1)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setup-section" id="department-section">
+                    <h3>DEPARTMENT <span class="required-tag" id="dept-required">*</span></h3>
+                    <div id="dept-message" class="info-message"></div>
+                    <label for="dept_id">Department:</label>
+                    <select id="dept_id" name="dept_id" required>
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <div class="setup-section" id="church-section">
+                    <h3>CHURCH <span class="required-tag" id="church-required">*</span></h3>
+                    <div id="church-message" class="info-message"></div>
+                    <label for="church_id">Church:</label>
+                    <select id="church_id" name="church_id" required>
+                        <option value="">Select Church</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitSetupBtn">Save Setup</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="button-container">
+            <button class="menu-btn" id="qrBtn">QR code</button>
+            <button class="menu-btn" id="gratistBtn">Gratis</button>
+            <button class="menu-btn" id="fellowshipBtn">Fellowship</button>
+            <button class="menu-btn" id="exitSchoBtn">Exit Scholar</button>
+            <button class="menu-btn" id="absentReqBtn">Absent Request</button>
+        </div>
+    </div>
+
+    <div id="qrCardModal" class="modal" style="display: none;">
+        <div class="modal-content" style="width: 600px; padding: 0; position: relative; border-radius: 8px;">
+            
+            <span class="close" onclick="closeModal('qrCardModal')" 
+                style="color: #aaa; font-size: 28px; font-weight: bold; position: absolute; top: 5px; right: 15px; cursor: pointer; z-index: 10;">
+                &times;
+            </span>
+
+            <div id="scholarCard" style="padding: 20px; padding-top: 40px; background-color: white; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;">
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div style="width: 150px; height: 150px; border: 1px solid #eee; display: flex; justify-content: center; align-items: center; background-color: #f7f7f7;">
+                        <img id="cardQrCode" src="" alt="QR Code" style="max-width: 100%; max-height: 100%; display: none;">
+                        <span id="qrPlaceholder" style="color: #999; font-style: italic;">QR Code not found</span>
+                    </div>
+
+                    <div style="flex-grow: 1; margin-left: 20px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div id="cardProfileContainer" style="width: 60px; height: 60px; border-radius: 50%; background-color: #e0e0e0; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                                <img id="cardProfilePic" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <span id="profileIconPlaceholder" style="font-size: 30px; color: #757575;">&#x25CF;</span>
+                            </div>
+                            <div style="margin-left: 15px;">
+                                <h3 id="cardName" style="margin: 0; font-size: 1.2em; color: #1a237e;">NAME</h3>
+                                <p id="cardRole" style="margin: 0; font-size: 0.9em; color: #4CAF50;">Role</p>
+                                <p id="cardSemester" style="margin: 0; font-size: 0.8em; color: #757575;">Current Semester Name(datestart)</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <strong style="display: block; font-size: 0.9em;">Schedule (<span id="cardScheduleType">Type</span>)</strong>
+                            <span id="cardSchedule" style="font-size: 0.8em; color: #333;">Sched_id</span>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <strong style="display: block; font-size: 0.9em;">Department</strong>
+                            <span id="cardDepartment" style="font-size: 0.8em; color: #333;">Dept name</span>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <strong style="display: block; font-size: 0.9em;">Church</strong>
+                            <span id="cardChurch" style="font-size: 0.8em; color: #333;">Church name</span>
+                        </div>
+                    </div>
+                </div>
+
+                </div> 
+            
+            <div style="padding: 20px; background-color: white;">
+                <button id="downloadCardBtn" class="download-btn" data-html2canvas-ignore="true" 
+                        style="background-color: #00BFFF; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; 
+                            width: 70%; display: block; margin: 0 auto; /* CENTERED */ font-size: 1em;">
+                    DOWNLOAD
+                </button>
+            </div>
+            <p id="downloadStatus" data-html2canvas-ignore="true" style="text-align: center; margin-top: 10px; font-size: 0.8em; color: #1a237e; display: none; margin-bottom: 20px;">Generating...</p>
+
+        </div>
+    </div>
+
+    <div id="absentRequestModal" class="modal-absent" style="display: none;">
+        <div class="modal-content-absent">
+            <span class="close-btn" onclick="closeModal('absentRequestModal')">&times;</span>
+            <h2 class="modal-title">Fellowship Absent Request</h2>
+            <div class="request-form">
+                <div class="date-dropdown-container">
+                    <select id="fellowshipDateSelect" required>
+                        <option value="" disabled selected>Select Date</option>
+                        </select>
+                </div>
+                
+                <textarea id="reasonInput" placeholder="Type your reason" rows="10" required></textarea>
+                
+                <button id="sendRequestBtn" class="send-request-btn">Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-gratis" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Gratis Duty Records</h2>
+            
+            <div id="gratis-content-for-image">
+                <div class="header-summary">
+                    <div class="summary-item">Name: <span id="summary-name"></span></div>
+                    <div class="summary-item">Semester: <span id="summary-semname"></span></div>
+                    <div class="summary-item">Total Time: <span id="summary-totaltime"></span></div>
+                    <div class="summary-item">No. of Dates: <span id="summary-nodates"></span></div>
+                    <div class="summary-item">No. of Lates: <span id="summary-nolates"></span></div>
+                    <div class="summary-item">No. of Violations: <span id="summary-noviolations"></span></div>
+                </div>
+                
+                <div class="records-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Date</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Status</th>
+                                <th>Total Duty</th>
+                                <th>Status Monitor</th>
+                                <th>Violation?</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gratis-records-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="filters-and-download-section">
+                <div class="filters">
+                    <label for="date-filter">Filter by Date:</label>
+                    <input type="date" id="date-filter" onchange="filterGratisRecords()">
+                    <button id="reset-date-filter" onclick="resetDateFilter()">Show All</button>
+                </div>
+                
+                <div class="download-container">
+                    <button id="download-gratis-csv-btn" class="download-btn">DOWNLOAD CSV</button>
+                    <button id="download-gratis-jpeg-btn" class="download-btn">DOWNLOAD JPEG</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div id="modal-fellowship" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Fellowship Records</h2>
+            
+            <div id="fellowship-content-for-image">
+                <div class="header-summary">
+                    <div class="summary-item">Name: <span id="fellowship-summary-name"></span></div>
+                    <div class="summary-item">Semester: <span id="fellowship-summary-semname"></span></div>
+                    <div class="summary-item">Total Fellowship: <span id="fellowship-summary-totalfellowship"></span></div>
+                    <div class="summary-item">No. of Absent: <span id="fellowship-summary-noabsent"></span></div>
+                    <div class="summary-item">No. of Excused Left: <span id="fellowship-summary-excusedleft"></span></div>
+                    <div class="summary-item">No. of S-Service: <span id="fellowship-summary-nosservice"></span></div>
+                </div>
+                
+                <div class="records-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Church</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Type of Fellowship</th>
+                                <th>No. of S-Service</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fellowship-records-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="filters-and-download-section">
+                <div class="filters">
+                    <label for="fellowship-date-filter">Filter by Date:</label>
+                    <input type="date" id="fellowship-date-filter" onchange="filterFellowshipRecords()">
+                    <button id="fellowship-reset-date-filter" onclick="resetFellowshipDateFilter()">Show All</button>
+                </div>
+
+                <div class="download-container">
+                    <button id="download-fellowship-csv-btn" class="download-btn">DOWNLOAD CSV</button>
+                    <button id="download-fellowship-jpeg-btn" class="download-btn">DOWNLOAD JPEG</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Modal-Certificate" class="modal-certificate-unique" style="display: none;">
+        <div class="certificate-content" id="certificate-area">
+            <div class="certificate-header">
+                GRC-MLALAF <br>
+                Scholarship Dept.
+            </div>
+            <h1 class="certificate-title">CERTIFICATE OF COMPLETION</h1>
+            <p class="certificate-presented-to">This certificate is proudly presented to</p>
+            <div class="certificate-name" id="certificate-name-display">Firstname Surname</div>
+            <p class="certificate-recognition">
+                in recognition of his/her hardwork and dedication in completing the internship from 
+                <span id="certificate-day1">day1</span> to <span id="certificate-day2">day2</span> at Scholarship Department
+            </p>
+
+            <div class="certificate-signature-area">
+                <img id="signature-image" src="" alt="Scholarship Head Signature" class="signature-png-img">
+                <hr class="signature-line">
+                <div class="signature-fullname" id="scholarHead-fullname-display">Fullname (from signature table)</div>
+                <div class="signature-title">Scholarship Head</div>
+            </div>
+        </div>
+        
+        <div class="download-container">
+            <button id="downloadCertificateBtn" class="download-btn">Download Certificate (JPEG)</button>
+        </div>
+    </div>
+
+    <div id="modal-exit" class="modal-exit-backdrop">
+        <div class="modal-exit-content-box" id="modal-exit-content">
+            <span class="close-btn-exit">&times;</span>
+            <h2>Exit Scholarship Program</h2>
+            <div class="modal-body-exit">
+                <p>Please provide a reason for your request to exit the scholarship program. This request will be sent to the admin for review.</p>
+                <textarea id="exitReasonInput" placeholder="Type your reason here..." rows="5"></textarea>
+                <button id="sendExitRequestBtn" class="action-btn send-btn">Send Request</button>
+            </div>
+        </div>
+    </div>
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="scholarDash.js"></script>
+</body>
+</html>

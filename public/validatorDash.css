@@ -1,0 +1,1259 @@
+/* --- Global Styles --- */
+body {
+    /* Set body and html to 100% height to allow content to fill */
+    height: 100vh;
+    display: flex; /* Stack header and main-content vertically */
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* --- KEY CHANGE 1: Dark Body Background --- */
+    background-color: #1A2035;
+    /* --- KEY CHANGE 2: Default body text color is white/light gray --- */
+    color: #E0E0E0; 
+}
+
+/* --- Dashboard Header --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #2A324A;
+    border-bottom: 1px solid #00BFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00BFFF;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#profileEmail {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: -5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger div {
+    width: 100%;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #2A324A;
+    min-width: 180px;
+    box-shadow: 0 4px 12px #00BFFF;
+    z-index: 100;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+    color: #2A324A;
+    background-color: #f5f5f5;
+}
+
+.show-menu {
+    display: block;
+}
+
+
+.button-container {
+    /* Key Change: Removes the max-width restriction. 
+    The container will now take up 100% of the .main-content's inner area (which is screen width - 80px padding). */
+    display: grid;
+    /* Grid: 3 equal columns (1fr each) */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; 
+    
+    width: 100%; /* Fill the full width of .main-content */
+    height: 100%; /* Fill the full height of .main-content */
+}
+.menu-btn {
+    /* Let the grid cell dictate the size */
+    width: 100%;
+    height: 100%; 
+    
+    border: none;
+    border-radius: 12px;
+    background-color: #2A324A;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Center text inside the button */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px #00BFFF;
+}
+
+/* --- Media Query for Responsiveness --- */
+@media (max-width: 900px) {
+    /* Example: Switch to 2 columns on slightly smaller screens */
+    .button-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    /* On mobile screens, stack them in 1 column */
+    .button-container {
+        grid-template-columns: 1fr;
+        height: auto; /* Allow the container to collapse vertically */
+    }
+    .main-content {
+        /* Align to the top on smaller screens to prevent content stretching off-screen */
+        align-items: flex-start;
+        padding: 20px; /* Reduce padding on mobile */
+    }
+    .menu-btn{
+        height: 120px;
+    }
+}
+
+/* --- Profile Modal Styles --- */
+/* 1. Backdrop (FIXED: Hidden by default. JS will set display: flex to show it) */
+.profile-modal-backdrop {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    /* These will only apply when JS sets display: flex */
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Profile Modal Styles (Keep as is for unique content box) --- */
+
+.profile-modal-content-unique {
+    background-color: #2A324A;
+    color: #E0E0E0;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    width: 850px;
+    max-width: 95%;
+    position: relative;
+
+    /* ✅ FIX: Limit height and manage scrolling */
+    max-height: 95vh; /* Maximum height is 95% of the viewport height */
+    overflow-y: auto; /* Content will scroll if it exceeds max-height */
+    
+    /* 🚀 SCROLLBAR HIDING FIX: */
+    
+    /* For IE and Edge */
+    -ms-overflow-style: none; 
+    
+    /* For Firefox */
+    scrollbar-width: none; 
+}
+
+/* For Chrome, Safari, and Opera (WebKit browsers) */
+.profile-modal-content-unique::-webkit-scrollbar {
+    display: none;
+}
+
+
+
+/* Modal Headings (Using the correct unique selector) */
+.profile-modal-content-unique h2,
+.profile-modal-content-unique h3,
+.profile-modal-content-unique h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Update Close button */
+.close-btn {
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    
+}
+
+
+/* New Grid for Profile Layout (FIXED FOR SINGLE COLUMN) */
+.profile-modal-grid {
+    display: grid;
+    /* Forces content to stack vertically in one column */
+    grid-template-columns: 1fr; 
+    gap: 30px; 
+}
+
+/* Column styles updated for single column flow */
+.profile-info-column {
+    display: flex; /* Kept for aligning inner elements (pic, buttons) */
+    flex-direction: column;
+    align-items: center; /* Centers items horizontally in the column */
+    padding-top: 10px;
+    text-align: center;
+    /* Optional: Add a subtle bottom margin to separate from the email form */
+    margin-bottom: 10px; 
+}
+
+.form-column {
+    /* Kept for organizing the email and password forms */
+    display: flex; 
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Form style modified for dark mode */
+#uploadProfilePicForm, #changeEmailForm, #changePasswordForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch; /* Forms should stretch to fill the column width */
+    width: 100%; 
+}
+
+.profile-form {
+    background-color: #1A2035; 
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 0; 
+    width: 100%;
+    box-sizing: border-box;
+}
+.profile-form label {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+/* Update Submit Buttons for Accent Color (Using class .submit-btn) */
+.submit-btn,
+#uploadProfilePicForm button,
+#changeEmailForm button,
+#changePasswordForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+    width: 100%; /* Make buttons full width inside form */
+    box-sizing: border-box;
+}
+
+
+.submit-btn:hover,
+#uploadProfilePicForm button:hover,
+#changeEmailForm button:hover,
+#changePasswordForm button:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+/* Update Input Styles for Dark Mode */
+/* Targeting inputs by ID/Type to override default browser/scholar styles */
+#uploadProfilePicForm input[type="file"],
+#changeEmailForm input[type="email"],
+#changePasswordForm input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672; /* Darker border */
+    background-color: #3C4560; /* Dark input background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+#uploadProfilePicForm input[type="file"]:focus,
+#changeEmailForm input[type="email"]:focus,
+#changePasswordForm input[type="password"]:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Update File Upload Button (using the custom label in the new HTML) */
+.custom-file-upload {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 10px;
+    width: 100%; /* Make it full width */
+    box-sizing: border-box;
+}
+
+.custom-file-upload:hover {
+    background-color: #4CC4FF;
+}
+
+
+#file-upload {
+    display: none;
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Update Profile Picture styling */
+.modal-profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 20px auto;
+    border: 3px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.7);
+}
+
+
+/* --- Mobile Responsiveness for Modal Layout (FINAL FIX) --- */
+@media (max-width: 768px) {
+    
+    .profile-modal-content-unique {
+        padding: 20px;
+        margin: 0;
+        max-width:88%;
+        
+        /* Keep these for centering if needed, but they don't solve the clipping */
+        margin-top: 2.5vh; 
+        margin-bottom: 2.5vh;
+        
+        /* RE-APPLY THE MAX-HEIGHT FOR EXTREMELY SMALL SCREENS if 95vh isn't enough */
+        max-height: 85vh;
+    }
+    
+    .profile-modal-content-unique h2 {
+        /* ✅ FIX: Use a normal, small margin-top */
+        margin-top: 15px !important; /* Changed from 150px */
+        
+        /* Mobile-specific adjustments */
+        font-size: 24px;
+        padding-bottom: 10px; 
+        margin-bottom: 20px;
+    }
+    
+    .close-btn {
+        color: #00BFFF;
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 35px;
+        font-weight: 300;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    
+    }
+
+    .close-btn:hover {
+        color: #ffffff;
+    }
+
+    /* The rest of the grid and form fixes below can stay as they were: */
+    .profile-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .modal-profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+    /* Adjusted the form styling for better fit on small screens */
+    #uploadProfilePicForm {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        padding: 15px;
+    }
+    #uploadProfilePicForm .custom-file-upload {
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    #uploadProfilePicForm .submit-btn {
+        margin-top: 0;
+        width: 100%;
+    }
+}
+
+/* --- Success Popup Styles --- */
+.success-popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.success-popup-content {
+    background-color: #2A324A; /* Dark modal background */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    width: 500px;
+    max-width: 90%;
+    position: relative;
+
+}
+
+.success-popup-content p {
+    font-size: 18px;
+    color: #4CAF50;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* --- Available Slot Counter --- */
+#avbl-slot {
+    font-family: 'Poppins', sans-serif; 
+    font-size: 1.2em; 
+    /* Change text color to white for dark background */
+    color: #E0E0E0; 
+    /* Use the dark background color */
+    background-color: #1A2035; 
+    padding: 10px 20px; 
+    margin: 20px; 
+    border-radius: 8px; 
+    /* Use a subtle accent shadow */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.2); 
+    display: inline-block; 
+    font-weight: 500;
+    /* Use the blue accent color for the border */
+    border-left: 5px solid #00BFFF; 
+}
+
+#avbl-slot-number {
+    font-size: 1.5em; 
+    font-weight: 700; 
+    /* Use the blue accent color */
+    color: #00BFFF; 
+    margin-left: 8px; 
+}
+
+#avbl-slot-container {
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    margin-right: 0; 
+}
+
+
+.icon-btn {
+    font-size: 2.2em;
+    color: #4CAF50;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.icon-btn:hover {
+    color: #45a049; 
+}
+
+
+/* --- Request Validation Card Styles --- */
+
+.main-content {
+    /* Kept centering for the card */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(80vh - 70px);
+    padding: 20px;
+    /* --- KEY CHANGE 3: Dark Main Content Background --- */
+    background-color: #1A2035; 
+}
+
+.request-card-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+}
+.request-card {
+    /* Dark background from the rest of the app */
+    background-color: #2A324A;
+    color: #fff;
+    border-radius: 12px;
+    /* Updated box-shadow to use the accent color */
+    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4); 
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    width: 100%;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.remaining-count {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    /* Use accent color */
+    color: #00BFFF; 
+}
+
+.request-number {
+    font-size: 48px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    /* Use accent color */
+    color: #ffffff; 
+}
+
+.request-type {
+    font-size: 18px;
+    font-weight: 500;
+    /* Subtle white color for the label */
+    color: #E0E0E0; 
+    margin-bottom: 20px;
+}
+
+.validate-btn {
+    /* Use accent color for the main action button */
+    background-color: #00BFFF; 
+    color: #1A2035; /* Dark text for contrast */
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.validate-btn:hover {
+    background-color: #4CC4FF; /* Lighter shade on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+#no-requests-message {
+    text-align: center;
+    /* White text for visibility on the dark background */
+    color: #00BFFF; 
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- MODAL (Details/Reject/Zoom) --- */
+
+/* Unify modal backdrop class names for clarity */
+.details-modal-backdrop, 
+.reject-modal-backdrop, 
+.zoom-modal-backdrop {
+    display: none; /* Hide by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    justify-content: center;
+    align-items: center;
+}
+
+/* Base Modal Content Styling (Details and Reject) */
+.details-modal-content, 
+.reject-modal-content {
+    /* Dark background from the rest of the application */
+    background-color: #2A324A; 
+    color: #E0E0E0; /* Light text for readability */
+    padding: 30px;
+    border-radius: 16px;
+    /* Use blue accent color for the box shadow */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    width: 800px;
+    max-width: 90%;
+    position: relative;
+
+
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    max-height: 90vh; 
+    overflow-y: scroll; /* Allow scrolling */
+    /* KEY CHANGE: Hide scrollbar in Firefox */
+    scrollbar-width: none; 
+}
+/* KEY CHANGE: Hide scrollbar in Webkit browsers (Chrome, Safari, Edge) */
+.details-modal-content::-webkit-scrollbar, 
+.reject-modal-content::-webkit-scrollbar {
+    display: none;
+    width: 0; /* Ensures no space is reserved for the scrollbar */
+}
+
+
+.details-modal-content h2,
+.details-modal-content h3,
+.details-modal-content h4,
+.reject-modal-content h2 {
+    margin-top: 0;
+    /* Bright accent color for titles */
+    color: #00BFFF; 
+    /* Use accent color for border */
+    border-bottom: 1px solid #00BFFF; 
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Close button styling */
+.close-btn {
+    /* Bright accent color */
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #ffffff; /* White on hover */
+}
+
+/* --- LARGE MODAL (Details Modal) --- */
+
+.large-modal {
+    width: 1200px;
+    max-width: 95%;
+    display: grid;
+    grid-template-areas:
+        "info info"
+        "docs docs"
+        "actions actions";
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+#details-content {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    padding: 0; 
+}
+
+.request-info-section,
+.document-section,
+.common-documents-section {
+    margin-bottom: 20px;
+    flex-shrink: 0; 
+}
+
+.request-info-section h3,
+.document-section h4,
+.common-documents-section h4 {
+    /* Use accent color for section titles */
+    color: #00BFFF; 
+    border-bottom: 2px solid #4A5672; /* Subtle dark border */
+    padding-bottom: 5px;
+}
+
+.request-info-section p {
+    font-size: 16px;
+    /* KEY CHANGE: Set the color to the blue accent */
+    color: #00BFFF; 
+}
+
+.document-section,
+.common-documents-section {
+    display: grid;
+    grid-area: docs;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Styling for document link/image containers */
+.document-link-container,
+.document-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Darker background for content boxes */
+    background-color: #1A2035; 
+    border: 1px solid #4A5672; /* Subtle border */
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.document-link-container a {
+    text-decoration: none;
+    /* Accent color for links */
+    color: #00BFFF; 
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.document-link-container a:hover {
+    color: #4CC4FF; /* Lighter accent on hover */
+}
+
+.document-item img {
+    /* Kept original image styles but enhanced with a border/shadow */
+    width: 100%; 
+    height: auto; 
+    max-height: 300px; 
+    object-fit: contain; 
+    border: 2px solid #00BFFF; /* Accent border */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.document-item img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3);
+}
+
+/* Download Button Styles (From previous step) */
+.download-button {
+    /* KEY CHANGE: Use the blue accent color for the button background */
+    background-color: #00BFFF; 
+    /* KEY CHANGE: Use the dark background color for the text for contrast */
+    color: #1A2035; 
+    padding: 10px 20px; /* Adjust padding to match other dark theme buttons */
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    text-decoration: none; /* Ensure it looks like a button even if it's an <a> tag */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.download-button:hover {
+    /* Lighter blue on hover */
+    background-color: #4CC4FF; 
+    /* Darker green on hover */
+    text-decoration: none; 
+    /* Use a blue-tinted shadow for effect */
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.download-button i {
+    /* Ensure the icon color matches the text */
+    color: #1A2035; 
+    font-size: 1.1em;
+}
+
+/* Validation Action Buttons */
+.validation-actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 0;
+}
+
+.accept-btn,
+.reject-btn,
+.reject-modal-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px; /* Slightly larger border-radius */
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    color: white; /* Maintain white text for contrast */
+}
+
+.accept-btn {
+    /* Use a clear, vibrant green for 'Accept' */
+    background-color: #00BFFF; 
+    color: black;
+}
+
+.accept-btn:hover {
+    background-color: #00BFFF; /* Lighter green on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.reject-btn,
+.reject-modal-btn {
+    /* Use a clear, vibrant red for 'Reject' */
+    background-color: #00BFFF; 
+    color: #000;
+}
+
+.reject-btn:hover,
+.reject-modal-btn:hover {
+    background-color: #00bFFF; /* Lighter red on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+}
+
+/* --- SMALL MODAL (Reject Modal) --- */
+
+.reject-modal-content {
+    max-width: 500px;
+    padding: 40px;
+}
+
+#rejectModal h2 {
+    /* **COLOR CHANGE: Title color changed to #00BFFF (Vibrant Blue)** */
+    color: #00BFFF; 
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: none;
+}
+
+.rejection-options .section-title {
+    font-weight: 600;
+    color: #00BFFF; /* Accent color for option titles */
+    margin-bottom: 10px;
+}
+
+/* **KEY CSS FIX 1: Apply column layout to the main container** */
+#reject-docs-container {
+    display: flex;
+    flex-direction: column; /* This is the key to stacking them vertically */
+    gap: 10px; /* Space between each checkbox row */
+    padding-bottom: 20px;
+}
+/* Add this new rule to your CSS file */
+#reject-docs-container label {
+    display: flex;        /* Makes the label a flexible container */
+    align-items: center;  /* Vertically centers the checkbox and text */
+    gap: 10px;            /* Adds space between the checkbox and the text */
+    cursor: pointer;      /* Keep the pointer to show it's clickable */
+    width: 100%;          /* Allows the label to take up full width for better clicking */
+}
+/* **KEY CSS FIX 2: Style for the individual checkbox item (must be added in JS)** */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+
+/* Checkbox Styling (Updated to use the new .checkbox-item wrapper) */
+.checkbox-item input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    /* Darker border for dark mode */
+    border: 2px solid #4A5672; 
+    border-radius: 4px;
+    outline: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    flex-shrink: 0; /* Ensures the checkbox doesn't shrink */
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+    /* Red background for rejection focus (keeping this for "invalid document" state) */
+    background-color: #F44336; 
+    border-color: #F44336;
+}
+
+/* Select/Textarea Styling */
+.rejection-options select,
+.rejection-options textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #4A5672; /* Darker border */
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Dark input background */
+    background-color: #3C4560; 
+    color: #FFFFFF; /* White text */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.rejection-options select:focus,
+.rejection-options textarea:focus {
+    outline: none;
+    /* Accent color focus ring */
+    border-color: #00BFFF; 
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
+}
+
+/* Success Popup (Updated for Dark Theme) */
+.success-popup-content {
+    /* Dark modal background */
+    background-color: #2A324A; 
+    padding: 30px;
+    border-radius: 12px;
+    /* Blue accent shadow */
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    text-align: center;
+    width: 400px;
+    max-width: 90%;
+    position: relative;
+
+}
+
+.success-popup-content p {
+    font-size: 18px;
+    /* Use a success-green color */
+    color: #00BFFF; 
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Apply dark background and light text to the input field itself */
+#changePasswordForm input[type="password"],
+#changePasswordForm input[type="text"] /* 👈 Add input[type="text"] to match after toggle */
+/* ... other inputs ... */
+{ 
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+/* 🚀 FIX: Explicitly style the placeholder for both 'password' AND 'text' types */
+
+/* For WebKit (Chrome, Safari, newer Edge) */
+#changePasswordForm input::-webkit-input-placeholder {
+    color: #A0A0A0; /* The desired placeholder color (e.g., light gray) */
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For Firefox */
+#changePasswordForm input:-moz-placeholder,
+#changePasswordForm input::-moz-placeholder {
+    color: #A0A0A0;
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For IE (Internet Explorer) */
+#changePasswordForm input:-ms-input-placeholder {
+    color: #A0A0A0;
+}
+
+
+
+
+
+
+
+/* --- Modal Backdrop (Only needed for full screen overlay) --- */
+.modal-security-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Allows scrolling if content is taller than viewport */
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+    /* REMOVE display: flex; here */
+}
+
+/* --- Modal Content Container (FIXED FOR CENTERING) --- */
+.modal-content-security {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* 🚀 KEY CENTERING FIX: */
+    position: fixed; /* 1. Position relative to the viewport */
+    top: 50%;        /* 2. Push down 50% from the top */
+    left: 50%;       /* 3. Push right 50% from the left */
+    transform: translate(-50%, -50%); /* 4. Shift back by half its own size */
+    
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+
+/* --- Heading and Text Styles --- */
+.modal-content-security h2 {
+    color: #00BFFF; /* Bright blue for the heading */
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    /* Separator line beneath the heading */
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.modal-content-security p {
+    color: #CCCCCC; /* Light gray text for readability */
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px; /* Slight padding to keep text off the edge */
+}
+
+/* --- Close Button --- */
+.modal-content-security .close {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-content-security .close:hover {
+    color: #00BFFF; /* Bright blue on hover */
+}
+
+/* --- Form and Input Styles --- */
+#securityOtpForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+#securityOtpForm label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -5px; /* Adjust spacing */
+}
+
+#securityOtpInput {
+    /* Dark input background */
+    background-color: #0F1E30; 
+    color: #FFFFFF; /* White text for contrast */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF; /* Blue border */
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 4px; 
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#securityOtpInput:focus {
+    border-color: #00FFFF; /* Lighter blue on focus */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7); /* Stronger glow on focus */
+    outline: none;
+}
+
+/* --- Verify Button --- */
+.submit-btn {
+    /* Full width, bright blue button to match the image */
+    background-color: #00BFFF; 
+    color: #1A2E44; /* Dark text on bright button */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #00FFFF; /* Brighter on hover */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.submit-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Message Area --- */
+#securityOtpMessage {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #00BFFF; /* Blue text for informational messages */
+}

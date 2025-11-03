@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renewal Request</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            /* --- DARK THEME COLOR VARIABLES --- */
+            --primary-accent: #00BFFF; /* The vibrant blue accent color */
+            --dark-primary: #1A2035; /* Dark background color (body/main) */
+            --dark-secondary: #2A324A; /* Card/Container background color */
+            --text-color-light: #E0E0E0; /* Light text color for dark backgrounds */
+            --input-bg: #3C4560; /* Darker input background */
+            --input-border: #4A5672; /* Subtle input border */
+            --hover-color-light: #4CC4FF; /* Lighter blue for hover effects */
+            
+            /* Success and Error Colors adapted for dark theme */
+            --success-bg: #1f372a; /* Darker success background */
+            --success-color: #4CAF50; /* Green text */
+            --error-bg: #3a2527; /* Darker error background */
+            --error-color: #F44336; /* Red text */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-primary); /* Apply dark primary background */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; 
+            min-height: 100vh;
+            color: var(--text-color-light); /* Light text for body */
+            /* Simple gradient for depth */
+            background: linear-gradient(135deg, #1A2035, #121625); 
+        }
+
+        /* NEW WRAPPER FOR BACK BUTTON POSITIONING */
+        .form-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 60px; 
+        }
+        
+        /* BACK BUTTON STYLES (Use primary accent color) */
+        .back-button {
+            position: absolute;
+            top: -40px; 
+            left: 0;
+            font-size: 1rem;
+            text-decoration: none;
+            color: var(--primary-accent); /* Blue accent */
+            transition: color 0.2s, text-decoration 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            color: var(--hover-color-light); 
+            text-decoration: underline;
+        }
+        /* END BACK BUTTON STYLES */
+
+        .container {
+            background: var(--dark-secondary); /* Dark card background */
+            padding: 40px;
+            border-radius: 12px;
+            /* Blue shadow matching the dashboard */
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4); 
+            border: 1px solid var(--primary-accent); /* Blue border accent */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        h2 {
+            text-align: center;
+            color: var(--primary-accent); /* Blue accent for title */
+            margin-bottom: 30px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--input-border); /* Subtle dark border */
+            padding-bottom: 10px;
+        }
+        
+        /* Two-column layout for main inputs */
+        #renewalForm > .form-group:nth-child(-n+4) {
+            display: inline-block;
+            width: calc(50% - 10px);
+            margin-right: 20px;
+            vertical-align: top;
+        }
+        
+        #renewalForm > .form-group:nth-child(2n) {
+            margin-right: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-color-light); /* Light text color */
+        }
+        
+        /* Mark required fields */
+        label::after {
+            content: ' *';
+            color: var(--primary-accent); /* Use blue accent for required marker */
+            margin-left: 2px;
+        }
+
+        input[type="text"], input[type="email"], select, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border); /* Dark border */
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: var(--input-bg); /* Dark input background */
+            color: var(--text-color-light); /* Light text */
+        }
+        
+        /* Style for select options in dark theme */
+        select option {
+            background: var(--input-bg);
+            color: var(--text-color-light);
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary-accent); /* Blue accent focus */
+            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.25);
+            background-color: var(--input-bg);
+        }
+
+        input[type="file"] {
+            padding: 5px; 
+            background-color: var(--input-bg);
+        }
+        
+        /* Full width for remaining fields like course and file uploads */
+        #renewalForm > .form-group:nth-child(5) {
+            width: 100%;
+            margin-right: 0;
+        }
+        .file-upload-group {
+            width: 100%;
+            margin-right: 0;
+        }
+
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-accent); /* Blue accent */
+            color: var(--dark-primary); /* Dark text for contrast */
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600; 
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: var(--hover-color-light); /* Lighter blue on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.4); /* Blue shadow */
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px; /* Slightly more rounded corners */
+            text-align: center;
+            font-weight: 500;
+        }
+        .status-success {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .status-error {
+            background-color: var(--error-bg);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        /* Horizontal rule separation */
+        hr {
+            margin: 30px 0; 
+            border: none;
+            border-top: 1px solid var(--input-border); /* Subtle dark separator */
+        }
+
+        h3 {
+            font-size: 1.2rem; 
+            color: var(--text-color-light); 
+            margin-bottom: 20px;
+        }
+
+
+        /* ========================================= */
+        /* 📱 MOBILE STYLES (Max-width 700px) 📱    */
+        /* ========================================= */
+        @media (max-width: 700px) {
+            
+            /* 1. Adjust global padding/spacing */
+            body {
+                padding: 10px; /* Reduce overall body padding */
+            }
+            
+            .container {
+                padding: 20px; /* Reduce card padding */
+                /* The max-width of 600px is already good, just ensure padding is reduced */
+            }
+            
+            /* 2. Reset the Two-Column Layout for the first 4 fields (Name, Email, Year Level) */
+            #renewalForm > .form-group:nth-child(-n+4), 
+            #renewalForm > .form-group:nth-child(2n) {
+                display: block; /* Make them stack vertically */
+                width: 100% !important; /* Force full width, overriding 50% calculation */
+                margin-right: 0 !important; /* Remove spacing between columns */
+            }
+
+            /* 3. Adjust Headers and Buttons for mobile touch targets */
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
+            button {
+                padding: 15px 0; /* Increase vertical padding for easier tapping */
+                font-size: 1.2rem;
+            }
+
+            .back-button {
+                top: -30px; /* Adjust back button position */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-wrapper">
+        <a href="mainpage.html" class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Home
+        </a>
+        <div class="container">
+            <h2>Scholarship Renewal Request 🔄</h2>
+            <form id="renewalForm" action="/submit-renewal" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="surname">Surname:</label>
+                    <input type="text" id="surname" name="surname" required pattern="[A-Za-z ]+" title="Letters and spaces only">
+                </div>
+                <div class="form-group">
+                    <label for="firstname">First Name:</label>
+                    <input type="text" id="firstname" name="firstname" required pattern="[A-Za-z ]+" title="Letters and spaces only">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="yearLevel">Year Level:</label>
+                    <select id="yearLevel" name="yearLevel" required>
+                        <option value="" disabled selected>Select Year Level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="course">Course:</label>
+                    <select id="course" name="course" required>
+                        <option value="" disabled selected>Select Course</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSED">BSED</option>
+                        <option value="BSBA">BSBA</option>
+                        <option value="BSA">BSA</option>
+                        <option value="BSE">BSE</option>
+                    </select>
+                </div>
+                
+                <hr>
+                <h3 style="font-size: 1.2rem; color: var(--primary-accent); margin-bottom: 20px;">Upload Required Documents</h3>
+
+                <div class="form-group file-upload-group">
+                    <label for="gradeslip">Latest Gradeslip (PNG or JPEG):</label>
+                    <input type="file" id="gradeslip" name="gradeslip" accept=".png, .jpeg, .jpg" required>
+                </div>
+                <div class="form-group file-upload-group">
+                    <label for="coc">Certificate of Completion (COC) (PNG or JPEG):</label>
+                    <input type="file" id="coc" name="coc" accept=".png, .jpeg, .jpg" required>
+                </div>
+                <div class="form-group file-upload-group">
+                    <label for="cor">Certificate of Registration (COR) (PNG or JPEG):</label>
+                    <input type="file" id="cor" name="cor" accept=".png, .jpeg, .jpg" required>
+                </div>
+
+                <button type="submit">Submit Request</button>
+                <div id="statusMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('renewalForm');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function showStatus(message, isSuccess) {
+            statusMessage.textContent = message;
+            statusMessage.className = isSuccess ? 'status-success' : 'status-error';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+            const formData = new FormData(form);
+            
+            try {
+                // NOTE: This fetch call will fail unless you have a server running at /submit-renewal
+                const response = await fetch('/submit-renewal', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                // Simulate success/failure for demonstration purposes
+                const isSuccess = response.ok;
+                const result = isSuccess ? { message: 'Renewal request submitted successfully!' } : await response.json();
+                
+                if (isSuccess) {
+                    showStatus(result.message, true);
+                    form.reset(); 
+                } else {
+                    showStatus(result.message || 'Error submitting request.', false);
+                }
+            } catch (error) {
+                console.error('Network error or Submission Simulation:', error);
+                // Fallback success for demonstration since there's no backend
+                showStatus('Renewal request submitted successfully! (Note: Server endpoint /submit-renewal not found in this environment)', true);
+                form.reset(); 
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Request';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2713 @@
+/* --- Global Styles & Layout --- */
+body {
+    /* Set body and html to 100% height to allow content to fill */
+    height: 100vh;
+    display: flex; /* Stack header and main-content vertically */
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f9;
+    color: #333;
+}
+
+.form-submit-container {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #2A324A;
+    border-bottom: 1px solid #00BFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00BFFF;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#profileEmail {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: -5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger div {
+    width: 100%;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #2A324A;
+    min-width: 180px;
+    box-shadow: 0 4px 12px #00BFFF;
+    z-index: 100;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+    color: #2A324A;
+    background-color: #f5f5f5;
+}
+
+.show-menu {
+    display: block;
+}
+
+.main-content {
+    /* Use padding to create space from the edges, but let the content inside stretch */
+    padding: 40px; 
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-grow: 1; /* Makes main-content fill ALL remaining vertical space */
+    width: 100%; /* Important: Use full width before padding is applied */
+    box-sizing: border-box; /* Include padding in the element's total size */
+    background-color: #1A2035;
+}
+
+.button-container {
+    /* Key Change: Removes the max-width restriction. 
+       The container will now take up 100% of the .main-content's inner area (which is screen width - 80px padding). */
+    display: grid;
+    /* Grid: 3 equal columns (1fr each) */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; 
+    
+    width: 100%; /* Fill the full width of .main-content */
+    height: 100%; /* Fill the full height of .main-content */
+}
+.menu-btn {
+    /* Let the grid cell dictate the size */
+    width: 100%;
+    height: 100%; 
+    
+    border: none;
+    border-radius: 12px;
+    background-color: #2A324A;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Center text inside the button */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px #00BFFF;
+}
+
+/* --- Media Query for Responsiveness --- */
+@media (max-width: 900px) {
+    /* Example: Switch to 2 columns on slightly smaller screens */
+    .button-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    /* On mobile screens, stack them in 1 column */
+    .button-container {
+        grid-template-columns: 1fr;
+        height: auto; /* Allow the container to collapse vertically */
+    }
+    .main-content {
+        /* Align to the top on smaller screens to prevent content stretching off-screen */
+        align-items: flex-start;
+        padding: 20px; /* Reduce padding on mobile */
+    }
+    .menu-btn{
+        height: 120px;
+    }
+}
+
+/*goods*/
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Profile Modal: Dark Theme and New Layout Styles --- */
+.modal-content {
+    background-color: #2A324A; /* Dark background matching the header and buttons */
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 16px; /* Slightly larger radius */
+    /* New box-shadow using the accent color for a modern glow */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    width: 850px;
+    max-width: 95%;
+    position: relative;
+    color: #E0E0E0; /* Light text color */
+}
+
+
+
+
+/* Update Modal Headings */
+.modal-content h2,
+.modal-content h3,
+.modal-content h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Update Close button */
+.close {
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #ffffff;
+}
+
+/* New Grid for Profile Layout */
+.profile-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* 1/3 for profile info, 2/3 for forms */
+    gap: 30px;
+}
+
+.profile-info-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+    text-align: center;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Original form style modified for dark mode */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.profile-form {
+    background-color: #1A2035; /* Even darker background for form sections */
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 0; /* Managed by form-column gap */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+}
+
+.profile-form label {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+#currentSemesterBtn, #startNewSemesterOptionBtn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 15px;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+#currentSemesterBtn:hover, #startNewSemesterOptionBtn:hover{
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+} 
+
+/* Update Submit Buttons for Accent Color */
+.submit-btn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+/* Update Submit Buttons for Accent Color */
+#saveSemesterBtn, #extendSemesterBtn, #verify-account-otp, #verify-violation-otp, #chProfilePic, #showAddDeptFormBtn, #showAddChurchFormBtn{
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 15px;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+}
+
+.submit-btn:hover, #saveSemesterBtn:hover, #extendSemesterBtn:hover, #verify-account-otp:hover, #verify-violation-otp,#showAddDeptFormBtn:hover, #showAddChurchFormBtn:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+
+
+
+
+
+
+/* Update Input Styles for Dark Mode */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672; /* Darker border */
+    background-color: #3C4560; /* Dark input background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Update File Upload Button */
+.custom-file-upload {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 10px; /* Space between label and file input */
+}
+
+.custom-file-upload:hover {
+    background-color: #4CC4FF;
+}
+
+
+#file-upload {
+    display: none;
+}
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+
+
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    position: relative;
+}
+
+.popup-content.success {
+    border-left: 5px solid #4CAF50;
+}
+
+.close-popup {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+}
+
+.close-popup:hover,
+.close-popup:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#successMessage {
+    color: #333;
+    font-size: 1.1em;
+}
+
+
+/* Update Profile Picture styling */
+.modal-profile-pic {
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    display: block; 
+    margin: 0 auto 20px auto; 
+    border: 3px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.7); 
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* --- Mobile Responsiveness for Modal Layout --- */
+@media (max-width: 768px) {
+    .profile-modal-grid {
+        grid-template-columns: 1fr; /* Stack columns on mobile */
+        gap: 15px;
+    }
+    .modal-profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+    .modal-content {
+        padding: 20px;
+        margin: 20px auto;
+    }
+    .profile-info-column .profile-form {
+        flex-direction: row; /* Make file upload horizontal on mobile */
+        gap: 10px;
+        align-items: center;
+        padding: 15px;
+    }
+    .profile-info-column .custom-file-upload {
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    .profile-info-column .submit-btn {
+        margin-top: 0;
+        width: auto;
+    }
+}
+
+.scholar-slot-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.scholar-slot-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+.scholar-slot-controls input[type="number"] {
+    flex-grow: 1; 
+    max-width: 60%;
+    padding: 10px;
+    border: 1px solid #00BFFF;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-size: 16px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 1. PRIMARY BUTTON: Set Scholar Slot (Using the accent color) */
+#setScholarSlotBtn,#applyLastSlotBtn {
+    background-color: #00BFFF; /* Bright Accent Color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    margin: auto;
+}
+
+#setScholarSlotBtn:hover,#applyLastSlotBtn:hover {
+    background-color: #4CC4FF; /* Lighter on hover */
+}
+
+/*Dept slot section*/
+
+.modal-section {
+    /* Updated to match the overall dark modal content background/form section */
+    background-color: #1A2035; 
+    border: 1px solid #4A5672; /* Darker border */
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Match form shadow */
+    color: #E0E0E0; /* Light text color */
+}
+.modal-section h3 {
+    /* Overwrite the general h3 style for this section if needed, but keeping the general one is fine. */
+    color: #00BFFF; 
+    border-bottom: 1px solid #4A5672; /* Subtle border */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 20px; /* Slightly smaller for section headers */
+    text-align: left;
+}
+
+
+.slot-summary-container {
+    /* Updated to match the dark theme */
+    padding: 12px 18px;
+    background-color: #2A324A; /* Slightly lighter dark background */
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid #00BFFF; /* Accent border */
+}
+
+.slot-summary-container strong {
+    color: #00BFFF; /* Use accent color for emphasis */
+}
+
+.department-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.department-item, .church-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    /* ENSURING DARK THEME IS APPLIED HERE */
+    background-color: #2A324A;
+    border: 1px solid #4A5672;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.dept-name, .church-name {
+    font-weight: 600;
+    flex-grow: 1;
+    color: #ffffff; 
+}
+
+.dept-controls, .schedule-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Reusing the dark input styles for the slot management inputs */
+.dept-controls input, 
+.schedule-controls select, 
+.schedule-controls input[type="time"] {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid #4A5672; 
+    background-color: #3C4560; 
+    color: #FFFFFF; 
+    border-radius: 6px; 
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* Ensure padding allows the icon to be easily clicked */
+    padding: 5px; 
+    transition: transform 0.2s ease;
+    color: black;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+/* New Icon Button Styling - This replaces the .action-btn img styles */
+.icon-btn i {
+    font-size: 20px;
+    vertical-align: middle;
+    transition: color 0.2s ease;
+}
+
+.save-btn i {
+    /* Save icon color - use the accent color */
+    color: #000000; 
+}
+
+.save-btn:hover i {
+    color: #000000; /* Lighter accent on hover */
+}
+
+.delete-btn i, .delete-button {
+    /* Delete icon color - using a warning red */
+    color: #000000; 
+}
+
+.delete-btn:hover i, .delete-button:hover {
+    color: #000000; /* Lighter red on hover */
+}
+/* End of New Icon Button Styling */
+
+.add-department-container, .add-church-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+/* Updated Add button to match accent theme */
+.add-btn {
+    background-color: #00BFFF; 
+    color: #1A2035; 
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-btn:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+}
+
+
+
+#addDepartmentForm, #addChurchForm{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+#addDepartmentForm.hidden, #addChurchForm.hidden{
+  display: none;
+}
+
+
+
+#churchList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+.schedule-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.schedule-controls select,
+.schedule-controls input[type="time"] {
+    width: 100px;
+    text-align: center;
+    font-size: 14px;
+}
+/* --- MOBILE RESPONSIVENESS FOR CHURCH SCHEDULE (NEW SECTION) --- */
+@media (max-width: 600px) {
+    /* 1. Modify the church-item container */
+    .church-item {
+        /* Change the main item to a column layout to stack name and controls */
+        flex-direction: column; 
+        align-items: flex-start; /* Align contents to the left */
+        gap: 10px; /* Add space between the name and the controls row */
+        padding: 15px;
+    }
+
+    /* 2. Ensure the Church Name takes full width */
+    .church-name {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 5px; /* Separate name from controls */
+    }
+
+    /* 3. Modify the schedule-controls container */
+    .schedule-controls {
+        /* Force the controls row to take up full available width */
+        width: 100%;
+        /* Change the layout for the controls to distribute items evenly */
+        display: grid;
+        /* Create 5 columns for the 5 controls: select, input, input, save, delete */
+        grid-template-columns: 2fr 3fr 3fr 1fr 1fr; 
+        gap: 8px; /* Reduce gap between controls */
+    }
+
+    /* 4. Optimize the size of schedule elements for the grid */
+    .schedule-controls select,
+    .schedule-controls input[type="time"] {
+        width: 100%; /* Fill the grid column */
+        min-width: unset;
+        padding: 8px 4px; /* Adjust padding to fit better */
+        font-size: 13px;
+    }
+
+    /* 5. Optimize the size of icon buttons for the grid */
+    .schedule-controls .icon-btn {
+        padding: 8px 0;
+        display: flex; /* Helps center the icon in the grid cell */
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+
+
+/* --- VIOLATION MANAGEMENT LOG STYLES (Dark Theme - Matching .main-content) --- */
+
+/* Modal Structure */
+.modal-content.large-modal {
+    width: 95%;
+    max-width: 1100px;
+    padding: 35px;
+    border-radius: 14px;
+    /* Use dark background matching the buttons */
+    background-color: #2A324A; 
+    /* Neon Blue/Cyan border and shadow for the modal */
+    box-shadow: 0 10px 40px rgba(0, 191, 255, 0.3);
+    border: 1px solid #00BFFF; 
+
+    color: #ffffff; /* Default text color for the modal */
+}
+
+/* Modal Title */
+.modal-content.large-modal h2 {
+    color: #00BFFF; /* Neon Blue/Cyan color */
+    border-bottom: 3px solid #00BFFF; /* Neon Blue/Cyan underline */
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Close Button (Ensure it's visible against the dark background) */
+.modal-content.large-modal .close {
+    color: #ffffff; 
+    text-shadow: 0 0 5px #00BFFF;
+    opacity: 0.8;
+}
+
+.modal-content.large-modal .close:hover,
+.modal-content.large-modal .close:focus {
+    color: #00BFFF; 
+    text-shadow: 0 0 10px #00BFFF;
+    opacity: 1;
+}
+
+/* Controls (Filter/Search Section) */
+.violation-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+    padding: 15px 20px;
+    background: #1A2035; /* Dark background matching .main-content */
+    border-radius: 10px;
+    border: 1px solid #00BFFF; /* Neon Blue border */
+    box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
+}
+
+.violation-controls select,
+.violation-controls input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #00BFFF;
+    border-radius: 8px;
+    font-size: 15px;
+    flex-grow: 1;
+    max-width: 280px;
+    background-color: #3f4a66; /* Slightly lighter dark input background */
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.violation-controls select::placeholder,
+.violation-controls input[type="text"]::placeholder {
+    color: #a0a0a0;
+}
+
+.violation-controls select:focus,
+.violation-controls input[type="text"]:focus {
+    border-color: #00BFFF;
+    box-shadow: 0 0 8px #00BFFF;
+    outline: none;
+}
+
+#violationSearchBtn {
+    padding: 10px 25px;
+    background-color: #00BFFF; /* Neon Blue button */
+    color: #2A324A; /* Dark text for contrast */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+#violationSearchBtn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.6);
+}
+
+/* Data Table Container */
+.violation-data-container {
+    border: 1px solid #00BFFF;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 191, 255, 0.1);
+    background-color: #1A2035; /* Dark background matching main-content */
+}
+
+/* Header and Rows Grid Layout */
+.violation-header,
+.violation-row {
+    display: grid;
+    grid-template-columns: 1.5fr 3fr 2fr 1fr;
+    padding: 14px 18px;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Header Styling */
+.violation-header {
+    font-weight: 700;
+    background: linear-gradient(90deg, #00BFFF, #00A3D9); /* Darker blue gradient */
+    color: #2A324A;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: none;
+}
+
+/* Individual Row Styling */
+.violation-row {
+    background-color: #2A324A; /* Dark background matching menu-btn */
+    transition: background-color 0.25s, transform 0.1s;
+    border-bottom: 1px solid #1A2035; /* Dark border to separate rows */
+    color: #ffffff; /* default text color for row */
+}
+
+.violation-row:nth-child(odd) {
+    background-color: #232b40; /* Slightly darker striping for contrast */
+}
+
+.violation-row:hover {
+    background-color: #3f4a66; /* Hover color */
+    transform: scale(1.01);
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+}
+
+/* Specific Column Styles */
+.col-name {
+    font-weight: 600;
+    color: #00BFFF; /* Neon Blue/Cyan for names */
+}
+
+.col-reason {
+    color: #c0c0c0;
+}
+
+.col-validator {
+    color: #ffffff;
+    font-style: italic;
+}
+
+.col-action {
+    text-align: center;
+}
+
+/* Action Button Styling (Now matching the Search button style) */
+.revert-btn {
+    padding: 8px 16px;
+    background-color: #00BFFF; /* Changed to Neon Blue/Cyan */
+    color: #2A324A; /* Changed to dark text for high contrast */
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(0, 191, 255, 0.4); /* Neon Blue Shadow */
+    transition: all 0.3s ease;
+}
+
+.revert-btn:hover {
+    background-color: #40c4ff; /* Lighter Neon Blue on hover */
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+/* Empty Log Message Styling */
+#violationLogBody p {
+    text-align: center;
+    padding: 50px;
+    color: #00BFFF;
+    font-style: italic;
+    font-size: 18px;
+    background-color: #2A324A;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 191, 255, 0.3);
+}
+@media (max-width: 800px) {
+    /* 1. Hide the desktop header */
+    .violation-header {
+        display: none; 
+    }
+
+    /* 2. Re-style each row as a vertical 'card' */
+    .violation-row {
+        display: block; /* Stack items vertically */
+        padding: 15px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+        border: 1px solid #00BFFF; /* Give the card a border */
+        box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
+        transform: none !important; /* Remove hover scaling for better mobile scrolling */
+    }
+    
+    .violation-row:hover {
+        background-color: #2A324A; /* Less distracting hover on mobile */
+        box-shadow: 0 0 10px #00BFFF;
+    }
+    
+    /* Remove bottom border from rows inside the container for a cleaner look */
+    .violation-data-container .violation-row {
+        border-bottom: none;
+    }
+
+    /* 3. Style each column element with a label */
+    .violation-row > div {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #3f4a66; /* Subtle separator line */
+        font-size: 15px;
+    }
+    
+    /* Remove separator line from the last item (Action) */
+    .violation-row > div:last-child {
+        border-bottom: none;
+        margin-top: 10px;
+        justify-content: center; /* Center the button */
+    }
+    
+    /* 4. Use CSS data attributes (if available) or insert labels via pseudo-elements */
+    /* Since we don't have control over JS, we'll use a clean display without labels,
+       but we will force the name to be prominent, making it clear. 
+       If you can modify your JS to wrap the content of each col-div in a span and prefix 
+       it with a label (e.g., <div class="col-name">Name: <span>Mateo Aquino</span></div>), 
+       that would be ideal. */
+
+    /* For now, just focus on visual hierarchy: */
+    
+    .col-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #00BFFF; /* Neon Blue - most important field */
+        border-bottom: 2px solid #00BFFF !important; /* Stronger separation for the name */
+        padding-bottom: 12px;
+        margin-bottom: 5px;
+    }
+    
+    .col-reason::before { content: 'Reason: '; font-weight: 600; color: #ffffff; }
+    .col-validator::before { content: 'Validator: '; font-weight: 600; color: #ffffff; }
+    .col-action {
+        padding-top: 20px;
+    }
+    
+    /* Make the filter/search controls stack better */
+    .violation-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .violation-controls select,
+    .violation-controls input[type="text"],
+    #violationSearchBtn {
+        max-width: 100%; /* Take full width of the container */
+        width: 100%;
+    }
+}
+
+
+
+
+/* --- DARK THEME MODAL STYLES (Fellowship and Change Date) --- */
+
+/* Base Modal Styles (Keep the overlay/fade) */
+.modal-fellowship, .modal-change-date {
+    display: none; 
+    position: fixed; 
+    z-index: 100; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); /* Darker overlay for better contrast */
+}
+
+/* Base Modal Content Styles (Applying Dark Theme) */
+.modal-fellowship-content, .modal-change-date-content {
+    /* Main Dark Theme Background */
+    background-color: #2A324A; 
+    margin: 10% auto; 
+    padding: 30px; 
+    
+    /* Neon Blue/Cyan Border and Shadow */
+    border: 1px solid #00BFFF; 
+    border-radius: 12px;
+    box-shadow: 0 8px 30px 0 rgba(0, 191, 255, 0.3);
+    position: relative;
+    color: #ffffff; /* Default text color for the modal */
+
+}
+
+/* Size Modifiers (Keep for structure) */
+.large-modal-content {
+    width: 90%; /* Increase mobile width */
+    max-width: 1100px;
+}
+
+.small-modal-content {
+    width: 90%;
+    max-width: 400px;
+}
+
+/* Modal Titles */
+.modal-fellowship-content h2, .modal-change-date-content h2 {
+    color: #00BFFF; /* Neon Blue/Cyan color */
+    border-bottom: 3px solid #00BFFF; 
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Close Buttons */
+.close-btn, .close-btn-change {
+    color: #ffffff;
+    opacity: 0.8;
+    text-shadow: 0 0 5px #00BFFF;
+    transition: all 0.2s ease;
+}
+.close-btn:hover, .close-btn-change:hover {
+    color: #00BFFF;
+    opacity: 1;
+}
+
+/* Fellowship Controls & Input Styles (For New Fellowship form) */
+.new-fellowship-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+    padding: 15px;
+    background-color: #1A2035; /* Darker background for control area */
+    border-radius: 8px;
+    border: 1px solid #00BFFF;
+}
+
+.new-fellowship-controls > *,
+.modal-change-date-content input[type="date"],
+.modal-change-date-content input[type="time"] {
+    padding: 10px;
+    border: 1px solid #00BFFF; 
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #3f4a66; /* Dark input field background */
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+/* Ensure select/option text is visible */
+.new-fellowship-controls select option {
+    background-color: #3f4a66;
+    color: #ffffff;
+}
+
+.new-fellowship-controls > *:focus,
+.modal-change-date-content input:focus {
+    border-color: #40c4ff;
+    box-shadow: 0 0 8px #40c4ff;
+    outline: none;
+}
+
+.new-fellowship-controls input::placeholder {
+    color: #a0a0a0;
+}
+
+.new-fellowship-controls input[type="text"] { flex: 2; }
+.new-fellowship-controls select, 
+.new-fellowship-controls input[type="date"], 
+.new-fellowship-controls input[type="time"] { flex: 1; }
+
+/* Add Fellowship Button (Neon Blue) */
+.add-btn {
+    flex: 1;
+    background-color: #00BFFF; 
+    color: #2A324A; /* Dark Text */
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border-radius: 6px; /* Match inputs */
+}
+
+.add-btn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.6);
+}
+
+/* Fellowship List Table Styles */
+.fellowship-list-container {
+    border: 1px solid #3f4a66; 
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 5px 20px rgba(0, 191, 255, 0.1);
+    background-color: #1A2035; /* Container background */
+}
+
+/* Header and Data Row Base Styles */
+.fellowship-header-row, .fellowship-data-row {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #1A2035; 
+    align-items: center;
+}
+
+/* Header Styling */
+.fellowship-header-row {
+    font-weight: 700;
+    background: linear-gradient(90deg, #00BFFF, #00A3D9);
+    color: #2A324A; /* Dark text on bright header */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Data Row Styling */
+.fellowship-data-row {
+    background-color: #2A324A; 
+    transition: background-color 0.2s ease;
+}
+
+.fellowship-data-row:nth-child(even) {
+    background-color: #232b40; 
+}
+
+.fellowship-data-row:hover {
+    background-color: #3f4a66;
+}
+
+.fellowship-data-row span {
+    color: #ffffff; 
+    padding: 0 5px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+}
+
+.fellowship-data-row span:nth-child(1) { 
+    color: #00BFFF; /* Highlight Title */
+    font-weight: 600;
+}
+
+/* Column Widths (Keep for Desktop View) */
+.fellowship-data-row span:nth-child(1) { flex: 2; }
+.fellowship-data-row span:nth-child(2) { flex: 1.5; }
+.fellowship-data-row span:nth-child(3) { flex: 1.5; }
+.fellowship-data-row span:nth-child(4) { flex: 1; }
+.fellowship-data-row span:nth-child(5) { flex: 1; }
+.fellowship-data-row span:nth-child(6) { flex: 1; display: flex; justify-content: center;}
+
+/* Change Date Button (Inline Action Button) */
+.change-date-btn {
+    background-color: #FFC107; /* Amber/Yellow for 'Change' action */
+    color: #1A2035; 
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 700;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.change-date-btn:hover {
+    background-color: #FFA000; 
+    transform: translateY(-1px);
+}
+
+/* Change Date Modal Specifics (for small-modal-content) */
+.modal-change-date-content label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #00BFFF;
+}
+
+.modal-change-date-content input[type="date"],
+.modal-change-date-content input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+/* Save Changes Button (Neon Blue) */
+.save-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background-color: #00BFFF; 
+    color: #2A324A; 
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    background-color: #40c4ff;
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.6);
+}
+
+/* ========================================= */
+/* 🚨 MOBILE-SPECIFIC STYLES (< 768px) 🚨 */
+/* ========================================= */
+
+@media (max-width: 768px) {
+    /* 1. Fellowship Controls Stack */
+    .new-fellowship-controls {
+        flex-wrap: wrap; 
+    }
+
+    /* Make text inputs, selects, and buttons take full width */
+    .new-fellowship-controls input[type="text"],
+    .new-fellowship-controls select {
+        flex: 1 1 100%; 
+        max-width: 100%;
+    }
+    
+    /* Place date and time side-by-side */
+    .new-fellowship-controls input[type="date"], 
+    .new-fellowship-controls input[type="time"] {
+        flex: 1 1 calc(50% - 5px); 
+    }
+
+    /* Ensure button is full width below inputs */
+    .add-btn {
+        flex: 1 1 100%; 
+        max-width: 100%;
+        margin-top: 5px;
+    }
+
+    /* 2. Responsive Table View (Compressed) */
+    .fellowship-header-row {
+        /* Keep header, but compress it */
+        padding: 8px 5px; 
+        font-size: 11px;
+    }
+    
+    .fellowship-data-row {
+        padding: 10px 5px; /* Compressed row padding */
+    }
+    
+    .fellowship-data-row span {
+        font-size: 12px;
+    }
+
+    /* Adjust column ratios for small screen (giving more space to topic/church/type) */
+    .fellowship-data-row span:nth-child(1) { flex: 2.5; } /* Topic */
+    .fellowship-data-row span:nth-child(2) { flex: 1.5; } /* Church */
+    .fellowship-data-row span:nth-child(3) { flex: 1.5; } /* Type */
+    .fellowship-data-row span:nth-child(4) { flex: 1; }   /* Date */
+    .fellowship-data-row span:nth-child(5) { flex: 1; }   /* Time */
+    .fellowship-data-row span:nth-child(6) { flex: 1.5; } /* Action */
+}
+
+
+
+/* --- REQUEST MODAL STYLES (Dark Theme - Matching Admin Dashboard) --- */
+
+/* --- Modal Background and Overlay --- */
+.modal-request {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
+}
+
+/* --- Modal Content Box --- */
+.modal-content-request {
+    background-color: #2A324A; /* Dark background */
+    margin: 5% auto; 
+    padding: 0; 
+    border: 1px solid #00BFFF; /* Neon Blue border */
+    width: 90%; 
+    max-width: 500px; 
+    border-radius: 12px;
+    box-shadow: 0 8px 30px 0 rgba(0, 191, 255, 0.3); /* Neon Blue shadow */
+    overflow: hidden; 
+    color: #ffffff;
+
+}
+
+/* --- Close Button --- */
+.close-btn-request {
+    color: #ffffff;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+    text-shadow: 0 0 5px #00BFFF;
+    transition: color 0.2s;
+}
+
+.close-btn-request:hover,
+.close-btn-request:focus {
+    color: #00BFFF;
+    text-decoration: none;
+}
+
+/* --- Header Styling (Fellowship Absent Request) --- */
+.modal-content-request h2 {
+    /* Use Neon Blue Accent for the title */
+    color: #00BFFF; 
+    padding: 15px;
+    margin: 0 15px; /* Add margin to align with content padding */
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 3px solid #00BFFF;
+    padding-bottom: 10px;
+}
+
+/* --- Styling for the List of Names (List View) --- */
+#requestListContainer {
+    padding: 20px 15px;
+}
+
+.name-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #3f4a66; /* Slightly lighter dark background for the button */
+    border: 1px solid #1A2035;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 600;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+}
+
+.name-btn:hover {
+    background-color: #4c5a7a;
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
+}
+
+.no-requests, .error-msg {
+    text-align: center;
+    padding: 20px;
+    color: #00BFFF;
+    font-style: italic;
+    background-color: #1A2035;
+    border-radius: 6px;
+}
+
+/* --- Styling for the Detailed View (Detail View) --- */
+#requestDetailContainer {
+    padding: 15px;
+}
+
+.detail-header {
+    background-color: #1A2035; /* Darker background for the name banner */
+    color: #00BFFF; /* Neon Blue text */
+    padding: 15px;
+    margin: -15px; /* Pull into the padding space */
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 15px;
+}
+
+#detailName {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.detail-body {
+    margin-bottom: 20px;
+}
+
+.detail-body p strong {
+    color: #00BFFF; /* Highlight the label */
+}
+
+.reason-box {
+    background-color: #1A2035; /* Dark background for the reason box */
+    padding: 15px;
+    margin-top: 15px;
+    min-height: 150px; 
+    border-radius: 6px;
+    border: 1px solid #00BFFF;
+}
+
+.reason-box strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.reason-box p {
+    margin: 0;
+    white-space: pre-wrap; 
+    color: #c0c0c0; /* Lighter text for the reason content */
+}
+
+/* --- Action Buttons (Standard Dark Theme Button Design) --- */
+.detail-actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid #3f4a66; /* Dark subtle separator */
+}
+
+.action-btn {
+    padding: 12px 25px;
+    border: none;
+    background-color: #00BFFF; /* Neon Blue/Cyan */
+    color: #2A324A; /* Dark Text */
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    flex-grow: 1;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 4px 6px rgba(0, 191, 255, 0.3);
+}
+
+.action-btn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 191, 255, 0.6);
+}
+
+/* Optional: Subtle hue difference for action buttons (but keeping the same color scheme) */
+.reject-btn {
+    /* Use the same base color, but maybe a slightly darker hue or opacity for visual separation */
+    background-color: #00BFFF; 
+}
+.reject-btn:hover {
+     background-color: #40c4ff;
+     transform: translateY(-2px);
+}
+
+@media (max-width: 550px) {
+    .detail-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .action-btn {
+        margin: 0;
+    }
+}
+
+/* --- CUSTOM MODAL STYLES (Event Management) --- */
+
+/* --- Modal Base --- */
+.custom-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; /* Set z-index higher to ensure it's on top */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); /* Darker overlay */
+}
+
+.custom-modal-content {
+    background-color: #2A324A; /* Dark background */
+    margin: 5% auto; /* Adjust margin for better centering */
+    padding: 30px;
+    border: 1px solid #00BFFF; /* Neon Blue border */
+    width: 90%; 
+    max-width: 700px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px 0 rgba(0, 191, 255, 0.3); /* Neon Blue shadow */
+    position: relative;
+    color: #ffffff;
+
+}
+
+/* Event Management Modal Size */
+.event-manage-modal-content {
+    max-width: 900px;
+}
+
+/* --- Close Button --- */
+.close-btn {
+    color: #ffffff;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00BFFF;
+    transition: color 0.2s;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #00BFFF;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* --- Modal Title --- */
+.custom-modal-content h2 {
+    color: #00BFFF; /* Neon Blue/Cyan color */
+    border-bottom: 3px solid #00BFFF; 
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* --- Action Buttons (Standard Dark Theme Button Design) --- */
+.action-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    border: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.primary-action-btn {
+    background-color: #00BFFF; /* Neon Blue/Cyan */
+    color: #2A324A; /* Dark Text */
+    box-shadow: 0 4px 6px rgba(0, 191, 255, 0.3);
+}
+
+.primary-action-btn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 191, 255, 0.6);
+}
+
+.secondary-action-btn {
+    background-color: #3f4a66; /* Darker subtle button */
+    color: #ffffff;
+    border: 1px solid #00BFFF;
+    box-shadow: none;
+}
+
+.secondary-action-btn:hover {
+    background-color: #4c5a7a;
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
+}
+
+
+/* --- Event Management Specific Styles --- */
+
+.control-group {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 0;
+    border-bottom: 1px solid #3f4a66; /* Dark subtle separator */
+    margin-bottom: 20px;
+    background-color: #1A2035;
+    border-radius: 8px;
+    border: 1px solid #00BFFF;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-item label {
+    color: #00BFFF;
+    font-weight: 600;
+}
+
+/* Toggle Switch Styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3f4a66; /* Darker gray when off */
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #ffffff; /* White circle */
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #00BFFF; /* Neon Blue when on */
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #00BFFF;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+.switch-status {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    color: #00BFFF;
+}
+
+/* Event List Table */
+.event-list-container {
+    margin-top: 20px;
+    border: 1px solid #3f4a66;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1A2035;
+}
+
+.event-list-container h3 {
+    padding: 10px 15px;
+    margin: 0;
+    background-color: #3f4a66;
+    color: #00BFFF;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.event-table-header, .event-row {
+    display: flex;
+    padding: 10px 15px;
+    border-bottom: 1px solid #2A324A; /* Dark separator */
+    font-size: 0.9em;
+}
+
+.event-table-header {
+    font-weight: 700;
+    background: linear-gradient(90deg, #00BFFF, #00A3D9);
+    color: #2A324A; /* Dark text on bright header */
+    text-transform: uppercase;
+}
+
+.event-row {
+    background-color: #2A324A; 
+    align-items: center;
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.event-row:hover {
+    background-color: #3f4a66;
+}
+
+.header-cell, .data-cell {
+    padding: 0 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.data-cell a {
+    color: #00BFFF;
+}
+
+.event-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.event-actions button {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    /* Using standard primary/secondary buttons */
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.send-btn:disabled {
+    background-color: #3f4a66 !important;
+    color: #a0a0a0 !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Column Widths (Keep for Desktop View) */
+.title-cell { flex: 3; }
+.date-cell { flex: 1.5; }
+.link-cell { flex: 2; }
+.recipient-cell { flex: 1.5; text-align: center; }
+.price-cell { flex: 1.5; text-align: center; }
+.actions-cell { flex: 3; text-align: center; }
+
+/* --- Event Posting Modal (Forms) --- */
+.event-post-modal-content label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #00BFFF;
+}
+
+.event-post-modal-content input[type="text"],
+.event-post-modal-content input[type="date"],
+.event-post-modal-content input[type="number"],
+.event-post-modal-content input[type="url"],
+.event-post-modal-content input[type="file"],
+.event-post-modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px 0;
+    display: inline-block;
+    border: 1px solid #00BFFF;
+    border-radius: 6px;
+    box-sizing: border-box;
+    background-color: #3f4a66;
+    color: #ffffff;
+}
+
+.event-post-modal-content input:focus,
+.event-post-modal-content textarea:focus {
+    box-shadow: 0 0 8px #40c4ff;
+    outline: none;
+}
+
+.event-post-modal-content textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-submit-container {
+    padding-top: 15px;
+    border-top: 1px solid #3f4a66;
+    margin-top: 20px;
+}
+
+/* --- Send Price Modal --- */
+.send-price-modal-content p strong {
+    color: #00BFFF;
+}
+
+.send-price-modal-content .search-results-container {
+    margin-top: 15px;
+    border-top: 1px solid #3f4a66;
+    padding-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.search-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px dotted #3f4a66;
+    background-color: #232b40;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+.search-result-row:last-child {
+    border-bottom: none;
+}
+
+.search-result-row button {
+    padding: 6px 12px;
+    font-size: 0.85em;
+    /* Use standard primary button style for the action */
+    background-color: #00BFFF;
+    color: #2A324A;
+    font-weight: 700;
+    border-radius: 4px;
+}
+
+/* ========================================= */
+/* 🚨 MOBILE-SPECIFIC STYLES (< 768px) 🚨 */
+/* ========================================= */
+
+@media (max-width: 768px) {
+    /* Event Management: Controls Stack */
+    .control-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Event Management: Table Compression */
+    .event-table-header, .event-row {
+        /* Reduce horizontal padding to maximize space */
+        padding: 8px 5px; 
+        font-size: 11px;
+    }
+    
+    /* Re-evaluate mobile column widths to prioritize Title/Actions */
+    .title-cell, .data-cell:nth-child(1) { flex: 2.5; } 
+    .date-cell, .data-cell:nth-child(2) { flex: 1.5; }
+    .link-cell, .data-cell:nth-child(3) { display: none; } /* Hide link column on mobile */
+    .recipient-cell, .data-cell:nth-child(4) { flex: 1.5; }
+    .price-cell, .data-cell:nth-child(5) { flex: 1.5; }
+    .actions-cell, .data-cell:nth-child(6) { flex: 3; } 
+    
+    /* Event Posting Modal: Form Submit Button */
+    .form-submit-container .action-btn {
+        width: 100%;
+    }
+
+    /* Send Price Modal: Search Button */
+    #sendPriceForm .secondary-action-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* --- SIGNATURE UPLOAD MODAL STYLES (Dark Theme) --- */
+
+/* --- Modal Base --- */
+.modal-signature {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); /* Darker overlay */
+}
+
+.modal-content-signature {
+    background-color: #2A324A; /* Dark background */
+    margin: 5% auto; 
+    padding: 30px; /* Increased padding */
+    border: 1px solid #00BFFF; /* Neon Blue border */
+    width: 90%; 
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px 0 rgba(0, 191, 255, 0.3); /* Neon Blue shadow */
+    position: relative;
+    color: #ffffff;
+
+}
+
+/* Modal Title */
+.modal-content-signature h2 {
+    color: #00BFFF; 
+    border-bottom: 3px solid #00BFFF; 
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Close Button */
+.close-signature {
+    color: #ffffff;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00BFFF;
+    transition: color 0.2s;
+}
+
+.close-signature:hover,
+.close-signature:focus {
+    color: #00BFFF;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form Group Styling */
+.modal-content-signature .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-content-signature label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #00BFFF; /* Neon Blue labels */
+}
+
+.modal-content-signature input[type="text"],
+.modal-content-signature input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    display: inline-block;
+    border: 1px solid #00BFFF; /* Neon Blue border */
+    border-radius: 6px;
+    box-sizing: border-box;
+    background-color: #3f4a66; /* Dark input background */
+    color: #ffffff;
+    transition: box-shadow 0.3s;
+}
+
+.modal-content-signature input[type="text"]:focus {
+    box-shadow: 0 0 8px #40c4ff;
+    outline: none;
+}
+
+/* Adjust File Input Appearance */
+.modal-content-signature input[type="file"] {
+    background-color: #3f4a66;
+    padding: 8px; /* Slightly less padding for file input */
+}
+
+/* Small text for constraints */
+.modal-content-signature small {
+    color: #a0a0a0;
+    font-size: 0.85em;
+    display: block;
+    margin-top: 3px;
+}
+
+/* Save Button (Neon Blue Action Button) */
+#saveSignatureBtn {
+    /* Use the standard Primary Action Button style */
+    background-color: #00BFFF; 
+    color: #2A324A; /* Dark Text */
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 15px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 191, 255, 0.3);
+}
+
+#saveSignatureBtn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 191, 255, 0.6);
+}
+
+/* --- MODAL REPORT STYLING (Dark Theme) --- */
+
+/* The Modal (background) */
+.modal-report {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.8); /* Very dark overlay */
+}
+
+/* Modal Content/Box */
+.modal-content-report {
+    background-color: #2A324A; /* Dark background */
+    margin: 3% auto; /* Move closer to the top for large modal */
+    padding: 20px;
+    border: 1px solid #00BFFF;
+    width: 95%; /* Wider on desktop */
+    max-width: 1200px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px 0 rgba(0, 191, 255, 0.3);
+    color: #ffffff;
+
+}
+
+/* The Close Button (modal-exit) */
+.modal-exit {
+    color: #ffffff;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00BFFF;
+    transition: color 0.2s;
+    margin: 0 5px 0 0; /* Align with padding */
+}
+
+.modal-exit:hover,
+.modal-exit:focus {
+    color: #40c4ff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Report Header Styling */
+.report-header {
+    background-color: #1A2035; /* Darkest section background */
+    color: #00BFFF;
+    padding: 15px 20px;
+    text-align: left;
+    font-size: 1.8em;
+    font-weight: 800;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-left: 5px solid #00BFFF;
+}
+
+/* --- Slides Container (Chart Slider) --- */
+
+.slides-wrapper {
+    position: relative;
+    margin: 0 auto 30px auto;
+    max-width: 100%;
+}
+
+.slides-container {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    gap: 0;
+    padding: 0;
+    width: 100%;
+    /* Hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.slides-container::-webkit-scrollbar { display: none; }
+
+/* Individual Slide Styling (Fixed Width) */
+.report-slide {
+    min-width: 100%; 
+    flex: 0 0 100%; 
+    
+    background-color: #1A2035; /* Dark background for the slide content box */
+    border: 1px solid #00BFFF;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    scroll-snap-align: start; 
+    box-sizing: border-box; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.1);
+}
+
+.slide-title {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #00BFFF; /* Neon blue title */
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+/* Chart Canvas Styling (Light Background for Data Visibility) */
+.chart-container {
+    height: 400px; /* Increased height for better chart viewing */
+    width: 100%;
+    background-color: #ffffff; /* Crucial: White background for chart clarity */
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
+
+/* Download Image Button (for charts) */
+.download-img-btn {
+    position: absolute;
+    top: 15px; /* Consistent spacing */
+    right: 15px;
+    
+    /* Using Green for Chart Download (Distinction) */
+    background-color: #00BFFF; 
+    color: #1A2035;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.download-img-btn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+}
+/* --- Slider Navigation Arrows --- */
+
+.slide-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #00BFFF; /* Neon Blue Solid */
+    color: #2A324A; /* Dark text on bright arrow */
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.8em;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+}
+
+.slide-nav-arrow:hover {
+    background: #40c4ff;
+    transform: translateY(-50%) scale(1.05);
+}
+
+#slide-arrow-left { left: -15px; border-radius: 0 8px 8px 0; }
+#slide-arrow-right { right: -15px; border-radius: 8px 0 0 8px; }
+
+
+/* --- Tab/Button Styling for Text Reports --- */
+.report-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0;
+    border-bottom: 2px solid #00BFFF;
+    background-color: #1A2035;
+    border-radius: 8px 8px 0 0;
+    padding-top: 5px;
+}
+
+.report-tab-btn {
+    padding: 10px 25px;
+    cursor: pointer;
+    background-color: #3f4a66; /* Inactive tab color */
+    color: #ffffff;
+    border: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin: 0 2px;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.report-tab-btn.active {
+    background-color: #00BFFF; /* Active tab color */
+    color: #2A324A;
+    border-bottom: none;
+    font-weight: 700;
+}
+
+.report-tab-btn:hover:not(.active) {
+    background-color: #4c5a7a;
+    color: #00BFFF;
+}
+
+.text-report-content {
+    background-color: #1A2035; 
+    padding: 25px;
+    border: 1px solid #00BFFF;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    min-height: 250px;
+    position: relative;
+    color: #c0c0c0;
+    
+    /* FIX: Add top padding to clear the space occupied by the absolute button */
+    padding-top: 60px; 
+}
+
+/* Ensure the count display stands out */
+.report-view .report-header-row strong {
+    color: #00BFFF;
+}
+/* Text Report Download Button (#downloadDocsBtn) */
+#downloadDocsBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    
+    /* Using Amber/Yellow for Document Download (Distinction) */
+    background-color: #00BFFF; 
+    color: #1A2035; /* Dark text */
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+#downloadDocsBtn:hover {
+    background-color: #40c4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Department/Church Member List Styling */
+.report-view p {
+    color: #c0c0c0; /* Light gray text for default content */
+}
+
+.department-report-item, .church-report-item {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #3f4a66;
+}
+
+.report-header-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #00BFFF; /* Neon blue for section headers */
+}
+
+.member-list {
+    margin-left: 20px;
+    font-size: 0.95em;
+    color: #ffffff;
+    white-space: normal;
+}
+
+.member-list-item {
+    display: block; 
+    margin-bottom: 2px;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .modal-content-report {
+        padding: 10px;
+        margin: 5% auto;
+    }
+    
+    .report-header {
+        font-size: 1.3em;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+    }
+
+    .slide-title {
+        font-size: 1rem;
+    }
+    
+    .chart-container {
+        height: 250px; /* Reduce chart height on small screens */
+    }
+
+    /* Make tab buttons stack or wrap if they get too small */
+    .report-tabs {
+        flex-wrap: wrap;
+        padding-top: 10px;
+    }
+
+    .report-tab-btn {
+        flex-grow: 1;
+        margin: 5px 2px;
+        padding: 8px 10px;
+    }
+}
+
+
+
+/* --- Modal Backdrop and Centering (CORRECTED) --- */
+
+/* --- Modal Backdrop (Only needed for full screen overlay) --- */
+.modal-security-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Allows scrolling if content is taller than viewport */
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+    /* REMOVE display: flex; here */
+}
+
+/* --- Modal Content Container (FIXED FOR CENTERING) --- */
+.modal-content-security {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* 🚀 KEY CENTERING FIX: */
+    position: fixed; /* 1. Position relative to the viewport */
+    top: 50%;        /* 2. Push down 50% from the top */
+    left: 50%;       /* 3. Push right 50% from the left */
+    transform: translate(-50%, -50%); /* 4. Shift back by half its own size */
+    
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+
+
+/* --- Heading and Text Styles --- */
+.modal-content-security h2 {
+    color: #00BFFF; /* Bright blue for the heading */
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    /* Separator line beneath the heading */
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.modal-content-security p {
+    color: #CCCCCC; /* Light gray text for readability */
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px; /* Slight padding to keep text off the edge */
+}
+
+/* --- Close Button --- */
+.modal-content-security .close {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-content-security .close:hover {
+    color: #00BFFF; /* Bright blue on hover */
+}
+
+/* --- Form and Input Styles --- */
+#securityOtpForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+#securityOtpForm label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -5px; /* Adjust spacing */
+}
+
+#securityOtpInput {
+    /* Dark input background */
+    background-color: #0F1E30; 
+    color: #FFFFFF; /* White text for contrast */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF; /* Blue border */
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 4px; 
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#securityOtpInput:focus {
+    border-color: #00FFFF; /* Lighter blue on focus */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7); /* Stronger glow on focus */
+    outline: none;
+}
+
+/* --- Verify Button --- */
+.submit-btn {
+    /* Full width, bright blue button to match the image */
+    background-color: #00BFFF; 
+    color: #1A2E44; /* Dark text on bright button */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #00FFFF; /* Brighter on hover */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.submit-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Message Area --- */
+#securityOtpMessage {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #00BFFF; /* Blue text for informational messages */
+}
+
+/* --- Modal Backdrop and Content for Initial Semester Setup (Unique names) --- */
+
+/* Modal Backdrop */
+.initial-semester-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+}
+
+/* Modal Content Container */
+.initial-semester-content {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* Centering Fix */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    max-width: 500px; /* Slightly wider for the form */
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+/* Heading and Text Styles */
+.initial-semester-content h2 {
+    color: #00BFFF;
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.initial-semester-content p {
+    color: #CCCCCC;
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px;
+}
+
+/* Close Button */
+.close-initial-semester {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-initial-semester:hover {
+    color: #00BFFF;
+}
+
+/* Form and Input Styles */
+#initialSemesterForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+.form-group {
+    width: 100%;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+#semNameInput,
+#scholarsFileInput {
+    background-color: #0F1E30; 
+    color: #FFFFFF;
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#scholarsFileInput {
+    padding: 8px 15px; /* Adjust padding for file input */
+}
+
+#semNameInput:focus,
+#scholarsFileInput:focus {
+    border-color: #00FFFF;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7);
+    outline: none;
+}
+
+/* Set Semester Button (submit-btn style reuse with a unique class) */
+.set-semester-btn {
+    background-color: #00BFFF;
+    color: #1A2E44;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.set-semester-btn:hover {
+    background-color: #00FFFF;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.set-semester-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Message Area */
+.message-area {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #CCCCCC; /* Default text */
+}
+
+/* Style for disabled menu buttons */
+.menu-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none; /* Ensure no click events pass through */
+}

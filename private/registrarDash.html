@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Head Dashboard</title>
+    <link rel="stylesheet" href="registrarDash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="profile-container">
+                <img src="/images/default-profile-pic.png" alt="Profile Picture" class="profile-pic" id="profile-pic">
+                <div class="profile-info">
+                    <h1 class="dashboard-title">School Head Dashboard</h1>
+                    <span id="profileEmail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="menu-container">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="dropdown-menu" class="menu-dropdown">
+                    <a href="#" id="openProfileModalBtn" onclick="openModal('profileModal')">Profile Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="button-container">
+            <button class="menu-btn" id="createAdminBtn">Create Scholar Admin Account</button>
+            <button class="menu-btn" id="adminAccountsBtn">Scholar Admin Accounts</button>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Profile Settings</h2>
+            <img id="modalProfilePic" src="/images/default-profile-pic.png" alt="Profile Picture" class="modal-profile-pic">
+
+            <form id="uploadProfilePicForm" class="profile-form">
+                <label for="file-upload" class="custom-file-upload" id="chProfilePic">
+                    Change Profile Picture
+                </label>
+                <input id="file-upload" type="file" name="profilePicture" accept="image/*" required>
+                <button type="submit" class="submit-btn">Upload</button>
+            </form>
+
+            <form id="changeEmailForm" class="profile-form">
+                <label for="newEmail">Change Email:</label>
+                <input type="email" id="newEmail" name="newEmail" required>
+                <button type="submit" class="submit-btn">Update Email</button>
+            </form>
+
+            <form id="changePasswordForm" class="profile-form">
+                <label for="currentPassword">Current Password:</label>
+                <div class="password-container">
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('currentPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+
+                <label for="newPassword">New Password:</label>
+                <div class="password-container">
+                    <input type="password" id="newPassword" name="newPassword" required>
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+
+                <button type="submit" class="submit-btn">Update Password</button>
+            </form>
+        </div>
+    </div>
+    <div id="securityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('securityOtpModal')">&times;</span>
+            <h2>Verify OTP</h2>
+            <p>An OTP has been sent to your registered email. Please enter it below.</p>
+            <form id="securityOtpForm">
+                <label for="securityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="otpAction" name="otpAction" value="">
+                <input type="hidden" id="otpData" name="otpData" value="">
+                
+                <input type="text" id="securityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="securityOtpMessage" class="message"></p>
+        </div>
+    </div>
+    
+    <div id="createAdminModal" class="modal create-admin-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createAdminModal')">&times;</span>
+            <h2><i class="fas fa-user-plus"></i> Create Scholar Admin Account</h2>
+            <form id="createAdminForm">
+                <div class="form-group">
+                    <label for="adminSurname">Surname:</label>
+                    <input type="text" id="adminSurname" name="surname" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminFirstname">First Name:</label>
+                    <input type="text" id="adminFirstname" name="firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminEmail">Email:</label>
+                    <input type="email" id="adminEmail" name="email" required>
+                </div>
+                <button type="submit" class="submit-btn">Create Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminAccountsModal" class="modal admin-account-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('adminAccountsModal')">&times;</span>
+            <h2><i class="fas fa-users-cog"></i> Scholar Admin Accounts</h2>
+            <div class="table-container">
+                <table id="adminAccountsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+            <p id="adminAccountsMessage" class="message"></p>
+        </div>
+    </div>
+
+    <div id="adminSecurityOtpModal" class="modal-security-backdrop">
+        <div class="modal-content-security">
+            <span class="close" onclick="closeModal('adminSecurityOtpModal')">&times;</span>
+            <h2>Verify Admin Action OTP</h2>
+            <p>An OTP has been sent to your registered email to confirm this administrative action. Please enter it below.</p>
+            <form id="adminSecurityOtpForm">
+                <label for="adminSecurityOtpInput">Enter OTP:</label>
+                <input type="hidden" id="adminOtpAction" name="otpAction" value="">
+                <input type="hidden" id="adminOtpData" name="otpData" value="">
+                
+                <input type="text" id="adminSecurityOtpInput" name="securityOtpInput" required maxlength="6">
+                <button type="submit" class="submit-btn">Verify</button>
+            </form>
+            <p id="adminSecurityOtpMessage" class="message"></p>
+        </div>
+    </div>
+
+    
+    <script src="registrarDash.js"></script>
+</body>
+</html>

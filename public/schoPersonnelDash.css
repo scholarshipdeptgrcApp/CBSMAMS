@@ -1,0 +1,1386 @@
+body {
+    /* Set body and html to 100% height to allow content to fill */
+    height: 100vh;
+    display: flex; /* Stack header and main-content vertically */
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f9;
+    color: #333;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #2A324A;
+    border-bottom: 1px solid #00BFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00BFFF;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#profileEmail {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: -5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger div {
+    width: 100%;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #2A324A;
+    min-width: 180px;
+    box-shadow: 0 4px 12px #00BFFF;
+    z-index: 100;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+    color: #2A324A;
+    background-color: #f5f5f5;
+}
+
+.show-menu {
+    display: block;
+}
+
+.main-content {
+    /* Use padding to create space from the edges, but let the content inside stretch */
+    padding: 40px; 
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-grow: 1; /* Makes main-content fill ALL remaining vertical space */
+    width: 100%; /* Important: Use full width before padding is applied */
+    box-sizing: border-box; /* Include padding in the element's total size */
+    background-color: #1A2035;
+}
+
+.button-container {
+    /* Key Change: Removes the max-width restriction. 
+    The container will now take up 100% of the .main-content's inner area (which is screen width - 80px padding). */
+    display: grid;
+    /* Grid: 3 equal columns (1fr each) */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; 
+    
+    width: 100%; /* Fill the full width of .main-content */
+    height: 500px; /* Fill the full height of .main-content */
+}
+.menu-btn {
+    /* Let the grid cell dictate the size */
+    width: 100%;
+    height: 100%; 
+    
+    border: none;
+    border-radius: 12px;
+    background-color: #2A324A;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Center text inside the button */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.menu-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px #00BFFF;
+}
+
+/* --- Media Query for Responsiveness --- */
+@media (max-width: 900px) {
+    /* Example: Switch to 2 columns on slightly smaller screens */
+    .button-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    /* On mobile screens, stack them in 1 column */
+    .button-container {
+        grid-template-columns: 1fr;
+        height: auto; /* Allow the container to collapse vertically */
+    }
+    .main-content {
+        /* Align to the top on smaller screens to prevent content stretching off-screen */
+        align-items: flex-start;
+        padding: 20px; /* Reduce padding on mobile */
+    }
+    .menu-btn{
+        height: 120px;
+    }
+}
+
+
+/* ------------------------------------------- */
+/* --- NEW INDEPENDENT MODAL BACKDROP STYLES --- */
+/* ------------------------------------------- */
+
+/* Shared styles for all new backdrops (hidden by default) */
+.profile-modal-backdrop,
+.qr-scanner-backdrop,
+.scholar-info-backdrop,
+.manual-search-backdrop,
+/* TARGETING THE SPECIFIC ID/CLASS IN YOUR HTML */
+#recordsModal {
+    display: none; /* CRITICAL FIX: HIDDEN BY DEFAULT */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Profile Modal Styles (Keep as is for unique content box) --- */
+
+/* --- Profile Modal Styles (Keep as is for unique content box) --- */
+
+.profile-modal-content-unique {
+    background-color: #2A324A;
+    color: #E0E0E0;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    width: 850px;
+    max-width: 95%;
+    position: relative;
+
+    /* ✅ FIX: Limit height and manage scrolling */
+    max-height: 95vh; /* Maximum height is 95% of the viewport height */
+    overflow-y: auto; /* Content will scroll if it exceeds max-height */
+    
+    /* 🚀 SCROLLBAR HIDING FIX: */
+    
+    /* For IE and Edge */
+    -ms-overflow-style: none; 
+    
+    /* For Firefox */
+    scrollbar-width: none; 
+}
+
+/* For Chrome, Safari, and Opera (WebKit browsers) */
+.profile-modal-content-unique::-webkit-scrollbar {
+    display: none;
+}
+
+/* Modal Headings (Using the correct unique selector) */
+.profile-modal-content-unique h2,
+.profile-modal-content-unique h3,
+.profile-modal-content-unique h4 {
+    margin-top: 0;
+    color: #00BFFF; /* Bright accent color for titles */
+    border-bottom: 1px solid #00BFFF;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Update Close button */
+.close-btn {
+    color: #00BFFF;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+
+/* New Grid for Profile Layout (FIXED FOR SINGLE COLUMN) */
+.profile-modal-grid {
+    display: grid;
+    /* Forces content to stack vertically in one column */
+    grid-template-columns: 1fr; 
+    gap: 30px; 
+}
+
+/* Column styles updated for single column flow */
+.profile-info-column {
+    display: flex; /* Kept for aligning inner elements (pic, buttons) */
+    flex-direction: column;
+    align-items: center; /* Centers items horizontally in the column */
+    padding-top: 10px;
+    text-align: center;
+    /* Optional: Add a subtle bottom margin to separate from the email form */
+    margin-bottom: 10px; 
+}
+
+.form-column {
+    /* Kept for organizing the email and password forms */
+    display: flex; 
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Form style modified for dark mode */
+#uploadProfilePicForm, #changeEmailForm, #changePasswordForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch; /* Forms should stretch to fill the column width */
+    width: 100%; 
+}
+
+.profile-form {
+    background-color: #1A2035; 
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 0; 
+    width: 100%;
+    box-sizing: border-box;
+}
+.profile-form label {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+/* Update Submit Buttons for Accent Color (Using class .submit-btn) */
+.submit-btn,
+#uploadProfilePicForm button,
+#changeEmailForm button,
+#changePasswordForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #00BFFF; /* Primary accent color */
+    color: #1A2035; /* Dark text for contrast */
+    width: 100%; /* Make buttons full width inside form */
+    box-sizing: border-box;
+}
+
+
+.submit-btn:hover,
+#uploadProfilePicForm button:hover,
+#changeEmailForm button:hover,
+#changePasswordForm button:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+/* Update Input Styles for Dark Mode */
+/* Targeting inputs by ID/Type to override default browser/scholar styles */
+#uploadProfilePicForm input[type="file"],
+#changeEmailForm input[type="email"],
+#changePasswordForm input[type="password"],
+/* Apply to ALL modal inputs that are currently plain (e.g., manual search) */
+.manual-input { 
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672; /* Darker border */
+    background-color: #3C4560; /* Dark input background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+#uploadProfilePicForm input[type="file"]:focus,
+#changeEmailForm input[type="email"]:focus,
+#changePasswordForm input[type="password"]:focus,
+.manual-input:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Update File Upload Button (using the custom label in the new HTML) */
+.custom-file-upload {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035; /* Dark text for contrast */
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 10px;
+    width: 100%; /* Make it full width */
+    box-sizing: border-box;
+}
+
+.custom-file-upload:hover {
+    background-color: #4CC4FF;
+}
+
+
+#file-upload {
+    display: none;
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Update Profile Picture styling */
+.modal-profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 20px auto;
+    border: 3px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.7);
+}
+
+
+/* --- Mobile Responsiveness for Modal Layout (FINAL FIX) --- */
+@media (max-width: 768px) {
+    
+    .profile-modal-content-unique {
+        padding: 20px;
+        margin: 0;
+        max-width:88%;
+        
+        /* Keep these for centering if needed, but they don't solve the clipping */
+        margin-top: 2.5vh; 
+        margin-bottom: 2.5vh;
+        
+        /* RE-APPLY THE MAX-HEIGHT FOR EXTREMELY SMALL SCREENS if 95vh isn't enough */
+        max-height: 85vh;
+    }
+    
+    .profile-modal-content-unique h2 {
+        /* ✅ FIX: Use a normal, small margin-top */
+        margin-top: 15px !important; /* Changed from 150px */
+        
+        /* Mobile-specific adjustments */
+        font-size: 24px;
+        padding-bottom: 10px; 
+        margin-bottom: 20px;
+    }
+    
+    .close-btn {
+        color: #00BFFF;
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 35px;
+        font-weight: 300;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    
+    }
+
+    .close-btn:hover {
+        color: #ffffff;
+    }
+
+    /* The rest of the grid and form fixes below can stay as they were: */
+    .profile-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .modal-profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+    /* Adjusted the form styling for better fit on small screens */
+    #uploadProfilePicForm {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        padding: 15px;
+    }
+    #uploadProfilePicForm .custom-file-upload {
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    #uploadProfilePicForm .submit-btn {
+        margin-top: 0;
+        width: 100%;
+    }
+}
+
+/* The success-popup styles were not in adminDash.css, so I'll put the original scholar styles back,
+    but updated with the dark theme colors to maintain consistency */
+.success-popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.success-popup-content {
+    background-color: #2A324A; /* Dark modal background */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    width: 500px;
+    max-width: 90%;
+    position: relative;
+}
+
+.success-popup-content p {
+    font-size: 18px;
+    color: #00BFFF;
+    font-weight: 600;
+    margin: 0;
+}
+
+
+/* ------------------------------------------- */
+/* --- GENERAL MODAL CONTENT STYLES (DARK THEME APPLIED) --- */
+/* ------------------------------------------- */
+
+/* Shared Content Box styles, but overriding specific ones for the new dark theme */
+.modal-content {
+    background-color: #2A324A; /* Dark modal background (from profile modal) */
+    color: #E0E0E0; /* Light text (from profile modal) */
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); /* Accent shadow */
+    position: relative;
+}
+
+.modal-content h2,
+.modal-content h3,
+.modal-content h4 {
+    /* Apply accent color to all modal headers */
+    color: #00BFFF; 
+}
+
+
+/* ------------------------------------------- */
+/* --- QR SCANNER MODAL STYLES (SQUARE FIX) --- */
+/* ------------------------------------------- */
+
+.scanner-content {
+    /* KEY FIX 1: Remove fixed height. Let content dictate the size. */
+    width: 90%;
+    max-width: 500px; /* Max width for a clean square look on desktop */
+    padding: 30px; /* Increase padding for better look */
+    text-align: center;
+    overflow-y: hidden;
+    
+    /* Center contents (h2, viewport, status) but don't force vertical stretch */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Add spacing between elements */
+}
+
+.scanner-content h2 {
+    color: #00BFFF; /* Bright accent color for titles */
+    margin-bottom: 0;
+}
+
+.scanner-viewport-container {
+    /* KEY FIX 2: Create a centered square container (1:1 aspect ratio) */
+    position: relative;
+    width: 100%;
+    padding-top: 100%; 
+    
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.5); /* Use accent color for glow */
+    margin: 0 auto;
+    flex-shrink: 0; /* Prevents it from shrinking */
+}
+
+.qr-video-feed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    
+    /* Still needed for some camera orientation issues */
+    transform: scaleX(1) !important; 
+}
+
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scanner-guide {
+    width: 70%;
+    height: 70%;
+    border: 4px solid #00BFFF;
+    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    animation: scan-pulse 1.5s infinite alternate;
+}
+
+@keyframes scan-pulse {
+    from {
+        box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.6), 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+    to {
+        box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.6), 0 0 25px rgba(76, 175, 80, 0.9);
+    }
+}
+
+.status-message {
+    font-size: 16px;
+    color: #A0A0A0; /* Light gray text for dark background */
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+
+/* --- Monitoring Info Modal Styles (SCHOLAR INFO) --- */
+
+.info-content {
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.scholar-profile-container {
+    margin-bottom: 20px;
+}
+
+.profile-pic-lg {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc; /* Placeholder color */
+    margin: 0 auto 10px;
+    border: 3px solid #00BFFF;
+}
+
+.scholar-name-info h2 {
+    /* Update scholar name color to accent blue */
+    color: #00BFFF; 
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.scholar-name-info p {
+    margin: 5px 0;
+    color: #E0E0E0; /* Light text */
+    font-size: 0.9em;
+}
+
+.info-blocks-container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-block {
+    padding: 15px;
+    background-color: #1A2035; /* Dark background for info blocks */
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #E0E0E0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+    text-align: left;
+}
+
+/* Schedule color conditions need adjustment for dark theme contrast */
+.info-block.schedule-match {
+    background-color: #0e3d10; /* Darker Green */
+    color: #c8e6c9;
+}
+.info-block.schedule-no-match {
+    background-color: #57161c; /* Darker Red */
+    color: #ffcdd2;
+}
+
+.info-block p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.record-btn {
+    background-color: #00BFFF; /* Use accent color for main action */
+    color: #1A2035;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.record-btn:hover {
+    background-color: #4CC4FF;
+}
+
+/* --- MANUAL SEARCH MODAL STYLES --- */
+
+.modal-content.manual-search-content {
+    /* Limit width for a focused search experience */
+    max-width: 450px; 
+    padding: 30px;
+}
+
+.search-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.manual-input {
+    /* Styles inherited from general input styles for dark theme */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.manual-search-btn-override {
+    background-color: #00BFFF; /* Use accent color */
+    color: #1A2035;
+    margin-top: 5px; 
+}
+
+.manual-search-btn-override:hover {
+    background-color: #4CC4FF; 
+}
+
+.manual-results-area {
+    padding: 15px;
+    border: 1px solid #4A5672;
+    border-radius: 8px;
+    background-color: #1A2035;
+    min-height: 60px; /* Give it a minimum height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.manual-results-area .status-message {
+    color: #A0A0A0; /* Light status message text */
+    font-style: italic;
+    margin: 0;
+    line-height: 1.4;
+}
+
+
+/* ------------------------------------------- */
+/* --- Records Modal Styles (FIXED FOR TABLE) --- */
+/* ------------------------------------------- */
+
+/* 1. Modal Container (Fix: Use the correct class for content) */
+.modal-records .modal-content,
+#recordsModal .records-modal-content {
+    /* Inherits general styles from .modal-content (padding, dark theme) */
+    width: 90%;
+    max-width: 1000px; /* Generous width for a data table */
+    max-height: 95vh;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* 2. Filter Layout (Fix: Use a clean flex layout for desktop) */
+.records-filters {
+    display: flex;
+    gap: 20px; /* Increased gap for spacing */
+    margin-bottom: 25px;
+    align-items: flex-end; /* Align items to the bottom, ensuring inputs/button align */
+    flex-wrap: wrap; 
+}
+
+.records-filters .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Spacing between label and input */
+    flex-grow: 1; /* Allow filter groups to grow */
+    min-width: 180px; /* Ensure inputs have a decent minimum size */
+}
+
+/* Use existing input styles (date and text) and target the new class structure */
+.records-filters .filter-input {
+    padding: 12px;
+    border: 1px solid #4A5672;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+    width: 100%;
+}
+
+.records-filters .search-btn {
+    /* Style the new search button to match the theme */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: #00BFFF; /* Accent color */
+    color: #1A2035;
+    flex-shrink: 0; /* Prevent the button from shrinking */
+    height: 44px; /* Match height of inputs */
+}
+
+.records-filters .search-btn:hover {
+    background-color: #4CC4FF;
+    transform: translateY(-2px);
+}
+
+/* 3. Table Container (Fix: Create scrollable area for the table) */
+.records-table-container {
+    border: 1px solid #00BFFF;
+    border-radius: 8px;
+    overflow: hidden; /* Important for border radius and fixed header */
+    max-height: 60vh; /* Max height relative to viewport */
+    background-color: #1A2035; /* Dark background for the table area */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto; /* Enable scrolling for the table body */
+}
+
+/* 4. Table Styles */
+#recordsTable {
+    width: 100%;
+    border-collapse: collapse; /* Removes double borders */
+    table-layout: fixed; /* Ensures column widths are respected */
+}
+
+#recordsTable th, #recordsTable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #4A5672; /* Subtle dark separator */
+    color: #E0E0E0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Table Header (Fix: Make it sticky and use accent colors) */
+#recordsTable thead th {
+    background-color: #2A324A; /* Header background */
+    color: #00BFFF; /* Accent text color */
+    font-weight: bold;
+    position: sticky; /* Sticky header when scrolling */
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for lift */
+}
+
+/* Table Body Row Hover */
+#recordsTable tbody tr:hover {
+    background-color: #3C4560; /* Subtle hover effect */
+    cursor: pointer;
+}
+
+#recordsTable tbody tr:last-child td {
+    border-bottom: none; /* No border on the last row */
+}
+
+
+/* 5. Column Widths (Adjusted for typical data) */
+#recordsTable th:nth-child(1), 
+#recordsTable td:nth-child(1) { width: 30%; } /* Name */
+#recordsTable th:nth-child(2), 
+#recordsTable td:nth-child(2) { width: 20%; } /* Department */
+#recordsTable th:nth-child(3), 
+#recordsTable td:nth-child(3) { width: 15%; } /* Time In */
+#recordsTable th:nth-child(4), 
+#recordsTable td:nth-child(4) { width: 15%; } /* Time Out */
+#recordsTable th:nth-child(5), 
+#recordsTable td:nth-child(5) { 
+    width: 20%; 
+    text-align: center;
+    font-weight: 600;
+} /* Status */
+
+
+/* 6. Status Colors (Example classes for JS to apply) */
+.status-present { color: #4CAF50; } /* Green */
+.status-absent { color: #F44336; } /* Red */
+.status-late { color: #FFC107; } /* Amber */
+
+
+/* ------------------------------------------- */
+/* --- SCHOLAR INFO MODAL Specific Styles --- */
+/* ------------------------------------------- */
+
+/* The .info-content wrapper already exists with max-width: 400px and dark background */
+
+.scholar-profile-card {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #4A5672; /* Subtle divider */
+}
+
+.profile-pic-container {
+    margin-bottom: 15px;
+}
+
+/* This targets the scholar's profile image */
+.profile-pic-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+    border: 4px solid #00BFFF; /* Accent color border */
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+}
+
+.name-text {
+    color: #FFFFFF; /* Scholar Name should stand out */
+    font-size: 1.6em;
+    margin: 10px 0 5px 0;
+}
+
+.role-text {
+    color: #00BFFF; /* Accent color for the role */
+    font-size: 1em;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+.semester-text {
+    color: #A0A0A0; /* Subdued text for semester info */
+    font-size: 0.9em;
+    margin: 0;
+}
+
+/* Info Rows (Schedule, Department, Church) */
+.info-row {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    text-align: left;
+    background-color: #1A2035; /* Dark background for info blocks */
+    color: #E0E0E0;
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.info-row p {
+    margin: 0;
+}
+
+/* Conditional Background for Status Rows (Request Row & Church Row) */
+.info-row.status-row {
+    /* Base color for conditional status rows */
+    border-left: 5px solid #00BFFF;
+    padding-left: 10px;
+}
+
+/* EXAMPLE: Status colors for schedule/request conditions (You'll need JS to apply these classes) */
+.info-row.status-row.schedule-match {
+    border-left-color: #4CAF50; /* Green for match/allowed */
+}
+.info-row.status-row.schedule-no-match {
+    border-left-color: #F44336; /* Red for no match/violation */
+}
+
+/* Dropdown Select (Type of Fellowship) */
+.dropdown-select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    margin-bottom: 25px; /* Space before the RECORD button */
+    
+    /* Dark theme input styling */
+    border: 1px solid #4A5672;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    cursor: pointer;
+    -webkit-appearance: none; /* Removes default browser styling */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%2D%22292.4%22%3E%3Cpath%20fill%3D%22%23E0E0E0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-5.4H18.6c-5.9%200-11.4%203.2-14.2%208.3-2.9%205.1-2.2%2011.8%201.8%2016.9l127.3%20127.4c4.1%204.1%209.6%206.2%2015%206.2s10.9-2.1%2015-6.2l127.3-127.4c4.1-4.1%205-10.8%202.1-15.9z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat, repeat;
+    background-position: right 0.7em top 50%, 0 0;
+    background-size: 0.65em auto, 100%;
+}
+
+.dropdown-select:focus {
+    outline: none;
+    border-color: #00BFFF;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+.record-btn {
+    /* Styles are inherited from the existing .record-btn but this ensures they are applied */
+    margin-top: 0; /* Remove top margin since the dropdown already has a bottom margin */
+}
+
+/* ------------------------------------------- */
+/* --- GENERAL MOBILE MEDIA QUERY --- */
+/* ------------------------------------------- */
+
+@media (max-width: 600px) {
+    .dashboard-title{
+        font-size: 1rem;
+    }
+    /* Make all modal backdrops stretch full screen for background blur */
+    .profile-modal-backdrop,
+    .qr-scanner-backdrop,
+    .scholar-info-backdrop,
+    .manual-search-backdrop,
+    #recordsModal {
+        /* Align items to the center or start based on the desired look */
+        align-items: center; /* Center vertically unless content is too long */
+        padding-top: 10px; 
+    }
+
+    /* Target all modal content boxes for the mobile-specific design */
+    .modal-content {
+        background-color: #2A324A;
+        
+        /* 🔥 THE FIX: Use 95% of the viewport to allow the shadow/backdrop to show */
+        width: 95%; 
+        max-width: 95%;
+        
+        /* Use max-height to enable scrolling for long content */
+        max-height: 95vh; 
+        
+        /* Add some vertical margin to center it nicely if it's short, or allow it to align to the top if long */
+        margin: 10px auto; 
+        
+        border-radius: 16px;
+        
+        /* ✅ KEY FIX: Restore internal padding for all modal content on mobile! */
+        padding: 25px 20px; 
+        
+        /* Ensure the content itself scrolls */
+        overflow-y: auto; 
+        
+        box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4); 
+    }
+    
+    /* Specific overrides for the Close button to fix overlap on mobile */
+    .close-btn {
+        top: 15px;
+        right: 15px; /* Pull it away from the edge */
+    }
+
+    /* --- Scanner Specific Fixes (Crucial change here) --- */
+    .scanner-content {
+        width: 100%;
+        max-width: 100%;
+        /* padding: 0;  <- REMOVED to inherit padding from parent .modal-content */
+        justify-content: flex-start;
+    }
+    
+    .scanner-viewport-container {
+        /* On mobile, constrain the square view within the modal content */
+        width: 100%; 
+        padding-top: 100%; 
+        max-width: 90vw; /* Keep this to prevent oversized element when padding is small */
+    }
+
+    /* --- Manual Search/Scholar Info/Records Specifics --- */
+    .info-content, 
+    .modal-content.manual-search-content, 
+    #recordsModal .records-modal-content {
+        /* Reset any conflicting padding here, so it uses the main .modal-content padding */
+        padding-top: 30px;
+        padding-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+        max-width: 100%; 
+    }
+    
+    /* Records Modal Mobile Stacking FIX */
+    .records-filters {
+        flex-direction: column; /* Stack filters vertically */
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .records-filters .filter-group {
+        min-width: 100%; /* Full width on mobile */
+    }
+
+    .records-filters .search-btn {
+        width: 100%; /* Full width button */
+    }
+
+    .records-table-container {
+        max-height: 50vh; /* Reduce max height to give more screen space to filters/info */
+    }
+
+    /* Column Hiding and Width Adjustment for Small Screens */
+    #recordsTable th, #recordsTable td {
+        padding: 8px 10px; /* Reduced padding */
+        font-size: 0.85em;
+    }
+    
+    #recordsTable th:nth-child(2), 
+    #recordsTable td:nth-child(2), /* Department */
+    #recordsTable th:nth-child(4), 
+    #recordsTable td:nth-child(4) { 
+        display: none; /* Hide Department and Time Out */
+    }
+    
+    /* Re-distribute remaining column widths */
+    #recordsTable th:nth-child(1), 
+    #recordsTable td:nth-child(1) { width: 50%; } /* Name */
+    #recordsTable th:nth-child(3), 
+    #recordsTable td:nth-child(3) { width: 30%; } /* Time In */
+    #recordsTable th:nth-child(5), 
+    #recordsTable td:nth-child(5) { width: 20%; } /* Status */
+    
+    /* Scholar Info Mobile Adjustments */
+    .profile-pic-large {
+        width: 100px;
+        height: 100px;
+    }
+    .name-text {
+        font-size: 1.4em;
+    }
+    .info-row {
+        padding: 10px 10px;
+        font-size: 14px;
+    }
+    .dropdown-select {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 15px;
+    }
+}
+
+/* Password Toggle Styles */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #00BFFF; /* Use accent color for the icon */
+}
+
+/* Apply dark background and light text to the input field itself */
+#changePasswordForm input[type="password"],
+#changePasswordForm input[type="text"] /* 👈 Add input[type="text"] to match after toggle */
+/* ... other inputs ... */
+{ 
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4A5672;
+    background-color: #3C4560;
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+/* 🚀 FIX: Explicitly style the placeholder for both 'password' AND 'text' types */
+
+/* For WebKit (Chrome, Safari, newer Edge) */
+#changePasswordForm input::-webkit-input-placeholder {
+    color: #A0A0A0; /* The desired placeholder color (e.g., light gray) */
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For Firefox */
+#changePasswordForm input:-moz-placeholder,
+#changePasswordForm input::-moz-placeholder {
+    color: #A0A0A0;
+    opacity: 1; /* For consistent opacity */
+}
+
+/* For IE (Internet Explorer) */
+#changePasswordForm input:-ms-input-placeholder {
+    color: #A0A0A0;
+}
+
+/* --- Modal Backdrop and Centering (CORRECTED) --- */
+
+/* --- Modal Backdrop (Only needed for full screen overlay) --- */
+.modal-security-backdrop {
+    display: none; /* Stays hidden until JS sets it to "block" */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Allows scrolling if content is taller than viewport */
+    background-color: rgba(0, 0, 0, 0.85); 
+    backdrop-filter: blur(5px); 
+    /* REMOVE display: flex; here */
+}
+
+/* --- Modal Content Container (FIXED FOR CENTERING) --- */
+.modal-content-security {
+    background-color: #1A2E44; 
+    padding: 30px;
+    border-radius: 12px;
+    
+    /* 🚀 KEY CENTERING FIX: */
+    position: fixed; /* 1. Position relative to the viewport */
+    top: 50%;        /* 2. Push down 50% from the top */
+    left: 50%;       /* 3. Push right 50% from the left */
+    transform: translate(-50%, -50%); /* 4. Shift back by half its own size */
+    
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    
+    /* Blue glowing border effect */
+    border: 2px solid #00BFFF; 
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6), 
+                0 0 40px rgba(0, 191, 255, 0.3); 
+}
+
+
+
+/* --- Heading and Text Styles --- */
+.modal-content-security h2 {
+    color: #00BFFF; /* Bright blue for the heading */
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    /* Separator line beneath the heading */
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3); 
+}
+
+.modal-content-security p {
+    color: #CCCCCC; /* Light gray text for readability */
+    font-size: 1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0 10px; /* Slight padding to keep text off the edge */
+}
+
+/* --- Close Button --- */
+.modal-content-security .close {
+    color: #CCCCCC;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-content-security .close:hover {
+    color: #00BFFF; /* Bright blue on hover */
+}
+
+/* --- Form and Input Styles --- */
+#securityOtpForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+#securityOtpForm label {
+    display: block;
+    color: #CCCCCC;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -5px; /* Adjust spacing */
+}
+
+#securityOtpInput {
+    /* Dark input background */
+    background-color: #0F1E30; 
+    color: #FFFFFF; /* White text for contrast */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #00BFFF; /* Blue border */
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 4px; 
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#securityOtpInput:focus {
+    border-color: #00FFFF; /* Lighter blue on focus */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.7); /* Stronger glow on focus */
+    outline: none;
+}
+
+/* --- Verify Button --- */
+.submit-btn {
+    /* Full width, bright blue button to match the image */
+    background-color: #00BFFF; 
+    color: #1A2E44; /* Dark text on bright button */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 5px; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #00FFFF; /* Brighter on hover */
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+.submit-btn:disabled {
+    background-color: #0077AA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Message Area --- */
+#securityOtpMessage {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #00BFFF; /* Blue text for informational messages */
+}

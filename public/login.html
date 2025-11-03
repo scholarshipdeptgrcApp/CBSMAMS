@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <style>
+            :root {
+                /* --- DARK THEME COLOR VARIABLES --- */
+                --primary-accent: #00BFFF; /* The vibrant blue accent color */
+                --dark-primary: #1A2035; /* Dark background color (body/main) */
+                --dark-secondary: #2A324A; /* Card/Container background color */
+                --text-color-light: #E0E0E0; /* Light text color for dark backgrounds */
+                --input-bg: #3C4560; /* Darker input background */
+                --input-border: #4A5672; /* Subtle input border */
+                --hover-color-light: #4CC4FF; /* Lighter blue for hover effects */
+            }
+
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: var(--dark-primary); /* Apply dark primary background */
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                color: var(--text-color-light); /* Light text color */
+                /* Simple gradient for depth */
+                background: linear-gradient(135deg, #1A2035, #121625); 
+            }
+
+            /* NEW WRAPPER FOR BACK BUTTON POSITIONING */
+            .login-wrapper {
+                position: relative;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            /* BACK BUTTON STYLES (Use primary accent color) */
+            .back-button {
+                position: absolute;
+                top: -50px; 
+                left: 0;
+                font-size: 1rem;
+                text-decoration: none;
+                color: var(--primary-accent); /* Blue accent */
+                transition: color 0.2s, text-decoration 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-weight: 500;
+            }
+
+            .back-button:hover {
+                color: var(--hover-color-light); /* Lighter blue on hover */
+                text-decoration: underline;
+            }
+            /* END BACK BUTTON STYLES */
+
+            .login-container {
+                background-color: var(--dark-secondary); /* Dark card background */
+                padding: 2.5rem 3rem;
+                border-radius: 12px;
+                /* Blue shadow matching the dashboard */
+                box-shadow: 0 0 15px rgba(0, 191, 255, 0.4); 
+                border: 1px solid var(--primary-accent); /* Blue border accent */
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            h2 {
+                margin-top: 0;
+                margin-bottom: 2rem;
+                font-weight: 600;
+                color: var(--primary-accent); /* Blue accent color for title */
+            }
+
+            .form-group {
+                margin-bottom: 1.5rem;
+                text-align: left;
+            }
+
+            .input-group {
+                position: relative;
+            }
+
+            /* Input Field Styling for Dark Mode */
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 12px 15px;
+                padding-right: 45px; 
+                font-size: 1rem;
+                border: 1px solid var(--input-border); /* Dark border */
+                border-radius: 8px;
+                box-sizing: border-box;
+                transition: all 0.3s ease;
+                background-color: var(--input-bg); /* Dark input background */
+                color: var(--text-color-light); /* Light text */
+            }
+            
+            /* New style for input in modal */
+            #modal-password input[type="text"] {
+                padding-right: 15px; 
+            }
+
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                border-color: var(--primary-accent); /* Blue accent focus */
+                box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.25);
+            }
+
+            .toggle-password {
+                position: absolute;
+                top: 50%;
+                right: 15px;
+                transform: translateY(-50%);
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                /* Color the icon with the accent color */
+                color: var(--primary-accent); 
+                /* Remove filter effects */
+                filter: none; 
+                transition: color 0.2s ease;
+            }
+
+            .toggle-password:hover {
+                color: var(--hover-color-light); /* Lighter blue on hover */
+                filter: none;
+            }
+
+            /* Button Styling (Use primary accent color) */
+            button[type="submit"], #step1-submit-btn, #step2-select-btn {
+                width: 100%;
+                padding: 12px;
+                background-color: var(--primary-accent); /* Blue accent */
+                color: var(--dark-primary); /* Dark text for contrast */
+                border: none;
+                border-radius: 8px;
+                font-size: 1.1rem;
+                font-weight: 600; /* Made slightly bolder */
+                cursor: pointer;
+                transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+                margin-top: 10px; 
+            }
+
+            button[type="submit"]:hover, #step1-submit-btn:hover, #step2-select-btn:hover {
+                background-color: var(--hover-color-light); /* Lighter blue on hover */
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(0, 191, 255, 0.4); /* Blue shadow */
+            }
+
+            button[type="submit"]:active, #step1-submit-btn:active, #step2-select-btn:active {
+                transform: translateY(0);
+            }
+            
+            button[disabled] {
+                opacity: 0.6;
+                cursor: not-allowed;
+                box-shadow: none;
+                transform: translateY(0);
+            }
+
+            /* Forgot Password link (Use primary accent color) */
+            .forgot-password-link {
+                display: block;
+                text-align: right;
+                margin-top: -10px;
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+                color: var(--primary-accent); /* Blue accent */
+                text-decoration: none;
+                cursor: pointer;
+                transition: color 0.2s;
+            }
+
+            .forgot-password-link:hover {
+                color: var(--hover-color-light); /* Lighter blue on hover */
+                text-decoration: underline;
+            }
+            
+            /* Modal Styles */
+            .modal {
+                display: none; 
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.5); /* Slightly darker backdrop */
+                backdrop-filter: blur(5px);
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background-color: var(--dark-secondary); /* Dark modal background */
+                color: var(--text-color-light);
+                padding: 25px;
+                border-radius: 12px;
+                /* Blue shadow matching the dashboard */
+                box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.4);
+                width: 90%;
+                max-width: 450px;
+                position: relative;
+            }
+
+            .modal-content h3 {
+                color: var(--primary-accent) !important; /* Ensure accent color */
+            }
+
+            .close-button {
+                color: var(--primary-accent); /* Blue accent color */
+                position: absolute;
+                top: 10px;
+                right: 20px;
+                font-size: 30px;
+                font-weight: 300;
+                transition: color 0.2s;
+            }
+
+            .close-button:hover,
+            .close-button:focus {
+                color: var(--text-color-light); /* White on hover */
+                text-decoration: none;
+                cursor: pointer;
+            }
+            
+            /* Account List Styling */
+            .account-list {
+                list-style: none;
+                padding: 0;
+                max-height: 200px;
+                overflow-y: auto;
+                border: 1px solid var(--input-border); /* Subtle border */
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                background-color: var(--input-bg); /* Use a darker background */
+            }
+
+            .account-list li {
+                padding: 12px;
+                border-bottom: 1px solid #3C4560; /* Dark separator */
+                cursor: pointer;
+                text-align: left;
+                transition: background-color 0.2s;
+            }
+
+            .account-list li:last-child {
+                border-bottom: none;
+            }
+
+            .account-list li:hover {
+                background-color: #4A5672; /* Subtle dark hover color */
+            }
+            
+            /* Style for selected account in modal (for JS to apply) */
+            .account-list li.selected {
+                background-color: #00BFFF !important; /* Blue accent for selection */
+                color: var(--dark-primary); /* Dark text on blue background */
+                font-weight: 500;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-wrapper">
+            <a href="mainpage.html" class="back-button">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Home
+            </a>
+            <div class="login-container">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" placeholder="Username" required/>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" placeholder="Password" required/>
+                            <span class="toggle-password" onclick="togglePassword()">
+                                <i id="toggleIcon" class="fa-solid fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <a class="forgot-password-link" onclick="openForgotPasswordModal()">Forgot Password?</a>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modal-password" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeForgotPasswordModal()">&times;</span>
+                <h3 style="margin-top: 0;">Forgot Password</h3>
+                
+                <form id="forgotPasswordStep1Form">
+                    <div class="form-group" id="step1-username-group">
+                        <label for="fp_username" style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-color-light);">Enter your Username:</label>
+                        <input type="text" id="fp_username" name="username" placeholder="Username" required/>
+                    </div>
+                    <button type="submit" id="step1-submit-btn">Find Account(s)</button>
+                </form>
+                
+                <div id="forgotPasswordStep2" style="display: none; margin-top: 15px;">
+                    <p>Multiple accounts found with that username. Select the one you're trying to log into:</p>
+                    <ul id="account-selection-list" class="account-list">
+                        </ul>
+                    <button id="step2-select-btn" disabled>Send Password to Email</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            // --- Existing Functions ---
+            function togglePassword() {
+                const passwordField = document.getElementById('password');
+                const toggleIcon = document.getElementById('toggleIcon');
+                
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
+            }
+            
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    if (response.ok) {
+                        window.location.href = response.url;
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.message);
+                    }
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                }
+            });
+            
+            // --- FORGOT PASSWORD FUNCTIONS (Included for completeness) ---
+            
+            let foundAccounts = []; 
+            let selectedAccountId = null; 
+
+            function openForgotPasswordModal() {
+                document.getElementById('modal-password').style.display = 'flex';
+                // Reset modal state
+                document.getElementById('fp_username').value = '';
+                document.getElementById('forgotPasswordStep1Form').style.display = 'block';
+                document.getElementById('forgotPasswordStep2').style.display = 'none';
+                document.getElementById('account-selection-list').innerHTML = '';
+                document.getElementById('step2-select-btn').disabled = true;
+                foundAccounts = [];
+                selectedAccountId = null;
+            }
+
+            function closeForgotPasswordModal() {
+                document.getElementById('modal-password').style.display = 'none';
+            }
+
+            // Handle Step 1: Username Submission
+            document.getElementById('forgotPasswordStep1Form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('fp_username').value;
+                const submitBtn = document.getElementById('step1-submit-btn');
+                submitBtn.textContent = 'Searching...';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/forgot-password-find', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        foundAccounts = data.accounts;
+                        
+                        if (foundAccounts.length === 0) {
+                            alert('No active account found with that username for the current semester.');
+                        } else if (foundAccounts.length === 1) {
+                            selectedAccountId = foundAccounts[0].user_id || foundAccounts[0].id; 
+                            sendPasswordEmail(selectedAccountId); 
+                            document.getElementById('forgotPasswordStep1Form').style.display = 'none';
+                            document.getElementById('forgotPasswordStep2').style.style.display = 'none';
+                            alert('Only one account found. Sending password to registered email.');
+                        } else {
+                            displayAccountSelection(foundAccounts);
+                            document.getElementById('forgotPasswordStep1Form').style.display = 'none';
+                            document.getElementById('forgotPasswordStep2').style.display = 'block';
+                        }
+                    } else {
+                        alert(data.message || 'Error finding accounts.');
+                    }
+                } catch (error) {
+                    console.error('Error in forgot password step 1:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                } finally {
+                    if (document.getElementById('forgotPasswordStep1Form').style.display !== 'none') {
+                        submitBtn.textContent = 'Find Account(s)';
+                        submitBtn.disabled = false;
+                    }
+                }
+            });
+
+            // Function to display account selection
+            function displayAccountSelection(accounts) {
+                const list = document.getElementById('account-selection-list');
+                list.innerHTML = '';
+                selectedAccountId = null;
+                document.getElementById('step2-select-btn').disabled = true;
+
+                accounts.forEach(account => {
+                    const li = document.createElement('li');
+                    const roleName = getRoleName(account.role_id);
+                    li.textContent = `${account.name} (${roleName})`;
+                    li.setAttribute('data-user-id', account.user_id || account.id);
+                    li.setAttribute('data-role-id', account.role_id); 
+                    li.addEventListener('click', () => {
+                        // Remove 'selected' class and background from all
+                        document.querySelectorAll('.account-list li').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        // Add 'selected' class to the clicked item
+                        li.classList.add('selected'); 
+                        selectedAccountId = li.getAttribute('data-user-id');
+                        document.getElementById('step2-select-btn').disabled = false;
+                    });
+                    list.appendChild(li);
+                });
+            }
+            
+            function getRoleName(roleId) {
+                switch(parseInt(roleId)) {
+                    case 1: return 'Admin';
+                    case 2: return 'Scholar';
+                    case 3: return 'Church Personnel';
+                    case 4: return 'Scho Personnel';
+                    case 5: return 'Monitoring Personnel';
+                    case 6: return 'Validator';
+                    default: return 'User';
+                }
+            }
+
+            // Handle Step 2: Account Selection and Email Send
+            document.getElementById('step2-select-btn').addEventListener('click', () => {
+                if (selectedAccountId) {
+                    sendPasswordEmail(selectedAccountId);
+                } else {
+                    alert('Please select an account first.');
+                }
+            });
+
+            // Function to send the email
+            async function sendPasswordEmail(userId) {
+                const selectBtn = document.getElementById('step2-select-btn');
+                const step1Btn = document.getElementById('step1-submit-btn');
+                
+                const buttonToUpdate = document.getElementById('forgotPasswordStep2').style.display === 'block' ? selectBtn : step1Btn;
+                
+                const originalText = buttonToUpdate.textContent;
+                buttonToUpdate.textContent = 'Sending...';
+                buttonToUpdate.disabled = true;
+
+                try {
+                    const response = await fetch('/forgot-password-send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert('Password sent! Your current password has been sent to your registered email. Please check your inbox and consider changing it immediately.');
+                        closeForgotPasswordModal();
+                    } else {
+                        alert(data.message || 'Error sending password email.');
+                    }
+                } catch (error) {
+                    console.error('Error in forgot password step 2:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                } finally {
+                    buttonToUpdate.textContent = originalText;
+                    buttonToUpdate.disabled = false;
+                    if (document.getElementById('forgotPasswordStep1Form').style.display === 'block') {
+                         document.getElementById('step1-submit-btn').textContent = 'Find Account(s)';
+                         document.getElementById('step1-submit-btn').disabled = false;
+                    }
+                }
+            }
+            
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                const modal = document.getElementById('modal-password');
+                if (event.target == modal) {
+                    closeForgotPasswordModal();
+                }
+            }
+        </script>
+    </body>
+</html>
