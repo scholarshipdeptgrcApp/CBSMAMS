@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
-const plainPassword = 'password123';
-bcrypt.hash(plainPassword, 10, (err, hash) => {
-    if (err) throw err;
-    console.log(hash);
+const password = 'MyStr0ngP@ssw0rd!';
+bcrypt.hash(password, 10, (err, hash) => {
+  if (err) throw err;
+  console.log(hash); // copy this hash
 });
