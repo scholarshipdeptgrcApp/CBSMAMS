@@ -5,16 +5,10 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-/*
-const fs = require('fs');
-const https = require('https');
-*/
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const xlsx = require('xlsx');
 const QRCode = require('qrcode');
-
-
 const app = express();
 const port = 4000;
 
@@ -110,12 +104,7 @@ const uploadSignature = multer({
     }
 });
 
-/* HTTPS certificate and key
-const options = {
-    key: fs.readFileSync(path.join(__dirname, 'certs', 'privatekey.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'certs', 'certificate.pem'))
-};
-*/
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -182,12 +171,6 @@ async function fetchLatestSemester() {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'mainpage.html'));
 });
-
-
-// server.js
-
-// ... (fetchLatestSemester and other existing global code like db, bcrypt, currentSem) ...
-
 // LOGIN 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -750,97 +733,7 @@ app.post('/verify-security-otp', async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to complete update. Please try again.' });
     }
 });
-/*
-// Email update
-app.post('/update-email', async (req, res) => {
-    if (!req.session.loggedIn) {
-        return res.status(401).send('Unauthorized');
-    }
 
-    const { newEmail } = req.body;
-    const { id, role_id } = req.session.user;
-
-    let tableName, idColumn;
-    if (role_id === 1) {
-        tableName = 'ScholarAdmin';
-        idColumn = 'id';
-    } else if (role_id === 2) {
-        tableName = 'Scholar';
-        idColumn = 'user_id';
-    } else if (role_id === 3) {
-        tableName = 'ChurchPersonnel';
-        idColumn = 'user_id';
-    } else if (role_id === 4) {
-        tableName = 'SchoPersonnel';
-        idColumn = 'user_id';
-    } else if (role_id === 5) {
-        tableName = 'MonitoringInfo';
-        idColumn = 'user_id';
-    } else if (role_id === 6) {
-        tableName = 'ValidatorInfo';
-        idColumn = 'user_id';
-    } else {
-        return res.status(400).send('Invalid role for email update.');
-    }
-
-    try {
-        const [results] = await db.execute(`UPDATE ${tableName} SET email = ? WHERE ${idColumn} = ?`, [newEmail, id]);
-        if (results.affectedRows === 0) {
-            return res.status(404).send('User not found or email is the same.');
-        }
-        res.status(200).send('Email updated successfully.');
-    } catch (error) {
-        console.error('Error updating email:', error);
-        res.status(500).send('Failed to update email.');
-    }
-});
-
-
-// Password update
-app.post('/update-password', async (req, res) => {
-    if (!req.session.loggedIn) {
-        return res.status(401).send('Unauthorized');
-    }
-
-    const { currentPassword, newPassword } = req.body;
-    const { id, role_id, username } = req.session.user;
-
-    let tableName, idColumn;
-    if (role_id === 1) {
-        tableName = 'ScholarAdmin';
-        idColumn = 'id';
-    } else {
-        tableName = 'Users';
-        idColumn = 'id';
-    }
-
-    try {
-        const [userResults] = await db.execute(`SELECT password FROM ${tableName} WHERE ${idColumn} = ?`, [id]);
-        if (userResults.length === 0) {
-            return res.status(404).send('User not found.');
-        }
-
-        const hashedPassword = userResults[0].password;
-        const isMatch = await bcrypt.compare(currentPassword, hashedPassword);
-
-        if (!isMatch) {
-            return res.status(400).send('Incorrect current password.');
-        }
-
-        const newHashedPassword = await bcrypt.hash(newPassword, 10);
-        const [updateResults] = await db.execute(`UPDATE ${tableName} SET password = ? WHERE ${idColumn} = ?`, [newHashedPassword, id]);
-
-        if (updateResults.affectedRows === 0) {
-            return res.status(500).send('Failed to update password.');
-        }
-
-        res.status(200).send('Password updated successfully.');
-    } catch (error) {
-        console.error('Error updating password:', error);
-        res.status(500).send('Failed to update password.');
-    }
-});
-*/
 // NEW SEMESTER
 
 // OTP
@@ -7134,7 +7027,7 @@ app.post('/receive-certificate', async (req, res) => {
 });
 
 //report
-// --- Helper to get 4 recent Semesters ---
+
 async function getSemestersForReport() {
     // Get the current sem and the 3 preceding semesters (total 4)
     const [results] = await db.query(
@@ -7288,9 +7181,9 @@ app.get('/api/report/top-duty-scholars', async (req, res) => {
 });
 
 
-// Assuming this code is inside your server.js/app.js where 'app', 'db', and 'currentSem' are defined.
 
-// --- DOWNLOAD DEPARTMENT REPORT (WORD .DOC DOCUMENT) ---
+
+
 app.get('/api/report/download/department', async (req, res) => {
     if (!currentSem) {
         return res.status(500).send('Current semester not loaded.');
@@ -7475,7 +7368,7 @@ app.get('/api/report/download/church', async (req, res) => {
     }
 });
 
-// --- Existing Department Report (JSON for UI - UNCHANGED) ---
+
 app.get('/api/report/department-members', async (req, res) => {
     if (!currentSem) return res.status(500).json({ success: false, message: 'Current semester not loaded.' });
     const currentSemId = currentSem.id;
@@ -7516,7 +7409,7 @@ app.get('/api/report/department-members', async (req, res) => {
 });
 
 
-// --- Existing Church Report (JSON for UI - FIX: s.church_id) ---
+
 app.get('/api/report/church-members', async (req, res) => {
     if (!currentSem) return res.status(500).json({ success: false, message: 'Current semester not loaded.' });
     const currentSemId = currentSem.id;
@@ -7556,8 +7449,7 @@ app.get('/api/report/church-members', async (req, res) => {
     }
 });
 //forgot pass
-// ADD THIS FUNCTION TO YOUR server.js FILE
-// Utility function to map user_id to name and email based on role
+
 async function getUserDetails(user, currentSemId) {
     let name = 'Unknown User';
     let email = null;
@@ -7720,17 +7612,12 @@ app.post('/forgot-password-send', async (req, res) => {
             }
         }
         
-        // Check if a valid account was found and has an email
+        
         if (!accountEmail || !accountPassword) {
             return res.status(404).json({ message: 'Account not found or missing email address.' });
         }
         
-        // NOTE: Since you store HASHED passwords, you CANNOT send the original password.
-        // You have two standard options, I will implement a **Temporary OTP** method
-        // which is safer and standard practice.
         
-        // ** OPTION A (Selected): Use a Temporary Password/OTP **
-        // I will use a simple 6-digit OTP (One-Time Password)
         const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit number
         const newHashedPassword = await bcrypt.hash(otp.toString(), 10);
         
