@@ -7703,7 +7703,7 @@ app.post('/send-admin-action-otp', async (req, res) => {
         req.session.adminActionOtpExpiry = Date.now() + 5 * 60 * 1000;
 
         const mailOptions = {
-            from: 'grc.scholarship.dept@gmail.com',
+            from: 'scholarshipdept.grc@gmail.com',
             to: registrarEmail,
             subject: 'Admin Action Confirmation OTP',
             text: `Your OTP for confirming the Scholar Admin action is: ${otp}. This OTP is valid for 5 minutes.`
@@ -7769,7 +7769,7 @@ app.post('/verify-admin-action-otp', async (req, res) => {
 
             // Send Email to the new Admin
             const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
+                from: 'scholarshipdept.grc@gmail.com',
                 to: email,
                 subject: 'New Scholar Admin Account Created',
                 text: `Hello ${firstname},\n\nYour Scholar Admin account has been successfully created by the Registrar.\n\nUsername: ${username}\nPassword: ${plainPassword}\n\nPlease log in and change your password immediately for security.\n\nNote: Your current status is 'Active'.`
