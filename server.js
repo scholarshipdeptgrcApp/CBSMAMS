@@ -5,7 +5,8 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const nodemailer = require('nodemailer');
+
+//const nodemailer = require('nodemailer');
 const multer = require('multer');
 const xlsx = require('xlsx');
 const QRCode = require('qrcode');
@@ -104,7 +105,7 @@ const uploadSignature = multer({
     }
 });
 
-
+/*
 const transporter = nodemailer.createTransport({
     host: process.env.BREVO_HOST || "smtp-relay.brevo.com",
     port: process.env.BREVO_PORT || 587,
@@ -115,6 +116,29 @@ const transporter = nodemailer.createTransport({
     },
     connectionTimeout: 120000, // 20 seconds
 });
+*/
+// --- EMAIL (BREVO API) SETUP ---
+const Brevo = require('@getbrevo/brevo');
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_KEY);
+
+// Reusable sendEmail function
+const sendEmail = async (to, subject, htmlContent) => {
+    const emailData = {
+        sender: { email: "scholarshipdept.grc@gmail.com", name: "CBSMAMS" },
+        to: [{ email: to }],
+        subject,
+        htmlContent,
+    };
+
+    try {
+        const response = await brevoClient.sendTransacEmail(emailData);
+        console.log("✅ Email sent:", response.messageId || response);
+    } catch (error) {
+        console.error("❌ Error sending email via Brevo:", error.response?.body || error);
+        throw new Error("Failed to send email via Brevo.");
+    }
+};
 
 
 
@@ -7707,14 +7731,19 @@ app.post('/send-admin-action-otp', async (req, res) => {
         req.session.adminActionOTP = otp;
         req.session.adminActionOtpExpiry = Date.now() + 5 * 60 * 1000;
 
-        const mailOptions = {
+        /*const mailOptions = {
             from: 'scholarshipdept.grc@gmail.com',
             to: registrarEmail,
             subject: 'Admin Action Confirmation OTP',
             text: `Your OTP for confirming the Scholar Admin action is: ${otp}. This OTP is valid for 5 minutes.`
-        };
+        };*/
 
-        await transporter.sendMail(mailOptions);
+        await sendEmail(
+            registrarEmail,
+            'Admin Action Confirmation OTP',
+            `<p>Your OTP for confirming the Scholar Admin action is: <b>${otp}</b><br>This OTP is valid for 5 minutes.</p>`
+        );
+
         res.status(200).send('OTP sent to your registered email.');
     } catch (error) {
         console.error('Error sending Admin Action OTP email:', error);
@@ -7772,14 +7801,16 @@ app.post('/verify-admin-action-otp', async (req, res) => {
                 [surname, firstname, email, username, hashedPassword, role_id, profile, status, otp_column]
             );
 
-            // Send Email to the new Admin
-            const mailOptions = {
-                from: 'scholarshipdept.grc@gmail.com',
-                to: email,
-                subject: 'New Scholar Admin Account Created',
-                text: `Hello ${firstname},\n\nYour Scholar Admin account has been successfully created by the Registrar.\n\nUsername: ${username}\nPassword: ${plainPassword}\n\nPlease log in and change your password immediately for security.\n\nNote: Your current status is 'Active'.`
-            };
-            await transporter.sendMail(mailOptions);
+            await sendEmail(
+                email,
+                'New Scholar Admin Account Created',
+                `<p>Hello ${firstname},</p>
+                <p>Your Scholar Admin account has been created successfully.</p>
+                <p><b>Username:</b> ${username}<br><b>Password:</b> ${plainPassword}</p>
+                <p>Please log in and change your password immediately for security.</p>
+                <p>Note: Your current status is <b>Active</b>.</p>`
+            );
+
             
             res.json({ success: true, message: 'OTP verified. Scholar Admin account created and email sent.' });
 
@@ -7801,13 +7832,15 @@ app.post('/verify-admin-action-otp', async (req, res) => {
             const subject = newStatus === 'active' ? 'Account Activated' : 'Account Deactivated';
             const bodyText = `Hello ${firstname} ${surname},\n\nYour Scholar Admin account status has been updated by the Registrar.\n\n**New Status: ${newStatus.toUpperCase()}**\n\nIf you have any questions, please contact the Registrar's office.`;
             
-            const mailOptions = {
-                from: 'scholarshipdept.grc@gmail.com',
-                to: email,
-                subject: subject,
-                text: bodyText
-            };
-            await transporter.sendMail(mailOptions);
+            await sendEmail(
+                email,
+                newStatus === 'active' ? 'Account Activated' : 'Account Deactivated',
+                `<p>Hello ${firstname} ${surname},</p>
+                <p>Your Scholar Admin account status has been updated by the Registrar.</p>
+                <p><b>New Status:</b> ${newStatus.toUpperCase()}</p>
+                <p>If you have any questions, please contact the Registrar's office.</p>`
+            );
+
 
             res.json({ success: true, message: `OTP verified. Admin status updated to ${newStatus}. Notification emailed.` });
 
