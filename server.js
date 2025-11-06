@@ -106,14 +106,16 @@ const uploadSignature = multer({
 
 
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_KEY
-  }
+    host: process.env.BREVO_HOST || "smtp-relay.brevo.com",
+    port: process.env.BREVO_PORT || 587,
+    secure: false, // must be false for port 587
+    auth: {
+        user: process.env.BREVO_USER,
+        pass: process.env.BREVO_KEY
+    },
+    connectionTimeout: 120000, // 20 seconds
 });
+
 
 
 app.set('trust proxy', 1);
