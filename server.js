@@ -109,7 +109,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'scholarshipdept.grc@gmail.com',
-        pass: 'ovuw gevp umlq umzj' 
+        pass: process.env.EMAIL_PASS
     }
 });
 
