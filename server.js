@@ -105,11 +105,17 @@ const uploadSignature = multer({
 });
 
 
+// Change transporter (if you didn't already, for better reliability)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: 'scholarshipdept.grc@gmail.com',
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASS // Use the email pass ENV variable
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
@@ -123,8 +129,11 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // only secure cookies in production
-        maxAge: 10 * 60 * 1000
+        secure: process.env.NODE_ENV === 'production', // MUST be true on HTTPS (Render)
+        maxAge: 10 * 60 * 1000,
+        // *** NEW: Add SameSite=None for cross-origin (even though it's the same app) ***
+        // Sometimes needed if the app is embedded or has subdomains.
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax' 
     }
 }));
 
@@ -7677,6 +7686,7 @@ app.post('/forgot-password-send', async (req, res) => {
 app.post('/send-admin-action-otp', async (req, res) => {
     // Check if the user is a Registrar (role_id = 7)
     // NOTE: Ensure your login process correctly sets role_id = 7 for RegistrarHead
+    // server.js inside app.post('/send-admin-action-otp', ...)
     if (!req.session.loggedIn || req.session.user.role_id !== 7) {
         return res.status(401).send('Unauthorized. Only Registrars can perform this action.');
     }
