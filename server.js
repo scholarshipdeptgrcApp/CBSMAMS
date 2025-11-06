@@ -106,12 +106,15 @@ const uploadSignature = multer({
 
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'scholarshipdept.grc@gmail.com',
-        pass: process.env.EMAIL_PASS
-    }
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_KEY
+  }
 });
+
 
 app.set('trust proxy', 1);
 // Middleware
