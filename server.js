@@ -5,12 +5,13 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const nodemailer = require('nodemailer');
 const multer = require('multer');
 const xlsx = require('xlsx');
 const QRCode = require('qrcode');
 const app = express();
 const port = 4000;
+const nodemailer = require('nodemailer'); 
+const sgMail = require('@sendgrid/mail'); 
 
 // Import dayjs for date/time manipulation (you might need to install: npm install dayjs)
 const dayjs = require('dayjs');
@@ -104,27 +105,11 @@ const uploadSignature = multer({
     }
 });
 
+// REMOVED: Nodemailer transporter setup (it was causing ETIMEDOUT)
 
-// server.js
-
-const transporter = nodemailer.createTransport({
-    // 1. Explicitly define host and secure port 465 (the best for cloud environments)
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // This is mandatory when using port 465
-    auth: {
-        user: 'scholarshipdept.grc@gmail.com',
-        // Make absolutely sure this environment variable is set in Render
-        pass: process.env.EMAIL_PASS 
-    },
-    // 2. CRITICAL FIX: Increase the connection timeout (default is 5s)
-    connectionTimeout: 15000, // Increase to 15 seconds
-    greetingTimeout: 5000, // Increase greeting timeout
-    // 3. Optional: Add TLS bypass for cloud certificate issues
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+// ⚡️ SENDGRID CONFIGURATION ⚡️
+// Configure SendGrid to use the API Key from environment variables
+sgMail.setApiKey(process.env.SENDGRID_API_KEY); 
 
 app.set('trust proxy', 1);
 // Middleware
@@ -132,7 +117,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'your_secret_key',
+    secret: 'your_secret_key', // NOTE: Use process.env.SESSION_SECRET here for security
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -143,7 +128,6 @@ app.use(session({
         sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax' 
     }
 }));
-
 
 
 const db = mysql.createPool({
@@ -169,17 +153,17 @@ let currentSem = null;
 
 // --- fetch the latest semester ---
 async function fetchLatestSemester() {
-  try {
-    const [results] = await db.query('SELECT * FROM Semester ORDER BY id DESC LIMIT 1');
-    if (results.length > 0) {
-      currentSem = results[0];
-      console.log(`🎓 Active Semester Loaded: ${currentSem.semname} (ID: ${currentSem.id})`);
-    } else {
-      console.warn("⚠️ No semesters found in the database.");
+    try {
+        const [results] = await db.query('SELECT * FROM Semester ORDER BY id DESC LIMIT 1');
+        if (results.length > 0) {
+            currentSem = results[0];
+            console.log(`🎓 Active Semester Loaded: ${currentSem.semname} (ID: ${currentSem.id})`);
+        } else {
+            console.warn("⚠️ No semesters found in the database.");
+        }
+    } catch (error) {
+        console.error("❌ Error fetching latest semester:", error);
     }
-  } catch (error) {
-    console.error("❌ Error fetching latest semester:", error);
-  }
 }
 
 
@@ -7688,12 +7672,9 @@ app.post('/forgot-password-send', async (req, res) => {
 });
 
 //registrar
-// --- 1. SEND ADMIN ACTION OTP ---
-// --- 1. SEND ADMIN ACTION OTP (CORRECTED) ---
+// --- 1. SEND ADMIN ACTION OTP (USING SENDGRID) ---
 app.post('/send-admin-action-otp', async (req, res) => {
     // Check if the user is a Registrar (role_id = 7)
-    // NOTE: Ensure your login process correctly sets role_id = 7 for RegistrarHead
-    // server.js inside app.post('/send-admin-action-otp', ...)
     if (!req.session.loggedIn || req.session.user.role_id !== 7) {
         return res.status(401).send('Unauthorized. Only Registrars can perform this action.');
     }
@@ -7701,11 +7682,10 @@ app.post('/send-admin-action-otp', async (req, res) => {
     const registrarId = req.session.user.id;
 
     try {
-        // 👇 CORRECTED: Fetch Registrar's email from the RegistrarHead table
+        // Fetch Registrar's email from the RegistrarHead table
         const [results] = await db.query('SELECT email FROM RegistrarHead WHERE id = ?', [registrarId]);
         
         if (results.length === 0) {
-            // This is the source of the "Registrar not found" error
             return res.status(404).send('Registrar (Head) account not found in the RegistrarHead table.');
         }
 
@@ -7719,17 +7699,26 @@ app.post('/send-admin-action-otp', async (req, res) => {
         req.session.adminActionOTP = otp;
         req.session.adminActionOtpExpiry = Date.now() + 5 * 60 * 1000;
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
+        // ⚡️ SENDGRID MESSAGE OBJECT ⚡️
+        const msg = {
             to: registrarEmail,
+            from: 'scholarshipdept.grc@gmail.com', // Must be your verified sender email
             subject: 'Admin Action Confirmation OTP',
-            text: `Your OTP for confirming the Scholar Admin action is: ${otp}. This OTP is valid for 5 minutes.`
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 600px; margin: auto;">
+                    <h2 style="color: #333;">Admin Action OTP</h2>
+                    <p>Your One-Time Password (OTP) for the Registrar Admin action is:</p>
+                    <p style="font-size: 24px; font-weight: bold; color: #007bff; background: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center;">${otp}</p>
+                    <p>This code is valid for 5 minutes.</p>
+                    <p style="font-size: 12px; color: #777;">If you did not request this, please disregard this email.</p>
+                </div>
+            `,
         };
 
-        await transporter.sendMail(mailOptions);
+        await sgMail.send(msg); // Send email using SendGrid API
         res.status(200).send('OTP sent to your registered email.');
     } catch (error) {
-        console.error('Error sending Admin Action OTP email:', error);
+        console.error('Error sending Admin Action OTP email via SendGrid:', error.response ? error.response.body : error);
         res.status(500).send('Failed to send OTP. Please try again.');
     }
 });
@@ -7774,7 +7763,6 @@ app.post('/verify-admin-action-otp', async (req, res) => {
             // Check for existing user (optional but recommended)
             const [existingUser] = await db.query('SELECT id FROM ScholarAdmin WHERE username = ? OR email = ?', [username, email]);
             if (existingUser.length > 0) {
-                 // The old OTP is cleared, but we should not proceed.
                  return res.status(409).json({ success: false, message: 'Account with this username or email already exists.' });
             }
 
@@ -7784,14 +7772,23 @@ app.post('/verify-admin-action-otp', async (req, res) => {
                 [surname, firstname, email, username, hashedPassword, role_id, profile, status, otp_column]
             );
 
-            // Send Email to the new Admin
-            const mailOptions = {
-                from: 'scholarshipdept.grc@gmail.com',
+            // ⚡️ SENDGRID MESSAGE OBJECT for New Admin ⚡️
+            const newAdminMsg = {
                 to: email,
+                from: 'scholarshipdept.grc@gmail.com',
                 subject: 'New Scholar Admin Account Created',
-                text: `Hello ${firstname},\n\nYour Scholar Admin account has been successfully created by the Registrar.\n\nUsername: ${username}\nPassword: ${plainPassword}\n\nPlease log in and change your password immediately for security.\n\nNote: Your current status is 'Active'.`
+                html: `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 600px; margin: auto;">
+                        <h2 style="color: #333;">Welcome, New Scholar Admin!</h2>
+                        <p>Your Scholar Admin account has been successfully created by the Registrar.</p>
+                        <p><strong>Username:</strong> ${username}</p>
+                        <p><strong>Temporary Password:</strong> ${plainPassword}</p>
+                        <p style="color: red; font-weight: bold;">Please log in and change your password immediately for security.</p>
+                        <p>Your current status is 'Active'.</p>
+                    </div>
+                `,
             };
-            await transporter.sendMail(mailOptions);
+            await sgMail.send(newAdminMsg); // Send email using SendGrid API
             
             res.json({ success: true, message: 'OTP verified. Scholar Admin account created and email sent.' });
 
@@ -7801,7 +7798,6 @@ app.post('/verify-admin-action-otp', async (req, res) => {
             // Fetch current email for notification
             const [adminResult] = await db.query('SELECT email, firstname, surname FROM ScholarAdmin WHERE id = ?', [adminId]);
             if (adminResult.length === 0) {
-                 // The old OTP is cleared, but we should not proceed.
                  return res.status(404).json({ success: false, message: 'Admin account not found for update.' });
             }
             const { email, firstname, surname } = adminResult[0];
@@ -7809,28 +7805,35 @@ app.post('/verify-admin-action-otp', async (req, res) => {
             // Update status
             await db.query('UPDATE ScholarAdmin SET status = ? WHERE id = ?', [newStatus, adminId]);
 
-            // Send Email to the Admin about the status change
+            // ⚡️ SENDGRID MESSAGE OBJECT for Status Update ⚡️
             const subject = newStatus === 'active' ? 'Account Activated' : 'Account Deactivated';
-            const bodyText = `Hello ${firstname} ${surname},\n\nYour Scholar Admin account status has been updated by the Registrar.\n\n**New Status: ${newStatus.toUpperCase()}**\n\nIf you have any questions, please contact the Registrar's office.`;
+            const bodyHtml = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 600px; margin: auto;">
+                    <h2 style="color: #333;">Admin Account Status Update</h2>
+                    <p>Hello ${firstname} ${surname},</p>
+                    <p>Your Scholar Admin account status has been updated by the Registrar.</p>
+                    <p><strong>New Status:</strong> <span style="color: ${newStatus === 'active' ? 'green' : 'red'};">${newStatus.toUpperCase()}</span></p>
+                    <p>If you have any questions, please contact the Registrar's office.</p>
+                </div>
+            `;
             
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
+            const statusUpdateMsg = {
                 to: email,
+                from: 'scholarshipdept.grc@gmail.com', // Must be your verified sender email
                 subject: subject,
-                text: bodyText
+                html: bodyHtml
             };
-            await transporter.sendMail(mailOptions);
+            await sgMail.send(statusUpdateMsg); // Send email using SendGrid API
 
             res.json({ success: true, message: `OTP verified. Admin status updated to ${newStatus}. Notification emailed.` });
 
         } else {
-             // The old OTP is cleared, but we should not proceed.
-            return res.status(400).json({ success: false, message: 'Invalid action specified.' });
+             return res.status(400).json({ success: false, message: 'Invalid action specified.' });
         }
     } catch (error) {
-        console.error('Error executing admin action:', error);
+        console.error('Error executing admin action:', error.response ? error.response.body : error);
         // The OTP is cleared, but the action failed.
-        res.status(500).json({ success: false, message: `Server error during action: ${error.message}` });
+        res.status(500).json({ success: false, message: `Server error during action: ${error.message}. Email notification may have failed.` });
     }
 });
 
