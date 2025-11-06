@@ -105,15 +105,22 @@ const uploadSignature = multer({
 });
 
 
-// Change transporter (if you didn't already, for better reliability)
+// server.js
+
 const transporter = nodemailer.createTransport({
+    // 1. Explicitly define host and secure port 465 (the best for cloud environments)
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true,
+    secure: true, // This is mandatory when using port 465
     auth: {
         user: 'scholarshipdept.grc@gmail.com',
-        pass: process.env.EMAIL_PASS // Use the email pass ENV variable
+        // Make absolutely sure this environment variable is set in Render
+        pass: process.env.EMAIL_PASS 
     },
+    // 2. CRITICAL FIX: Increase the connection timeout (default is 5s)
+    connectionTimeout: 15000, // Increase to 15 seconds
+    greetingTimeout: 5000, // Increase greeting timeout
+    // 3. Optional: Add TLS bypass for cloud certificate issues
     tls: {
         rejectUnauthorized: false
     }
