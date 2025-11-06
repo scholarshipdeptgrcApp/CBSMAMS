@@ -651,14 +651,12 @@ app.post('/send-security-otp', async (req, res) => {
         req.session.securityOTP = otp;
         req.session.securityOtpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
 
-        const mailOptions = {
-            from: 'your.sender.email@gmail.com', 
-            to: userEmail,
-            subject: 'Security Update OTP Confirmation',
-            text: `Your OTP for changing your profile settings is: ${otp}. This OTP is valid for 5 minutes.`
-        };
+        await sendEmail(
+            userEmail,
+            'Security Update OTP Confirmation',
+            `Your OTP for changing your profile settings is: ${otp}. This OTP is valid for 5 minutes.`
+        );
 
-        await transporter.sendMail(mailOptions);
         res.status(200).send('OTP sent to your email.');
 
     } catch (error) {
@@ -790,14 +788,12 @@ app.post('/send-otp-semester', async (req, res) => {
         req.session.semesterOTP = otp;
         req.session.otpExpiry = Date.now() + 5 * 60 * 1000; 
 
-        const mailOptions = {
-            from: 'grc.scholarship.dept@gmail.com', 
-            to: adminEmail,
-            subject: 'Semester Setup OTP Confirmation',
-            text: `Your OTP for semester management is: ${otp}. This OTP is valid for 5 minutes.`
-        };
+        await sendEmail(
+            adminEmail,
+            'Semester Setup OTP Confirmation',
+            `Your OTP for semester management is: ${otp}. This OTP is valid for 5 minutes.`
+        );
 
-        await transporter.sendMail(mailOptions);
         res.status(200).send('OTP sent to your email.');
     } catch (error) {
         console.error('Error sending OTP email:', error);
@@ -1108,14 +1104,12 @@ app.post('/send-otp-account', async (req, res) => {
         req.session.accountOTP = otp;
         req.session.accountOtpExpiry = Date.now() + 5 * 60 * 1000; 
 
-        const mailOptions = {
-            from: 'grc.scholarship.dept@gmail.com',
-            to: adminEmail,
-            subject: 'Account Creation OTP Confirmation',
-            text: `Your OTP for account creation is: ${otp}. This OTP is valid for 5 minutes.`
-        };
+        await sendEmail(
+            adminEmail,
+            'Account Creation OTP Confirmation',
+            `Your OTP for account creation is: ${otp}. This OTP is valid for 5 minutes.`
+        );
 
-        await transporter.sendMail(mailOptions);
         res.status(200).json({ message: 'OTP sent to your email.' });
     } catch (error) {
         console.error('Error sending OTP email:', error);
@@ -1281,13 +1275,12 @@ async function createAccount(accountData, semId) {
         await connection.execute(userInfoInsertQuery, userInfoParams);
         await connection.commit();
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
-            to: email,
-            subject: 'Your Account Details',
-            text: `Hello ${firstname},\n\nYour account has been created.\n\nUsername: ${username}\nPassword: ${plainPassword}\n\nPlease change your password after logging in.`
-        };
-         await transporter.sendMail(mailOptions);
+        await sendEmail(
+            email,
+            'Your Account Details',
+            `Hello ${firstname},<br><br>Your account has been created.<br><br>Username: <b>${username}</b><br>Password: <b>${plainPassword}</b><br><br>Please change your password after logging in.`
+        );
+
         console.log(`Simulated Account email send: to ${email}`); // Log instead of sending for testing
 
         return { success: true, message: `Account created for ${firstname} ${surname}.` };
@@ -1674,26 +1667,20 @@ app.post('/api/accept-application/:id', async (req, res) => {
 
         await conn.commit();
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
-            to: applicant.email,
-            subject: 'Congratulations! Your Scholarship Application Has Been Accepted',
-            html: `
-                <p>Dear ${applicant.firstname} ${applicant.surname},</p>
-                <p>We are delighted to inform you that your scholarship application has been successfully accepted for the current semester. Congratulations!</p>
-                <p>Please use the following credentials to log in to your new scholar account:</p>
-                <p><strong>Username:</strong> ${username}</p>
-                <p><strong>Password:</strong> ${password}</p>
-                <p>For your security, please change your password upon your first login. You are now officially a scholar for the current semester.</p>
-                <p>Best regards,</p>
-                <p>The Scholarship Team</p>
+        await sendEmail(
+            applicant.email,
+            'Congratulations! Your Scholarship Application Has Been Accepted',
             `
-        };
+            <p>Dear ${applicant.firstname} ${applicant.surname},</p>
+            <p>We are delighted to inform you that your scholarship application has been successfully accepted for the current semester. Congratulations!</p>
+            <p>Please use the following credentials to log in to your new scholar account:</p>
+            <p><strong>Username:</strong> ${username}</p>
+            <p><strong>Password:</strong> ${password}</p>
+            <p>For your security, please change your password upon your first login. You are now officially a scholar for the current semester.</p>
+            <p>Best regards,<br>The Scholarship Team</p>
+            `
+        );
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) console.error('Error sending acceptance email:', error);
-            else console.log('Acceptance email sent:', info.response);
-        });
 
         res.status(200).json({
             success: true,
@@ -1720,13 +1707,11 @@ function generateRandomChar(type) {
     return set[Math.floor(Math.random() * set.length)];
 }
 
-//NOT YET DONE
+// ✅ UPDATED VERSION — uses await sendEmail instead of transporter.sendMail
 app.post('/api/reject-application/:id', async (req, res) => {
     // Check for user authentication and role
     if (!req.session.loggedIn || req.session.user.role_id !== 6) {
-        return res.status(401).json({
-            message: 'Unauthorized'
-        });
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const { rejectedDocs, rejectionCategory, remarks } = req.body;
@@ -1737,13 +1722,16 @@ app.post('/api/reject-application/:id', async (req, res) => {
     // Inappropriate language check
     const badWords = ['gago', 'putangina', 'tangina', 'puta', 'tite'];
     if (badWords.some(word => remarks.toLowerCase().includes(word))) {
-        return res.status(400).json({ success: false, message: 'Remarks contain inappropriate language.' });
+        return res.status(400).json({
+            success: false,
+            message: 'Remarks contain inappropriate language.'
+        });
     }
 
     try {
         await conn.beginTransaction();
 
-        // 1. Get applicant information and ensure it's assigned to this validator
+        // 1. Get applicant info
         const [applicantInfo] = await conn.query(
             'SELECT id, surname, firstname, email FROM ApplicantInfo WHERE id = ? AND assigned_to_validator_id = ?',
             [applicantId, validatorId]
@@ -1758,48 +1746,39 @@ app.post('/api/reject-application/:id', async (req, res) => {
 
         const applicant = applicantInfo[0];
 
-        // 2. Insert into RejectedApplicant table
+        // 2. Insert into RejectedApplicant
         await conn.query(
-            'INSERT INTO RejectedApplicant (applicant_id, surname, firstname, validator_id, remarks, daterejected, rejection_category, detailed_notes) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)',
+            `INSERT INTO RejectedApplicant 
+             (applicant_id, surname, firstname, validator_id, remarks, daterejected, rejection_category, detailed_notes)
+             VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)`,
             [applicant.id, applicant.surname, applicant.firstname, validatorId, remarks, rejectionCategory, rejectedDocs.join(', ')]
         );
 
-
-        // 3. Delete the record from ApplicantInfo
-        await conn.query(
-            'DELETE FROM ApplicantInfo WHERE id = ?',
-            [applicantId]
-        );
-
+        // 3. Delete from ApplicantInfo
+        await conn.query('DELETE FROM ApplicantInfo WHERE id = ?', [applicantId]);
         await conn.commit();
 
-        // 4. Send rejection email
-        let emailText = `Dear ${applicant.firstname} ${applicant.surname},\n\n` +
-            `We regret to inform you that your scholarship application has been rejected for the following reason:\n\n`;
+        // 4. Prepare rejection email content
+        let emailText = `
+            Dear ${applicant.firstname} ${applicant.surname},<br><br>
+            We regret to inform you that your scholarship application has been rejected for the following reason:<br><br>
+        `;
 
         if (rejectionCategory === 'not_qualified_applicant') {
-            emailText += `Reason: You do not meet the qualifications for the scholarship. The validator has marked you as "not qualified".\n\n`;
+            emailText += `Reason: You do not meet the qualifications for the scholarship. The validator has marked you as "not qualified".<br><br>`;
         } else {
-            emailText += `The following documents were found to be invalid: ${rejectedDocs.join(', ')}.\n\n`;
-            emailText += `Validator's Remarks: ${remarks}\n\n`;
+            emailText += `The following documents were found to be invalid: <b>${rejectedDocs.join(', ')}</b>.<br><br>`;
+            emailText += `Validator's Remarks: ${remarks}<br><br>`;
         }
 
-        emailText += `Please address the issues and re-submit your application with the correct and valid documents.`;
+        emailText += `Please address the issues and re-submit your application with the correct and valid documents.<br><br>Thank you.`;
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
-            to: applicant.email,
-            subject: 'Scholarship Application Rejected',
-            text: emailText
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Error sending rejection email:', error);
-            } else {
-                console.log('Rejection email sent:', info.response);
-            }
-        });
+        // 5. ✅ Send email via Brevo (await sendEmail)
+        await sendEmail(
+            applicant.email,
+            'Scholarship Application Rejected',
+            emailText
+        );
 
         res.status(200).json({
             success: true,
@@ -1817,6 +1796,7 @@ app.post('/api/reject-application/:id', async (req, res) => {
         if (conn) conn.release();
     }
 });
+
 
 //RENEWAL
 app.post('/submit-renewal', upload.fields([
@@ -1903,29 +1883,27 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         const currentSemId = currentSem.id;
         const previousSemId = currentSemId - 1;
 
-        // ✅ Check if slots are full
+        // ✅ Check slot limits
         const [slotRows] = await conn.query(
             'SELECT limit_count, avl_slot FROM ScholarSlotLimit WHERE sem_id = ?',
             [currentSemId]
         );
-
         if (slotRows.length === 0) {
             await conn.rollback();
             return res.status(400).json({ message: 'Scholar slot limit not configured for this semester.' });
         }
 
         const { limit_count, avl_slot } = slotRows[0];
-
         if (limit_count === avl_slot) {
             await conn.rollback();
             return res.status(400).json({ message: 'Cannot accept renewal. All slots are already filled.' });
         }
 
+        // ✅ Check certificate
         const [certificateRecipient] = await conn.query(
             'SELECT * FROM CertificateRecipient WHERE surname = ? AND firstname = ? AND sem_id = ?',
             [applicant.surname, applicant.firstname, previousSemId]
         );
-
         if (certificateRecipient.length === 0) {
             await conn.rollback();
             return res.status(400).json({ message: 'Applicant did not receive a certificate in the previous semester.' });
@@ -1935,47 +1913,34 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
 
         const [userResult] = await conn.query('SELECT * FROM Users WHERE id = ?', [recipient.user_id]);
         const user = userResult[0];
-
         const [scholarResult] = await conn.query('SELECT * FROM Scholar WHERE id = ?', [recipient.sch_id]);
         const scholar = scholarResult[0];
 
         await conn.query('UPDATE Users SET sem_id = ? WHERE id = ?', [currentSemId, user.id]);
-
         await conn.query(
-            'INSERT INTO Scholar (surname, firstname, email, profile, user_id, sem_id, status, schoLevel, yearLevel, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO Scholar (surname, firstname, email, profile, user_id, sem_id, status, schoLevel, yearLevel, course)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [applicant.surname, applicant.firstname, applicant.email, scholar.profile, user.id, currentSemId, 'active', scholar.schoLevel, applicant.yearLevel, applicant.course]
         );
-
-        await conn.query(
-            'UPDATE RenewalInfo SET status = ? WHERE id = ?',
-            ['validated', applicantId]
-        );
-
-        await conn.query(
-            'UPDATE ScholarSlotLimit SET avl_slot = IFNULL(avl_slot, 0) + 1 WHERE sem_id = ?',
-            [currentSemId]
-        );
+        await conn.query('UPDATE RenewalInfo SET status = ? WHERE id = ?', ['validated', applicantId]);
+        await conn.query('UPDATE ScholarSlotLimit SET avl_slot = IFNULL(avl_slot, 0) + 1 WHERE sem_id = ?', [currentSemId]);
 
         await conn.commit();
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
-            to: applicant.email,
-            subject: 'Scholarship Renewal Application Accepted',
-            text: `Dear ${applicant.firstname} ${applicant.surname},\n\n` +
-                `Congratulations! Your scholarship renewal application has been successfully accepted for the current semester.\n\n` +
-                `Go to the Scholarship Department in GRC Building and submit your hardcopy next week.\n\n` +
-                `You can now log in to your account with the following credentials:\n\n` +
-                `Username: ${user.username}\n` +
-                `Password: ${user.password}\n\n` + // <--- MODIFIED to include the actual password
-                `Best regards,\n` +
-                `The Scholarship Team`
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) console.error('Error sending email:', error);
-            else console.log('Email sent:', info.response);
-        });
+        // ✅ Send acceptance email via Brevo
+        await sendEmail(
+            applicant.email,
+            'Scholarship Renewal Application Accepted',
+            `
+            <p>Dear ${applicant.firstname} ${applicant.surname},</p>
+            <p>Congratulations! Your scholarship renewal application has been successfully accepted for the current semester.</p>
+            <p>Please proceed to the Scholarship Department in the GRC Building and submit your hardcopy documents next week.</p>
+            <p>You can now log in to your account with the following credentials:</p>
+            <p><strong>Username:</strong> ${user.username}</p>
+            <p><strong>Password:</strong> ${user.password}</p>
+            <p>Best regards,<br>The Scholarship Team</p>
+            `
+        );
 
         res.status(200).json({
             message: 'Renewal accepted successfully. A new scholar record has been created and an email has been sent.'
@@ -1989,26 +1954,17 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         conn.release();
     }
 });
-
-
-// REJECT RENEWAL
 app.post('/api/reject-renewal/:id', async (req, res) => {
     if (!req.session.loggedIn || req.session.user.role_id !== 6) {
-        return res.status(401).json({
-            message: 'Unauthorized'
-        });
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const { rejectedDocs, rejectionCategory, remarks } = req.body;
     const applicantId = req.params.id;
-    
     const validatorId = req.session.user.id;
     const conn = await db.getConnection();
 
-    
     const badWords = ['gago', 'putangina', 'tangina', 'puta', 'tite'];
-
-    
     if (badWords.some(word => remarks.toLowerCase().includes(word))) {
         return res.status(400).json({ message: 'Remarks contain inappropriate language.' });
     }
@@ -2016,63 +1972,46 @@ app.post('/api/reject-renewal/:id', async (req, res) => {
     try {
         await conn.beginTransaction();
 
-        // 1. Get applicant information from RenewalInfo and ensure it's assigned to this validator
         const [renewalInfo] = await conn.query(
             'SELECT id, surname, firstname, email FROM RenewalInfo WHERE id = ? AND assigned_to_validator_id = ?',
             [applicantId, validatorId]
         );
-
         if (renewalInfo.length === 0) {
             await conn.rollback();
-            return res.status(404).json({
-                message: 'Applicant not found or not assigned to you.'
-            });
+            return res.status(404).json({ message: 'Applicant not found or not assigned to you.' });
         }
 
         const applicant = renewalInfo[0];
 
-        // 2. Insert into RejectedRenewal table with the correct mapping
-
         await conn.query(
-            'INSERT INTO RejectedRenewal (renewal_id, surname, firstname, validator_id, remarks, daterejected, rejection_category, detailed_notes) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)',
+            `INSERT INTO RejectedRenewal 
+            (renewal_id, surname, firstname, validator_id, remarks, daterejected, rejection_category, detailed_notes)
+            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)`,
             [applicant.id, applicant.surname, applicant.firstname, validatorId, remarks, rejectionCategory, rejectedDocs.join(', ')]
         );
-
-        // 3. Delete the record from RenewalInfo
-        await conn.query(
-            'DELETE FROM RenewalInfo WHERE id = ?',
-            [applicantId]
-        );
-
+        await conn.query('DELETE FROM RenewalInfo WHERE id = ?', [applicantId]);
         await conn.commit();
 
-        // 4. Send rejection email
-        let emailText = `Dear ${applicant.firstname} ${applicant.surname},\n\n` +
-            `Your scholarship renewal application has been rejected for the following reason:\n\n`;
+        // ✅ Send rejection email via Brevo
+        let emailText = `
+            Dear ${applicant.firstname} ${applicant.surname},<br><br>
+            Your scholarship renewal application has been rejected for the following reason:<br><br>
+        `;
 
         if (rejectionCategory === 'not_qualified_renewer') {
-            emailText += `Reason: You are not a qualified renewer in the system. The validator has marked you as "not qualified".\n\n`;
+            emailText += `Reason: You are not a qualified renewer in the system. The validator has marked you as "not qualified".<br><br>`;
         } else {
-            emailText += `The following documents were found to be invalid: ${rejectedDocs.join(', ')}.\n\n`;
-            emailText += `Validator's Remarks: ${remarks}\n\n`;
+            emailText += `The following documents were found to be invalid: <b>${rejectedDocs.join(', ')}</b>.<br><br>`;
+            emailText += `Validator's Remarks: ${remarks}<br><br>`;
         }
 
-        emailText += `Please address the issues and re-submit your application with the correct and valid documents. `;
+        emailText += `Please address the issues and re-submit your application with the correct and valid documents.<br><br>Thank you.`;
 
-        const mailOptions = {
-            from: 'scholarshipdept.grc@gmail.com',
-            to: applicant.email,
-            subject: 'Scholarship Renewal Application Rejected',
-            text: emailText
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Error sending rejection email:', error);
-            } else {
-                console.log('Rejection email sent:', info.response);
-            }
-        });
+        await sendEmail(
+            applicant.email,
+            'Scholarship Renewal Application Rejected',
+            emailText
+        );
 
         res.status(200).json({
             message: 'Renewal application rejected successfully and an email has been sent to the applicant.'
@@ -2081,13 +2020,12 @@ app.post('/api/reject-renewal/:id', async (req, res) => {
     } catch (error) {
         await conn.rollback();
         console.error('Error during renewal rejection transaction:', error);
-        res.status(500).json({
-            message: 'Internal Server Error.'
-        });
+        res.status(500).json({ message: 'Internal Server Error.' });
     } finally {
         conn.release();
     }
 });
+
 
 app.get('/api/get-assigned-request', async (req, res) => {
     if (!req.session.loggedIn || req.session.user.role_id !== 6) {
@@ -3477,131 +3415,137 @@ app.post('/scan-qr-code', async (req, res) => {
 
 
 
-// --- ROUTE TO RECORD ATTENDANCE (UPDATED WITH SEM CHECK) ---
+// --- ROUTE TO RECORD ATTENDANCE (UPDATED WITH SEM CHECK + BREVO EMAIL) ---
 app.post('/record-attendance', async (req, res) => {
-    
+
     // Check if the current semester data is loaded
     if (!currentSem || !currentSem.id) {
-         return res.status(503).json({ message: 'System error: Current active semester is not yet loaded or set.' });
+        return res.status(503).json({ message: 'System error: Current active semester is not yet loaded or set.' });
     }
     const currentSemId = currentSem.id;
 
     const { scholarId, timeAction } = req.body;
-    
+
     if (!scholarId || !timeAction) {
         return res.status(400).json({ message: 'Missing scholar ID or time action.' });
     }
 
     const gratis_date = dayjs().tz('Asia/Manila').format('YYYY-MM-DD');
     const currentTime = dayjs().tz('Asia/Manila').format('HH:mm:ss');
-    
+
     let connection;
 
     try {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // 1. Fetch scholar details (including email for the new feature)
+        // 1. Fetch scholar details (including email for notification)
         const [scholarRows] = await connection.query(
             'SELECT sched_id, sched_id_2, sem_id, firstname, surname, email FROM Scholar WHERE id = ?',
             [scholarId]
         );
+
         if (scholarRows.length === 0) {
-             await connection.rollback();
-             return res.status(404).json({ message: 'Scholar not found.' });
+            await connection.rollback();
+            return res.status(404).json({ message: 'Scholar not found.' });
         }
+
         const { sched_id, sched_id_2, sem_id, firstname, surname, email } = scholarRows[0];
         const scholarName = `${firstname} ${surname}`;
 
         // --- CRITICAL ENFORCEMENT: Check scholar's enrollment against current semester ---
         if (sem_id !== currentSemId) {
-             await connection.rollback();
-             return res.status(403).json({ 
-                 message: `Cannot record attendance. Scholar is enrolled in a different semester (ID: ${sem_id}) than the current active one (ID: ${currentSemId}).` 
-             });
+            await connection.rollback();
+            return res.status(403).json({
+                message: `Cannot record attendance. Scholar is enrolled in a different semester (ID: ${sem_id}) than the current active one (ID: ${currentSemId}).`
+            });
         }
-        // --- END CRITICAL ENFORCEMENT ---
+        // --- END ENFORCEMENT ---
 
-        // Day-of-week check (moved inside to run after sem check)
+        // Verify schedule day
         const scheduleDayMatch = checkScheduleDayMatch(sched_id, sched_id_2);
         if (!scheduleDayMatch) {
-             await connection.rollback();
-             return res.status(403).json({ 
-                 message: `Cannot record attendance. The scholar has no schedule on ${dayjs().tz('Asia/Manila').format('dddd')}.` 
-             });
+            await connection.rollback();
+            return res.status(403).json({
+                message: `Cannot record attendance. The scholar has no schedule on ${dayjs().tz('Asia/Manila').format('dddd')}.`
+            });
         }
-        
+
         const wholeDayIds = [13, 14, 15, 16, 17, 18];
         const isWholeDay = wholeDayIds.includes(sched_id) || wholeDayIds.includes(sched_id_2);
 
-
+        // Check existing log
         const [logRows] = await connection.query(
             'SELECT * FROM GratisLogs WHERE scholar_id = ? AND gratis_date = ? AND time_out IS NULL ORDER BY id DESC LIMIT 1',
             [scholarId, gratis_date]
         );
-        
         const latestLog = logRows.length > 0 ? logRows[0] : null;
 
         if (timeAction === 'TIME IN') {
-            
-            // Record TIME IN
+
             const { status } = determineAdjustedTimes(sched_id, sched_id_2, currentTime, null);
-            
-            // Note: sem_id is correctly used here from the scholarRows data.
-            const insertSql = 'INSERT INTO GratisLogs (scholar_id, gratis_date, time_in, totalduty, total_time_duty, status, sem_id) VALUES (?, ?, ?, 0, 0, ?, ?)';
+
+            const insertSql = `
+                INSERT INTO GratisLogs (scholar_id, gratis_date, time_in, totalduty, total_time_duty, status, sem_id)
+                VALUES (?, ?, ?, 0, 0, ?, ?)
+            `;
             await connection.query(insertSql, [scholarId, gratis_date, currentTime, status, sem_id]);
-            
+
             await connection.commit();
-            
-            // *** NEW: SEND TIME IN EMAIL ***
+
+            // ✅ Send Time In Email via Brevo
             await sendAttendanceEmail(email, scholarName, 'Time In', currentTime, gratis_date);
-            
+
             return res.json({ message: `Time In recorded at ${currentTime}.` });
 
         } else if (timeAction === 'TIME OUT') {
+
             if (!latestLog) {
-                 await connection.rollback();
-                 return res.status(400).json({ message: 'Cannot Time Out. No outstanding Time In found for today.' });
+                await connection.rollback();
+                return res.status(400).json({ message: 'Cannot Time Out. No outstanding Time In found for today.' });
             }
 
             const log_id = latestLog.id;
             const timeInStr = latestLog.time_in;
-            
-            // 2. Determine Adjusted Times and Status
-            const { status: initialStatus, adjustedTimeIn, adjustedTimeOut } = 
-                determineAdjustedTimes(sched_id, sched_id_2, timeInStr, currentTime);
-            
-            // Total duty for THIS log entry (NOW IN MINUTES)
-            const totaldutyMinutes = calculateTotalDuty(adjustedTimeIn, adjustedTimeOut, isWholeDay);
-            
-            let finalStatus = initialStatus === 'Late' ? 'Late' : 'Present';
-            
-            // 3. Update the log with time_out, totalduty (MINUTES), and status
-            const updateSql = `
-                 UPDATE GratisLogs 
-                 SET time_out = ?, totalduty = ?, status = ? 
-                 WHERE id = ?`; 
-            await connection.query(updateSql, [currentTime, totaldutyMinutes, finalStatus, log_id]);
 
-            // 4. Calculate the Total Time Duty (HOURS) for the scholar's entire semester
+            const { status: initialStatus, adjustedTimeIn, adjustedTimeOut } =
+                determineAdjustedTimes(sched_id, sched_id_2, timeInStr, currentTime);
+
+            const totaldutyMinutes = calculateTotalDuty(adjustedTimeIn, adjustedTimeOut, isWholeDay);
+            const finalStatus = initialStatus === 'Late' ? 'Late' : 'Present';
+
+            await connection.query(
+                'UPDATE GratisLogs SET time_out = ?, totalduty = ?, status = ? WHERE id = ?',
+                [currentTime, totaldutyMinutes, finalStatus, log_id]
+            );
+
             const totalTimeDutyHours = await calculateTotalTimeDuty(scholarId, sem_id, connection);
 
-            // 5. Update the total_time_duty column across ALL log entries for the scholar/semester
             await connection.query(
-                `UPDATE GratisLogs SET total_time_duty = ? WHERE scholar_id = ? AND sem_id = ?`,
+                'UPDATE GratisLogs SET total_time_duty = ? WHERE scholar_id = ? AND sem_id = ?',
                 [totalTimeDutyHours, scholarId, sem_id]
             );
 
             await connection.commit();
 
-            // *** NEW: SEND TIME OUT EMAIL ***
-            await sendAttendanceEmail(email, scholarName, 'Time Out', currentTime, gratis_date, totaldutyMinutes, totalTimeDutyHours);
+            // ✅ Send Time Out Email via Brevo
+            await sendAttendanceEmail(
+                email,
+                scholarName,
+                'Time Out',
+                currentTime,
+                gratis_date,
+                totaldutyMinutes,
+                totalTimeDutyHours
+            );
 
-            return res.json({ message: `Time Out recorded at ${currentTime}. Duty recorded: ${totaldutyMinutes} minutes. Total Semester Duty: ${totalTimeDutyHours} hours.` });
+            return res.json({
+                message: `Time Out recorded at ${currentTime}. Duty recorded: ${totaldutyMinutes} minutes. Total Semester Duty: ${totalTimeDutyHours} hours.`
+            });
 
         } else {
-             await connection.rollback();
-             return res.status(400).json({ message: 'Invalid time action specified.' });
+            await connection.rollback();
+            return res.status(400).json({ message: 'Invalid time action specified.' });
         }
 
     } catch (error) {
@@ -3613,17 +3557,7 @@ app.post('/record-attendance', async (req, res) => {
     }
 });
 
-// --- NEW UTILITY FUNCTION: Send Attendance Email ---
-/**
- * Sends an email confirmation to the scholar.
- * @param {string} toEmail - Scholar's email address.
- * @param {string} scholarName - Full name of the scholar.
- * @param {string} action - 'Time In' or 'Time Out'.
- * @param {string} time - The time recorded (HH:mm:ss).
- * @param {string} date - The date recorded (YYYY-MM-DD).
- * @param {number} [dutyMinutes] - Total duty minutes for Time Out.
- * @param {number} [totalSemesterHours] - Total cumulative semester hours for Time Out.
- */
+// --- NEW UTILITY FUNCTION: Send Attendance Email (Brevo version) ---
 async function sendAttendanceEmail(toEmail, scholarName, action, time, date, dutyMinutes = 0, totalSemesterHours = 0) {
     if (!toEmail) {
         console.error(`[EMAIL] Cannot send ${action} email. Scholar email is missing.`);
@@ -3631,39 +3565,41 @@ async function sendAttendanceEmail(toEmail, scholarName, action, time, date, dut
     }
 
     let subject = `Attendance Recorded: ${action} Successful`;
-    let body = `Dear ${scholarName},\n\n`;
+    let body = `
+        <p>Dear ${scholarName},</p>
+    `;
 
     if (action === 'Time In') {
-        body += `Your Time In was successfully recorded.\n\n` +
-                `Time: ${time} PHT\n` +
-                `Date: ${dayjs(date).format('MMM D, YYYY')}\n\n` +
-                `Thank you for your promptness. Please remember to Time Out when your duty is complete.\n`;
-    } else { // Time Out
+        body += `
+            <p>Your Time In was successfully recorded.</p>
+            <p><strong>Time:</strong> ${time} PHT<br>
+            <strong>Date:</strong> ${dayjs(date).format('MMM D, YYYY')}</p>
+            <p>Thank you for your promptness. Please remember to Time Out when your duty is complete.</p>
+        `;
+    } else {
         const dutyHours = Math.floor(dutyMinutes / 60);
         const remainingMinutes = dutyMinutes % 60;
-        
-        body += `Your Time Out was successfully recorded.\n\n` +
-                `Time: ${time} PHT\n` +
-                `Date: ${dayjs(date).format('MMM D, YYYY')}\n\n` +
-                `Duty Logged Today: ${dutyHours} hours and ${remainingMinutes} minutes\n` +
-                `Cumulative Semester Duty: ${totalSemesterHours} hours (This semester)\n\n` +
-                `Thank you for your service.\n`;
+
+        body += `
+            <p>Your Time Out was successfully recorded.</p>
+            <p><strong>Time:</strong> ${time} PHT<br>
+            <strong>Date:</strong> ${dayjs(date).format('MMM D, YYYY')}</p>
+            <p><strong>Duty Logged Today:</strong> ${dutyHours} hours and ${remainingMinutes} minutes<br>
+            <strong>Cumulative Semester Duty:</strong> ${totalSemesterHours} hours</p>
+            <p>Thank you for your service.</p>
+        `;
     }
 
-    const mailOptions = {
-        from: 'scholarshipdept.grc@gmail.com', // MUST match the configured 'user' above
-        to: toEmail,
-        subject: subject,
-        text: body,
-    };
+    body += `<p>Best regards,<br>The Scholarship Attendance System</p>`;
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`[EMAIL] ${action} confirmation sent to ${toEmail}. Response: ${info.response}`);
+        await sendEmail(toEmail, subject, body);
+        console.log(`[EMAIL] ${action} confirmation sent to ${toEmail}`);
     } catch (error) {
         console.error(`[EMAIL ERROR] Failed to send ${action} confirmation to ${toEmail}:`, error);
     }
 }
+
 // --- NEW ROUTE: Manual Scholar Search (UPDATED WITH SEM CHECK) ---
 app.post('/manual-search-scholar', async (req, res) => {
     const { surname, firstname } = req.body;
@@ -4116,7 +4052,7 @@ app.post('/monitoring-manual-search-scholar', async (req, res) => {
     }
 });
 
-/* ---------- RECORD ATTENDANCE (MonitoringLogs Only Logic) ---------- */
+/* ---------- RECORD ATTENDANCE (MonitoringLogs Only Logic, using Brevo) ---------- */
 app.post('/monitoring-record-attendance', async (req, res) => {
     // Check for active semester
     if (!currentSem || !currentSem.id) {
@@ -4129,29 +4065,29 @@ app.post('/monitoring-record-attendance', async (req, res) => {
     if (!scholarId || !monitoring_status) {
         return res.status(400).json({ message: 'Missing scholar ID or monitoring status.' });
     }
-    
+
     // Get current date/time for logging (Manila time)
     const monitoring_date = dayjs().tz('Asia/Manila').format('YYYY-MM-DD');
-    const currentTime = dayjs().tz('Asia/Manila').format('HH:mm:ss'); 
+    const currentTime = dayjs().tz('Asia/Manila').format('HH:mm:ss');
 
     let connection;
     try {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // 1. DUPLICATE SCAN CHECK (Checking MonitoringLogs directly)
+        // 1. DUPLICATE SCAN CHECK
         const [existingLogRows] = await connection.query(
             'SELECT id FROM MonitoringLogs WHERE scholar_id = ? AND monitoring_date = ?',
             [scholarId, monitoring_date]
         );
-        
         if (existingLogRows.length > 0) {
             await connection.rollback();
-            return res.status(409).json({ message: 'ATTENDANCE ALREADY RECORDED. This scholar has already been scanned for this day.' });
+            return res.status(409).json({
+                message: 'ATTENDANCE ALREADY RECORDED. This scholar has already been scanned for this day.'
+            });
         }
 
-
-        // 2. Fetch scholar details and verify sem match
+        // 2. Fetch scholar details and verify semester match
         const [scholarRows] = await connection.query(
             'SELECT sched_id, sched_id_2, sem_id, firstname, surname, email FROM Scholar WHERE id = ?',
             [scholarId]
@@ -4160,11 +4096,10 @@ app.post('/monitoring-record-attendance', async (req, res) => {
             await connection.rollback();
             return res.status(404).json({ message: 'Scholar not found.' });
         }
-        
+
         const { sched_id, sched_id_2, sem_id, firstname, surname, email } = scholarRows[0];
         const scholarName = `${firstname} ${surname}`;
 
-        // Enforce same semester
         if (sem_id !== currentSemId) {
             await connection.rollback();
             return res.status(403).json({
@@ -4172,7 +4107,7 @@ app.post('/monitoring-record-attendance', async (req, res) => {
             });
         }
 
-        // Day-of-week check (Assuming this is still required)
+        // Day-of-week check
         const scheduleDayMatch = checkScheduleDayMatch(sched_id, sched_id_2);
         if (!scheduleDayMatch) {
             await connection.rollback();
@@ -4181,29 +4116,27 @@ app.post('/monitoring-record-attendance', async (req, res) => {
             });
         }
 
-        // 3. Get MonitoringInfo ID (Monitor ID)
+        // 3. Get MonitoringInfo ID (monitor user)
         let monitoringInfoId = null;
-        if (req.session && req.session.user && req.session.user.id) {
+        if (req.session?.user?.id) {
             const [monitorInfoRows] = await connection.query(
-                'SELECT id FROM MonitoringInfo WHERE user_id = ?', 
+                'SELECT id FROM MonitoringInfo WHERE user_id = ?',
                 [req.session.user.id]
             );
             if (monitorInfoRows.length > 0) {
                 monitoringInfoId = monitorInfoRows[0].id;
             }
         }
-        
-        // 4. GET THE GRATIS LOG ID (New step)
-        // **This utilizes the existing helper function you provided**
+
+        // 4. Get the latest Gratis log ID
         const latest_gratis_id = await getOpenGratisLogId(connection, scholarId);
 
-        // 5. INSERT INTO MonitoringLogs
+        // 5. Insert into MonitoringLogs
         const newMonitoring = {
             scholar_id: scholarId,
-            // **gratis_id is now retrieved from the new step**
-            gratis_id: latest_gratis_id, 
+            gratis_id: latest_gratis_id,
             monitoring_date: monitoring_date,
-            status: monitoring_status, 
+            status: monitoring_status,
             violation_reason: violation ? (violation_reason || '') : null,
             count: violation ? 1 : 0,
             sem_id: sem_id,
@@ -4213,8 +4146,8 @@ app.post('/monitoring-record-attendance', async (req, res) => {
         const insertMonitoringSql = `
             INSERT INTO MonitoringLogs 
             (scholar_id, gratis_id, monitoring_date, status, violation_reason, count, sem_id, assigned_monitoring)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
         const [monRes] = await connection.query(insertMonitoringSql, [
             newMonitoring.scholar_id,
             newMonitoring.gratis_id,
@@ -4225,42 +4158,40 @@ app.post('/monitoring-record-attendance', async (req, res) => {
             newMonitoring.sem_id,
             newMonitoring.assigned_monitoring
         ]);
-        
-        // 6. Handle Blocking (Your logic is implemented here)
+
+        // 6. Handle Blocking
         if (newMonitoring.count > 0) {
-            const [sumRows] = await connection.query('SELECT COALESCE(SUM(count),0) AS total_violations FROM MonitoringLogs WHERE scholar_id = ? AND sem_id = ?', [scholarId, sem_id]);
+            const [sumRows] = await connection.query(
+                'SELECT COALESCE(SUM(count),0) AS total_violations FROM MonitoringLogs WHERE scholar_id = ? AND sem_id = ?',
+                [scholarId, sem_id]
+            );
             const totalViolations = sumRows[0].total_violations || 0;
+            const penaltyThreshold = currentSem?.penalty ? parseInt(currentSem.penalty, 10) : null;
+            const [blockedCheck] = await connection.query(
+                'SELECT id FROM BlockedAccounts WHERE scholar_id = ? AND sem_id = ?',
+                [scholarId, sem_id]
+            );
 
-            const penaltyThreshold = currentSem && currentSem.penalty ? parseInt(currentSem.penalty, 10) : null;
-            
-            // Check if scholar is already blocked for the current semester
-            const [blockedCheck] = await connection.query('SELECT id FROM BlockedAccounts WHERE scholar_id = ? AND sem_id = ?', [scholarId, sem_id]);
-
-            // **Only block if the total violations meet the threshold AND the scholar isn't already blocked**
             if (penaltyThreshold !== null && totalViolations >= penaltyThreshold && blockedCheck.length === 0) {
-                const insertBlockSql = `INSERT INTO BlockedAccounts (scholar_id, monitoring_id, date_blocked, sem_id) VALUES (?, ?, ?, ?)`;
-                // monitoring_id is the ID of the new MonitoringLogs entry
-                await connection.query(insertBlockSql, [
-                    scholarId, 
-                    monitoringInfoId, // <-- CHANGED from monRes.insertId to monitoringInfoId
-                    monitoring_date, 
-                    sem_id
-                ]);
-                // You might want to send a separate 'Blocked' email here or modify the attendance email.
+                await connection.query(
+                    'INSERT INTO BlockedAccounts (scholar_id, monitoring_id, date_blocked, sem_id) VALUES (?, ?, ?, ?)',
+                    [scholarId, monitoringInfoId, monitoring_date, sem_id]
+                );
             }
         }
 
         await connection.commit();
 
+        // ✅ Send monitoring email via Brevo
         await sendAttendanceMonitoringEmail(
-            email, 
-            scholarName, 
-            monitoring_date, 
-            newMonitoring.count > 0, // checks if violation count is > 0 (true/false)
-            newMonitoring.violation_reason 
+            email,
+            scholarName,
+            monitoring_date,
+            newMonitoring.count > 0,
+            newMonitoring.violation_reason
         );
 
-        return res.json({ 
+        return res.json({
             message: `Attendance and monitoring successfully recorded in MonitoringLogs at ${currentTime}. Status: ${monitoring_status}.`,
             log_id: monRes.insertId
         });
@@ -4273,57 +4204,48 @@ app.post('/monitoring-record-attendance', async (req, res) => {
         if (connection) connection.release();
     }
 });
-// NOTE: This utility assumes 'transporter' (the Nodemailer object) is still globally configured.
 
-/**
- * Sends an email confirmation for the daily monitoring scan.
- * @param {string} toEmail - Scholar's email address.
- * @param {string} scholarName - Full name of the scholar.
- * @param {string} monitoringDate - The date the monitoring was recorded (YYYY-MM-DD).
- * @param {boolean} hasViolation - True if a violation was recorded during the scan.
- * @param {string} [violationReason] - The specific reason for the violation (optional).
- */
+/* ---------- Brevo Email Utility for Monitoring ---------- */
 async function sendAttendanceMonitoringEmail(toEmail, scholarName, monitoringDate, hasViolation, violationReason = null) {
     if (!toEmail) {
         console.error(`[EMAIL] Cannot send Monitoring confirmation email. Scholar email is missing.`);
         return;
     }
 
-    // Format the date for the email body
     const formattedDate = dayjs(monitoringDate).format('MMM D, YYYY');
-    
-    let subject = hasViolation 
+    const subject = hasViolation
         ? `⚠️ Violation Recorded: Monitoring Log for ${formattedDate}`
         : `Monitoring Confirmation: Successful Check on ${formattedDate}`;
-        
-    let body = `Dear ${scholarName},\n\n`;
+
+    let body = `
+        <p>Dear ${scholarName},</p>
+    `;
 
     if (hasViolation) {
-        body += `Your daily monitoring check on ${formattedDate} was successfully recorded, but a VIOLATION was noted during the scan.\n\n`;
-        body += `Violation Reason: ${violationReason || 'Not specified'}\n\n`;
-        body += `If you want to appeal this violation, you need to go to the scholarship office only within 3 day of receiving this notice.\n`;
+        body += `
+            <p>Your daily monitoring check on ${formattedDate} was successfully recorded, but a <strong>VIOLATION</strong> was noted during the scan.</p>
+            <p><strong>Violation Reason:</strong> ${violationReason || 'Not specified'}</p>
+            <p>If you wish to appeal this violation, please visit the scholarship office within 3 days of receiving this notice.</p>
+        `;
     } else {
-        body += `You have been successfully monitored for your attendance requirement on ${formattedDate}.\n\n`;
-        body += `Thank you for complying with the monitoring procedures.\n`;
+        body += `
+            <p>You have been successfully monitored for your attendance requirement on ${formattedDate}.</p>
+            <p>Thank you for complying with the monitoring procedures.</p>
+        `;
     }
-    
-    body += `\n\nRegards,\nThe Scholarship Monitoring Team`;
 
-    const mailOptions = {
-        from: 'scholarshipdept.grc@gmail.com', // MUST match the configured 'user' above
-        to: toEmail,
-        subject: subject,
-        // Using HTML for better formatting, especially for the violation message
-        html: body.replace(/\n/g, '<br>'), 
-    };
+    body += `
+        <p>Regards,<br>The Scholarship Monitoring Team</p>
+    `;
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`[EMAIL] Monitoring confirmation (Violation: ${hasViolation}) sent to ${toEmail}. Response: ${info.response}`);
+        await sendEmail(toEmail, subject, body);
+        console.log(`[EMAIL] Monitoring confirmation (Violation: ${hasViolation}) sent to ${toEmail}`);
     } catch (error) {
         console.error(`[EMAIL ERROR] Failed to send Monitoring confirmation to ${toEmail}:`, error);
     }
 }
+
 
 // Function to get the logged-in MonitoringInfo ID
 // This assumes the user is logged in as role_id 5 (Monitoring)
@@ -4403,36 +4325,30 @@ app.post('/fetch-monitoring-logs', async (req, res) => {
     }
 });
 
-//violation admin
-// --- VIOLATION MANAGEMENT OTP ---
+// --- VIOLATION MANAGEMENT OTP (Using Brevo sendEmail) ---
+
 // Helper function to get the current semester ID
 async function getCurrentSemesterId() {
     try {
         const [results] = await db.query('SELECT id FROM Semester ORDER BY id DESC LIMIT 1');
-        if (results.length > 0) {
-            return results[0].id;
-        }
-        return null; // No semester found
+        return results.length > 0 ? results[0].id : null;
     } catch (error) {
         console.error("❌ Error fetching latest semester ID:", error);
         return null;
     }
 }
-// SEND OTP
+
+// --- SEND OTP ---
 app.post('/send-otp-violation', async (req, res) => {
-    // 1. Check if the user is logged in and has the admin role (role_id: 1)
+    // 1. Admin authentication check
     if (!req.session.loggedIn || req.session.user.role_id !== 1) {
         return res.status(401).send({ message: 'Unauthorized access. Admin role required.' });
     }
 
-    const { id } = req.session.user; // Assuming 'id' in session is the user_id from Users table
+    const { id } = req.session.user;
 
     try {
-        // Fetch Admin Email (Assuming ScholarAdmin or a similar table holds admin info)
-        // Since you used 'ScholarAdmin' in your sample, I'll stick with that.
-        // NOTE: The ID here should be the admin's ID in the 'ScholarAdmin' table.
-        // If the 'id' in req.session.user is from the 'Users' table, and 'ScholarAdmin'
-        // links to 'Users', you might need a JOIN, but I'll use the simpler provided structure.
+        // Fetch admin email from ScholarAdmin
         const [results] = await db.query('SELECT email FROM ScholarAdmin WHERE id = ?', [id]);
         if (results.length === 0) {
             return res.status(404).send({ message: 'Admin not found.' });
@@ -4443,28 +4359,34 @@ app.post('/send-otp-violation', async (req, res) => {
             return res.status(400).send({ message: 'Admin email not set.' });
         }
 
-        // Generate and store OTP
+        // Generate OTP and store in session
         const otp = Math.floor(100000 + Math.random() * 900000);
         req.session.violationOTP = otp;
-        req.session.otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
+        req.session.otpExpiry = Date.now() + 5 * 60 * 1000; // 5-minute expiry
 
-        const mailOptions = {
-            from: 'grc.scholarship.dept@gmail.com',
-            to: adminEmail,
-            subject: 'Violation Management OTP Confirmation',
-            text: `Your OTP for Violation Management is: ${otp}. This OTP is valid for 5 minutes.`
-        };
+        // ✅ Send OTP via Brevo
+        const subject = 'Violation Management OTP Confirmation';
+        const message = `
+            <p>Dear Admin,</p>
+            <p>Your One-Time Password (OTP) for Violation Management is:</p>
+            <h2>${otp}</h2>
+            <p>This OTP is valid for <strong>5 minutes</strong>.</p>
+            <p>If you did not request this, please ignore this email.</p>
+            <p>Best regards,<br>The Scholarship Monitoring System</p>
+        `;
 
-        await transporter.sendMail(mailOptions);
+        await sendEmail(adminEmail, subject, message);
+
+        console.log(`✅ Violation Management OTP sent to ${adminEmail}`);
         res.status(200).send({ message: 'OTP sent to your email.' });
+
     } catch (error) {
         console.error('❌ Error sending OTP email for violation management:', error);
         res.status(500).send({ message: 'Failed to send OTP. Please try again.' });
     }
 });
 
-
-// VERIFY OTP
+// --- VERIFY OTP ---
 app.post('/verify-otp-violation', (req, res) => {
     const { otp } = req.body;
     const sessionOTP = req.session.violationOTP;
@@ -4474,37 +4396,35 @@ app.post('/verify-otp-violation', (req, res) => {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
-    // Check expiry
     if (!sessionOTP || Date.now() > otpExpiry) {
-        return res.status(400).json({ success: false, message: 'OTP is expired or not set. Please request a new one.' });
+        return res.status(400).json({
+            success: false,
+            message: 'OTP is expired or not set. Please request a new one.'
+        });
     }
 
-    // Check OTP match
     if (otp !== String(sessionOTP)) {
         return res.status(400).json({ success: false, message: 'Invalid OTP.' });
     }
 
-    // Success: Clear OTP and set verification flag
     delete req.session.violationOTP;
     delete req.session.otpExpiry;
-    req.session.violationOtpVerified = true; // Flag for subsequent data fetching
+    req.session.violationOtpVerified = true;
 
-    res.json({ success: true, message: 'OTP verified successfully. You can now access the violation log.' });
+    res.json({
+        success: true,
+        message: 'OTP verified successfully. You can now access the violation log.'
+    });
 });
 
-// --- VIOLATION DATA AND REVERT ---
-
-// FETCH VIOLATION LOGS (Must be called after successful OTP verification)
+// --- FETCH VIOLATION LOGS ---
 app.get('/violation-logs', async (req, res) => {
-    // Check for admin role and OTP verification flag
     if (!req.session.loggedIn || req.session.user.role_id !== 1 || !req.session.violationOtpVerified) {
         return res.status(403).json({ message: 'Unauthorized: OTP verification required.' });
     }
 
-    
     try {
         const currentSemId = await getCurrentSemesterId();
-
         if (!currentSemId) {
             return res.status(404).send({ message: 'No active semester found.' });
         }
@@ -4517,45 +4437,33 @@ app.get('/violation-logs', async (req, res) => {
                 ml.violation_reason,
                 CONCAT(mi.firstname, ' ', mi.surname) AS assigned_validator_name,
                 DATE_FORMAT(ml.monitoring_date, '%Y-%m-%d') AS monitoring_date
-            FROM
-                MonitoringLogs ml
-            JOIN
-                Scholar s ON ml.scholar_id = s.id
-            JOIN
-                MonitoringInfo mi ON ml.assigned_monitoring = mi.id
-            WHERE
-                ml.sem_id = ? 
-                AND ml.status = 'With Violation'
-                AND ml.monitoring_date >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
-            ORDER BY
-                ml.monitoring_date DESC;
+            FROM MonitoringLogs ml
+            JOIN Scholar s ON ml.scholar_id = s.id
+            JOIN MonitoringInfo mi ON ml.assigned_monitoring = mi.id
+            WHERE ml.sem_id = ?
+              AND ml.status = 'With Violation'
+              AND ml.monitoring_date >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+            ORDER BY ml.monitoring_date DESC;
         `;
 
         const [results] = await db.query(query, [currentSemId]);
-
-        
-
         res.status(200).json(results);
+
     } catch (error) {
         console.error('❌ Error fetching violation logs:', error);
         res.status(500).send({ message: 'Failed to fetch violation logs.' });
     }
 });
 
-
-// REVERT VIOLATION (Simplified, Sequential Logic)
+// --- REVERT VIOLATION ---
 app.post('/revert-violation/:logId', async (req, res) => {
-    // Check for admin role
     if (!req.session.loggedIn || req.session.user.role_id !== 1) {
         return res.status(403).send({ message: 'Unauthorized access.' });
     }
 
-    // logId here is the ID from the MonitoringLogs table
-    const logId = req.params.logId; 
+    const logId = req.params.logId;
 
     try {
-        // --- STEP 1: Get scholar_id associated with the MonitoringLogs id ---
-        // We need this ID to safely delete from BlockedAccounts.
         const [logResults] = await db.query(
             'SELECT scholar_id FROM MonitoringLogs WHERE id = ?',
             [logId]
@@ -4567,23 +4475,42 @@ app.post('/revert-violation/:logId', async (req, res) => {
 
         const scholarId = logResults[0].scholar_id;
 
-        // --- STEP 2: Update MonitoringLogs: status to 'No Violation', count to 0 ---
-        const [updateLog] = await db.query(
+        // Update MonitoringLogs
+        await db.query(
             'UPDATE MonitoringLogs SET status = "No Violation", count = 0 WHERE id = ?',
             [logId]
         );
-        
-        // --- STEP 3: Conditionaly remove scholar from BlockedAccounts ---
-        // CRITICAL CHANGE: Deleting based ONLY on scholar_id, 
-        // as the BlockedAccounts table does not store the MonitoringLogs.id.
+
+        // Remove scholar from BlockedAccounts (if any)
         const [deleteBlock] = await db.query(
             'DELETE FROM BlockedAccounts WHERE scholar_id = ?',
-            [scholarId] // Deletes the block for this scholar regardless of the monitoring_id
+            [scholarId]
         );
 
-        // Success response
+        // ✅ Optionally, send a Revert Confirmation Email
+        try {
+            const [scholarData] = await db.query(
+                'SELECT email, firstname, surname FROM Scholar WHERE id = ?',
+                [scholarId]
+            );
+            if (scholarData.length > 0) {
+                const scholar = scholarData[0];
+                const subject = 'Violation Reverted Notification';
+                const message = `
+                    <p>Dear ${scholar.firstname} ${scholar.surname},</p>
+                    <p>Your previously recorded violation has been reviewed and <strong>reverted</strong>.</p>
+                    <p>Your account is now in good standing.</p>
+                    <p>Best regards,<br>The Scholarship Monitoring Team</p>
+                `;
+                await sendEmail(scholar.email, subject, message);
+                console.log(`✅ Violation revert notification sent to ${scholar.email}`);
+            }
+        } catch (emailError) {
+            console.error('⚠️ Failed to send revert notification email:', emailError);
+        }
+
         res.status(200).send({
-            message: `Violation for log ID ${logId} successfully reverted. Blocked account entry removed: ${deleteBlock.affectedRows > 0 ? 'Yes' : 'No'}.`
+            message: `Violation for log ID ${logId} successfully reverted. Blocked entry removed: ${deleteBlock.affectedRows > 0 ? 'Yes' : 'No'}.`
         });
 
     } catch (error) {
@@ -4591,6 +4518,7 @@ app.post('/revert-violation/:logId', async (req, res) => {
         res.status(500).send({ message: 'Failed to revert violation. Database error occurred.' });
     }
 });
+
 
 //fellowship
 // =================================================================
@@ -4633,7 +4561,7 @@ app.get('/api/fellowships', async (req, res) => {
 
 
 // =================================================================
-// 3. POST: Add New Fellowship (and Send Email)
+// 3. POST: Add New Fellowship (and Send Email via Brevo)
 // =================================================================
 app.post('/api/fellowships', async (req, res) => {
     if (!req.session.loggedIn || req.session.user.role_id !== 1) {
@@ -4671,41 +4599,34 @@ app.post('/api/fellowships', async (req, res) => {
         const [emailResults] = await db.query(emailQuery, [ch_id, sem_id, ch_id, sem_id]);
 
         if (emailResults.length > 0) {
-            const recipientEmails = emailResults.map(row => row.email).join(',');
-            
-            // --- STEP 3: Send Email Notification ---
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: recipientEmails,
-                subject: `UPCOMING EVENT: New ${type_fellowship} Scheduled - ${title}`,
-                text: `
-                    Dear Scholars and Church Personnel,
-                    
-                    A new ${type_fellowship} has been scheduled!
-                    
-                    Title/Topic: ${title}
-                    Date: ${new Date(fellowship).toLocaleDateString()}
-                    Time: ${time_start}
-                    Church: ${churchName} 
-                    
-                    Please mark your calendars!
-                    
-                    Thank you,
-                    GRC Scholarship Department
-                `
-            };
+            const recipientEmails = emailResults.map(row => row.email);
+            const formattedDate = new Date(fellowship).toLocaleDateString();
+            const subject = `📅 NEW ${type_fellowship} Scheduled: ${title}`;
+            const message = `
+                <p>Dear Scholars and Church Personnel,</p>
+                <p>A new <strong>${type_fellowship}</strong> has been scheduled!</p>
+                <p><strong>Title/Topic:</strong> ${title}<br>
+                <strong>Date:</strong> ${formattedDate}<br>
+                <strong>Time:</strong> ${time_start}<br>
+                <strong>Church:</strong> ${churchName}</p>
+                <p>Please mark your calendars accordingly.</p>
+                <p>Thank you,<br>GRC Scholarship Department</p>
+            `;
 
-            await transporter.sendMail(mailOptions);
-            
+            // ✅ Send email via Brevo
+            for (const email of recipientEmails) {
+                await sendEmail(email, subject, message);
+            }
+
             res.status(201).send({ 
                 message: `Fellowship added successfully and email sent to ${emailResults.length} recipients.`,
                 id: fellowshipId
             });
 
         } else {
-             res.status(201).send({ 
-                 message: 'Fellowship added successfully, but no scholars/personnel found for that church to notify.'
-             });
+            res.status(201).send({ 
+                message: 'Fellowship added successfully, but no scholars/personnel found for that church to notify.'
+            });
         }
 
     } catch (error) {
@@ -4732,7 +4653,7 @@ app.put('/api/fellowships/:id', async (req, res) => {
     let excusedDeleted = 0;
 
     try {
-        // --- STEP 1: Get existing data (needed for email) ---
+        // --- STEP 1: Get existing data ---
         const [currentFellowship] = await db.query(
             `SELECT F.title, F.type_fellowship, F.ch_id, C.chname, F.fellowship, F.time_start
              FROM Fellowship F JOIN Church C ON F.ch_id = C.id
@@ -4741,14 +4662,14 @@ app.put('/api/fellowships/:id', async (req, res) => {
         );
 
         if (currentFellowship.length === 0) {
-             return res.status(404).send({ message: 'Fellowship not found.' });
+            return res.status(404).send({ message: 'Fellowship not found.' });
         }
         
         const oldDate = new Date(currentFellowship[0].fellowship).toLocaleDateString();
         const oldTime = currentFellowship[0].time_start.substring(0, 5);
         const { title, type_fellowship, ch_id, chname } = currentFellowship[0];
 
-        // --- STEP 2: Update Fellowship Table ---
+        // --- STEP 2: Update Fellowship ---
         const updateQuery = `
             UPDATE Fellowship 
             SET fellowship = ?, time_start = ? 
@@ -4757,24 +4678,19 @@ app.put('/api/fellowships/:id', async (req, res) => {
         const [updateResult] = await db.query(updateQuery, [fellowship, time_start, fellowshipId]);
 
         if (updateResult.affectedRows === 0) {
-            // This case should be rare since we checked if it exists, but handles if the data is identical
             return res.status(200).send({ message: 'Fellowship found, but date/time did not change.' });
         }
 
         // --- STEP 3: Remove records in ExcusedScholars ---
-        const deleteQuery = 'DELETE FROM ExcusedScholars WHERE fellowship_id = ?';
-        const [deleteResult] = await db.query(deleteQuery, [fellowshipId]);
-        
+        const [deleteResult] = await db.query('DELETE FROM ExcusedScholars WHERE fellowship_id = ?', [fellowshipId]);
         excusedDeleted = deleteResult.affectedRows;
-        
-        // --- STEP 4: Gather Emails (Scholars & Church Personnel) and Send Email ---
-        
-        // Ensure the active semester is available
+
+        // --- STEP 4: Send Email Notification ---
         if (!currentSem || !currentSem.id) { 
-             console.warn('Cannot send notification: Active semester is not defined.');
-             return res.status(200).send({
-                 message: `Fellowship (ID: ${fellowshipId}) successfully updated. ${excusedDeleted} excused scholar record(s) removed. (No email sent: Missing Semester ID)`
-             });
+            console.warn('Cannot send notification: Active semester is not defined.');
+            return res.status(200).send({
+                message: `Fellowship (ID: ${fellowshipId}) updated. ${excusedDeleted} excused scholar(s) removed. (No email sent)`
+            });
         }
         const sem_id = currentSem.id;
 
@@ -4787,77 +4703,68 @@ app.put('/api/fellowships/:id', async (req, res) => {
         
         let emailMessage = '';
         if (emailResults.length > 0) {
-            const recipientEmails = emailResults.map(row => row.email).join(',');
+            const recipientEmails = emailResults.map(row => row.email);
             const newDate = new Date(fellowship).toLocaleDateString();
             const newTime = time_start.substring(0, 5);
 
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: recipientEmails,
-                subject: `RESCHEDULED: ${type_fellowship} - ${title}`,
-                text: `
-                    Dear Scholars and Church Personnel,
-                    
-                    The following ${type_fellowship} has been RESCHEDULED:
-                    
-                    Title/Topic: ${title}
-                    Church: ${chname}
-                    
-                    Original Date/Time: ${oldDate} at ${oldTime}
-                    
-                    NEW Date/Time: ${newDate} at ${newTime}
-                    
-                    Please update your calendars accordingly. All previous excuses are now invalid.
-                    
-                    Thank you,
-                    GRC Scholarship Department
-                `
-            };
-            
-            await transporter.sendMail(mailOptions);
+            const subject = `⏰ RESCHEDULED: ${type_fellowship} - ${title}`;
+            const message = `
+                <p>Dear Scholars and Church Personnel,</p>
+                <p>The following <strong>${type_fellowship}</strong> has been <strong>RESCHEDULED</strong>:</p>
+                <p><strong>Title/Topic:</strong> ${title}<br>
+                <strong>Church:</strong> ${chname}<br><br>
+                <strong>Original Date/Time:</strong> ${oldDate} at ${oldTime}<br>
+                <strong>New Date/Time:</strong> ${newDate} at ${newTime}</p>
+                <p>Please update your calendars accordingly.<br>
+                <strong>All previous excuses are now invalid.</strong></p>
+                <p>Thank you,<br>GRC Scholarship Department</p>
+            `;
+
+            // ✅ Send via Brevo
+            for (const email of recipientEmails) {
+                await sendEmail(email, subject, message);
+            }
+
             emailMessage = `Email sent to ${emailResults.length} recipients.`;
         } else {
-             emailMessage = 'No scholars/personnel found to notify.';
+            emailMessage = 'No scholars/personnel found to notify.';
         }
         
         res.status(200).send({
-            message: `Fellowship (ID: ${fellowshipId}) successfully updated. ${excusedDeleted} excused scholar record(s) removed. ${emailMessage}`,
+            message: `Fellowship (ID: ${fellowshipId}) successfully updated. ${excusedDeleted} excused scholar(s) removed. ${emailMessage}`,
             excusedRemoved: excusedDeleted
         });
 
     } catch (error) {
-        console.error('❌ Error updating fellowship, deleting excused scholars, or sending email:', error);
+        console.error('❌ Error updating fellowship or sending email:', error);
         res.status(500).send({ message: 'Failed to update fellowship. Database or email error occurred.' });
     }
 });
 
-//absent request
+
 // =======================================
 // BAD WORD FILTER
 // =======================================
-// A simple, basic list. You should expand this extensively.
 const badWords = [
-    'putangina', 'tangina', 'gago', 'bobo', 'shit', 'fuck', 'tarantado', 'pota', 'inamo', 
+    'putangina', 'tangina', 'gago', 'bobo', 'shit', 'fuck', 'tarantado', 'pota', 'inamo',
     'pukingina', 'tae', 'bullshit', 'motherfucker', 'asshole'
 ];
 const badWordsRegex = new RegExp(`\\b(${badWords.join('|')})\\b`, 'gi');
 
 function filterBadWords(text) {
-    // Replace all matches with [CENSORED]
     return text.replace(badWordsRegex, '[CENSORED]');
 }
 
 // =======================================
-// FETCH UPCOMING FELLOWSHIP DATES
+// FETCH UPCOMING FELLOWSHIPS
 // =======================================
 app.get('/api/upcoming-fellowships', async (req, res) => {
-    // Security check: ensure a scholar is logged in
     if (!req.session.loggedIn || req.session.user.role_id !== 2) {
         return res.status(403).json({ message: 'Unauthorized.' });
     }
 
-    const today = new Date().toISOString().split('T')[0]; // Current date as YYYY-MM-DD
-    const user_id = req.session.user.id; // User ID from Users table
+    const today = new Date().toISOString().split('T')[0];
+    const user_id = req.session.user.id;
     const currentSemId = currentSem ? currentSem.id : null;
 
     if (!currentSemId) {
@@ -4865,35 +4772,20 @@ app.get('/api/upcoming-fellowships', async (req, res) => {
     }
 
     try {
-        // --- STEP 1: Get the Scholar's Church ID (ch_id) ---
-        const [scholarRows] = await db.query(
-            'SELECT church_id FROM Scholar WHERE user_id = ?', 
-            [user_id]
-        );
-
+        const [scholarRows] = await db.query('SELECT church_id FROM Scholar WHERE user_id = ?', [user_id]);
         if (scholarRows.length === 0 || !scholarRows[0].church_id) {
             return res.status(404).json({ message: 'Scholar profile or assigned church not found.' });
         }
-        
-        const scholar_church_id = scholarRows[0].church_id;
 
-        // --- STEP 2: Fetch fellowships that match the church, are in the current semester, and are *after* today's date (or on today's date if you use >=) ---
-        // I will use `>` to strictly exclude today, matching your example logic (Oct 18 excludes Oct 18).
         const [results] = await db.query(
-            `SELECT id, DATE_FORMAT(fellowship, '%Y-%m-%d') AS fellowship, type_fellowship 
-            FROM Fellowship 
-            WHERE sem_id = ? 
-            AND ch_id = ? 
-            AND fellowship > ? 
-            ORDER BY fellowship ASC`,
-            [currentSemId, scholar_church_id, today]
+            `SELECT id, DATE_FORMAT(fellowship, '%Y-%m-%d') AS fellowship, type_fellowship
+             FROM Fellowship 
+             WHERE sem_id = ? AND ch_id = ? AND fellowship > ? 
+             ORDER BY fellowship ASC`,
+            [currentSemId, scholarRows[0].church_id, today]
         );
-        
-        // The dates returned (in the `fellowship` column) are the exact dates from the table.
-        // The display formatting (e.g., converting to October 31) will be handled on the frontend (scholarDash.js) when it processes this JSON response.
-        
-        res.json(results);
 
+        res.json(results);
     } catch (error) {
         console.error('❌ Error fetching upcoming fellowships:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -4901,296 +4793,207 @@ app.get('/api/upcoming-fellowships', async (req, res) => {
 });
 
 // =======================================
-// HANDLE ABSENT REQUEST SUBMISSION (WITH 2 APPROVED EXCUSE LIMIT)
+// HANDLE ABSENT REQUEST SUBMISSION
 // =======================================
 app.post('/api/absent-request', async (req, res) => {
-    // Security check: ensure a scholar is logged in (role_id 2)
     if (!req.session.loggedIn || req.session.user.role_id !== 2) {
         return res.status(403).json({ message: 'Unauthorized. Must be logged in as a Scholar.' });
     }
 
     const { fellowship_id, letter: rawLetter } = req.body;
-    const user_id = req.session.user.id; // User ID from Users table
-    // Ensure currentSemId is properly fetched from the session or another global source
-    const currentSemId = req.session.user.sem_id; 
-    const maxLimit = 2; // The maximum allowed approved absent requests per scholar per semester.
+    const user_id = req.session.user.id;
+    const currentSemId = req.session.user.sem_id;
+    const maxLimit = 2;
 
     if (!fellowship_id || !rawLetter) {
         return res.status(400).json({ message: 'Missing fellowship date or reason.' });
     }
 
-    let scholarId = null;
-
     try {
-        // --- STEP 1: Get the Scholar ID and Email ---
-        const [scholarRows] = await db.query(
-            'SELECT id, email FROM Scholar WHERE user_id = ?', 
-            [user_id]
-        );
-
+        const [scholarRows] = await db.query('SELECT id, email FROM Scholar WHERE user_id = ?', [user_id]);
         if (scholarRows.length === 0) {
-            return res.status(404).json({ message: 'Scholar profile not found for the logged-in user.' });
+            return res.status(404).json({ message: 'Scholar profile not found.' });
         }
-        
-        scholarId = scholarRows[0].id; 
-        const scholarEmail = scholarRows[0].email; 
 
-        // --------------------------------------------------------------------------------
-        // --- NEW STEP 2: CHECK APPROVED EXCUSE LIMIT IN ExcusedScholars TABLE ---
-        // --------------------------------------------------------------------------------
+        const scholarId = scholarRows[0].id;
+        const scholarEmail = scholarRows[0].email;
+
         const [excusedCountRows] = await db.query(
-            `SELECT COUNT(id) as totalExcused 
-             FROM ExcusedScholars 
-             WHERE scholar_id = ? AND sem_id = ?`,
+            `SELECT COUNT(id) as totalExcused FROM ExcusedScholars WHERE scholar_id = ? AND sem_id = ?`,
             [scholarId, currentSemId]
         );
 
-        const totalExcused = excusedCountRows[0].totalExcused;
-
-        if (totalExcused >= maxLimit) {
-            return res.status(403).json({ 
-                message: `Absent request limit reached. You already have ${totalExcused} approved excused absences this semester.` 
+        if (excusedCountRows[0].totalExcused >= maxLimit) {
+            return res.status(403).json({
+                message: `Absent request limit reached. You already have ${excusedCountRows[0].totalExcused} approved excused absences.`
             });
         }
-        
-        // --- STEP 3: Filter Bad Words ---
+
         const filteredLetter = filterBadWords(rawLetter);
-        
-        // --- STEP 4: Check for Duplicates (Prevent multiple *requests* for the same fellowship) ---
-        // This check is on ExcuseLetters (pending/approved requests) to prevent spamming for the same date.
+
         const [duplicateCheck] = await db.query(
             'SELECT id FROM ExcuseLetters WHERE scholar_id = ? AND fellowship_id = ?',
             [scholarId, fellowship_id]
         );
-        
         if (duplicateCheck.length > 0) {
-            return res.status(409).json({ message: 'You have already sent an absent request for this specific fellowship date.' });
+            return res.status(409).json({ message: 'You already sent a request for this fellowship.' });
         }
 
-        // --- STEP 5: Insert Request into ExcuseLetters Table (Status: Pending) ---
-        const status = 'Pending';
         const [insertResult] = await db.query(
             'INSERT INTO ExcuseLetters (scholar_id, letter, status, fellowship_id, sem_id) VALUES (?, ?, ?, ?, ?)',
-            [scholarId, filteredLetter, status, fellowship_id, currentSemId]
+            [scholarId, filteredLetter, 'Pending', fellowship_id, currentSemId]
         );
 
-        const newRequestId = insertResult.insertId;
-        const remainingRequests = maxLimit - (totalExcused + 1); // Calculate remaining limit
+        const [fellowshipDetails] = await db.query(
+            'SELECT fellowship, type_fellowship FROM Fellowship WHERE id = ?',
+            [fellowship_id]
+        );
 
-        // --- STEP 6: Send Confirmation Email to Scholar (Logic remains the same) ---
         if (scholarEmail) {
-            const [fellowshipDetails] = await db.query(
-                'SELECT fellowship, type_fellowship FROM Fellowship WHERE id = ?',
-                [fellowship_id]
-            );
-            
-            const fellowshipDate = fellowshipDetails.length > 0 
+            const fellowshipDate = fellowshipDetails[0]
                 ? new Date(fellowshipDetails[0].fellowship).toLocaleDateString()
                 : 'Selected Date';
-            
-            const fellowshipType = fellowshipDetails.length > 0 
-                ? fellowshipDetails[0].type_fellowship 
-                : 'Fellowship';
+            const fellowshipType = fellowshipDetails[0]?.type_fellowship || 'Fellowship';
+            const remaining = maxLimit - (excusedCountRows[0].totalExcused + 1);
 
-            if (typeof transporter !== 'undefined') {
-                const mailOptions = {
-                    from: 'grc.scholarship.dept@gmail.com',
-                    to: scholarEmail,
-                    subject: `Absent Request Sent - ${fellowshipType}`,
-                    text: `
-                        Dear Scholar,
-                        
-                        Your Absent Request (ID: ${newRequestId}) for the ${fellowshipType} on ${fellowshipDate} has been sent successfully.
-                        
-                        Reason Submitted: "${rawLetter.substring(0, 100)}..."
-                        Status: Pending
-                        
-                        Please note: You have ${Math.max(0, remainingRequests)} excused absent request(s) remaining for this semester.
-                        
-                        You will be notified once the request has been reviewed.
-                        
-                        Thank you,
-                        GRC Scholarship Department
-                    `
-                };
-                
-                await transporter.sendMail(mailOptions);
-                console.log(`✅ Absent request confirmation email sent to ${scholarEmail}`);
-            } else {
-                console.warn(`⚠️ Transporter not defined. Skipping confirmation email.`);
-            }
-        } else {
-            console.warn(`⚠️ Cannot send confirmation email: Scholar ID ${scholarId} has no email address.`);
+            const subject = `Absent Request Submitted - ${fellowshipType}`;
+            const html = `
+                <p>Dear Scholar,</p>
+                <p>Your absent request for the <strong>${fellowshipType}</strong> on <strong>${fellowshipDate}</strong> was successfully submitted.</p>
+                <p><strong>Reason:</strong> ${filteredLetter}</p>
+                <p>Status: <strong>Pending</strong><br>
+                Remaining Allowed Requests: ${Math.max(0, remaining)}</p>
+                <p>We’ll notify you once the admin reviews it.</p>
+                <p>Thank you,<br>GRC Scholarship Department</p>
+            `;
+
+            await sendEmail(scholarEmail, subject, html);
+            console.log(`📩 Absent request email sent to ${scholarEmail}`);
         }
 
-        res.status(201).json({ 
-            message: 'Absent request successfully sent. A confirmation email has been sent to you.',
-            id: newRequestId
+        res.status(201).json({
+            message: 'Absent request sent successfully and confirmation email delivered.',
+            id: insertResult.insertId
         });
 
     } catch (error) {
-        console.error('❌ Error handling absent request submission:', error);
-        res.status(500).json({ message: 'Failed to process request. Database or server error occurred.' });
+        console.error('❌ Error handling absent request:', error);
+        res.status(500).json({ message: 'Failed to process request.' });
     }
 });
 
 // =======================================
-// HANDLE SCHOLAR EXIT REQUEST SUBMISSION
+// HANDLE EXIT REQUEST
 // =======================================
 app.post('/api/scholar/submit-exit-request', async (req, res) => {
-    // Security check: ensure a scholar is logged in (role_id 2)
     if (!req.session.loggedIn || req.session.user.role_id !== 2) {
         return res.status(403).json({ message: 'Unauthorized. Must be logged in as a Scholar.' });
     }
 
     const { letter: rawLetter } = req.body;
     const user_id = req.session.user.id;
-    const currentSemId = req.session.user.sem_id; // Get from session on login
+    const currentSemId = req.session.user.sem_id;
 
     if (!rawLetter) {
         return res.status(400).json({ message: 'Exit reason cannot be empty.' });
     }
-    
-    // Check for current semester
-    if (!currentSemId) {
-        return res.status(503).json({ message: 'System error: Current active semester is not set in your session.' });
-    }
-
-    let scholarId = null;
 
     try {
-        // 1. Get the Scholar ID
-        const [scholarRows] = await db.query(
-            'SELECT id FROM Scholar WHERE user_id = ?',
-            [user_id]
-        );
-
+        const [scholarRows] = await db.query('SELECT id, email, firstname, surname FROM Scholar WHERE user_id = ?', [user_id]);
         if (scholarRows.length === 0) {
-            return res.status(404).json({ message: 'Scholar profile not found for the logged-in user.' });
+            return res.status(404).json({ message: 'Scholar not found.' });
         }
-        
-        scholarId = scholarRows[0].id;
 
-        // 2. Filter Bad Words
+        const { id: scholarId, email, firstname, surname } = scholarRows[0];
         const filteredLetter = filterBadWords(rawLetter);
 
-        // 3. Check for Duplicates (Pending or Approved Exit Request for this scholar/semester)
         const [duplicateCheck] = await db.query(
             "SELECT id FROM ExitLetters WHERE scholar_id = ? AND sem_id = ? AND status IN ('Pending', 'Approve')",
             [scholarId, currentSemId]
         );
-        
         if (duplicateCheck.length > 0) {
-            return res.status(409).json({ message: 'You already have a Pending or Approved exit request for this semester.' });
+            return res.status(409).json({ message: 'You already have a pending or approved exit request.' });
         }
 
-        // 4. Insert Request into ExitLetters Table
-        const status = 'Pending';
         await db.query(
             'INSERT INTO ExitLetters (scholar_id, letter, status, sem_id) VALUES (?, ?, ?, ?)',
-            [scholarId, filteredLetter, status, currentSemId]
+            [scholarId, filteredLetter, 'Pending', currentSemId]
         );
 
-        res.status(201).json({
-            message: 'Exit request successfully sent for admin review.'
-        });
+        if (email) {
+            const subject = `Exit Request Submitted - GRC Scholarship`;
+            const html = `
+                <p>Dear ${firstname} ${surname},</p>
+                <p>Your exit request has been successfully submitted.</p>
+                <p><strong>Reason:</strong> ${filteredLetter}</p>
+                <p>Status: Pending</p>
+                <p>We’ll notify you once it’s reviewed by the Admin.</p>
+                <p>Thank you,<br>GRC Scholarship Department</p>
+            `;
+            await sendEmail(email, subject, html);
+        }
+
+        res.status(201).json({ message: 'Exit request sent for admin review.' });
 
     } catch (error) {
-        console.error('❌ Error handling exit request submission:', error);
-        res.status(500).json({ message: 'Failed to process request. Database or server error occurred.' });
+        console.error('❌ Error submitting exit request:', error);
+        res.status(500).json({ message: 'Failed to process request.' });
     }
 });
 
 // =======================================
-// FETCH ALL PENDING REQUESTS (ABSENT AND EXIT)
+// ADMIN: FETCH ALL PENDING REQUESTS
 // =======================================
 app.get('/api/admin/pending-requests', async (req, res) => {
-    // Security check: ensure an admin is logged in (role_id 1)
     if (!req.session.loggedIn || req.session.user.role_id !== 1) {
-        return res.status(403).json({ message: 'Unauthorized. Must be logged in as an Admin.' });
+        return res.status(403).json({ message: 'Unauthorized.' });
     }
 
     if (!currentSem || !currentSem.id) {
-        return res.status(500).json({ message: 'Current semester is not defined.' });
+        return res.status(500).json({ message: 'Current semester not defined.' });
     }
 
     try {
         const currentSemId = currentSem.id;
-        const currentDate = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+        const currentDate = new Date().toISOString().slice(0, 10);
 
-        // --- 1. Fetch PENDING ABSENT Requests ---
-        const absentQuery = `
-            SELECT
-                EL.id, EL.scholar_id, EL.letter, EL.sem_id, 'ABSENT' as type,
-                S.firstname, S.surname, S.email,
-                F.fellowship, F.id as fellowship_id
-            FROM
-                ExcuseLetters EL
-            JOIN
-                Scholar S ON EL.scholar_id = S.id
-            JOIN
-                Fellowship F ON EL.fellowship_id = F.id
-            WHERE
-                EL.status = 'Pending'
-                AND EL.sem_id = ?
-                AND F.fellowship > ?
-            ORDER BY
-                F.fellowship ASC;
-        `;
-        const [absentRequests] = await db.query(absentQuery, [currentSemId, currentDate]);
+        const [absentRequests] = await db.query(`
+            SELECT EL.id, EL.scholar_id, EL.letter, EL.sem_id, 'ABSENT' as type,
+                   S.firstname, S.surname, S.email, F.fellowship, F.id as fellowship_id
+            FROM ExcuseLetters EL
+            JOIN Scholar S ON EL.scholar_id = S.id
+            JOIN Fellowship F ON EL.fellowship_id = F.id
+            WHERE EL.status = 'Pending' AND EL.sem_id = ? AND F.fellowship > ?
+            ORDER BY F.fellowship ASC`, [currentSemId, currentDate]);
 
-        // --- 2. Fetch PENDING EXIT Requests ---
-        const exitQuery = `
-            SELECT
-                EXL.id, EXL.scholar_id, EXL.letter, EXL.sem_id, 'EXIT' as type,
-                S.firstname, S.surname, S.email,
-                NULL as fellowship, NULL as fellowship_id
-            FROM
-                ExitLetters EXL
-            JOIN
-                Scholar S ON EXL.scholar_id = S.id
-            WHERE
-                EXL.status = 'Pending'
-                AND EXL.sem_id = ?
-            ORDER BY
-                EXL.id ASC;
-        `;
-        const [exitRequests] = await db.query(exitQuery, [currentSemId]);
-        
-        // Combine and send both request types
-        const allRequests = [...absentRequests, ...exitRequests];
+        const [exitRequests] = await db.query(`
+            SELECT EXL.id, EXL.scholar_id, EXL.letter, EXL.sem_id, 'EXIT' as type,
+                   S.firstname, S.surname, S.email, NULL as fellowship, NULL as fellowship_id
+            FROM ExitLetters EXL
+            JOIN Scholar S ON EXL.scholar_id = S.id
+            WHERE EXL.status = 'Pending' AND EXL.sem_id = ?
+            ORDER BY EXL.id ASC`, [currentSemId]);
 
-        res.json({ requests: allRequests });
+        res.json({ requests: [...absentRequests, ...exitRequests] });
 
     } catch (error) {
-        console.error('❌ Error fetching all pending requests:', error);
-        res.status(500).json({ message: 'Failed to fetch requests.' });
+        console.error('❌ Error fetching requests:', error);
+        res.status(500).json({ message: 'Failed to fetch pending requests.' });
     }
 });
 
 // =======================================
-// NEW GENERIC PROCESS REQUEST (ABSENT/EXIT)
+// ADMIN: PROCESS ABSENT/EXIT REQUEST
 // =======================================
 app.post('/api/admin/process-request', async (req, res) => {
-    // Security check: ensure an admin is logged in (role_id 1)
     if (!req.session.loggedIn || req.session.user.role_id !== 1) {
-        return res.status(403).json({ message: 'Unauthorized. Must be logged in as an Admin.' });
+        return res.status(403).json({ message: 'Unauthorized.' });
     }
 
-    const {
-        requestId,
-        scholarId,
-        semId,
-        decision, // 'Approve' or 'Rejected'
-        type, // 'ABSENT' or 'EXIT'
-        scholarEmail,
-        scholarName,
-        reason,
-        fellowshipId // Only for ABSENT requests
-    } = req.body;
+    const { requestId, scholarId, semId, decision, type, scholarEmail, scholarName, reason, fellowshipId } = req.body;
 
-    if (!requestId || !scholarId || !semId || !decision || (decision !== 'Approve' && decision !== 'Rejected') || !type) {
-        return res.status(400).json({ message: 'Missing required request data or invalid decision/type.' });
+    if (!requestId || !scholarId || !semId || !decision || !type) {
+        return res.status(400).json({ message: 'Missing required fields.' });
     }
 
     let connection;
@@ -5198,92 +5001,46 @@ app.post('/api/admin/process-request', async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        const formattedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        let updateTable = type === 'ABSENT' ? 'ExcuseLetters' : 'ExitLetters';
-        let successMessage = '';
-        let emailContext = {};
+        const table = type === 'ABSENT' ? 'ExcuseLetters' : 'ExitLetters';
+        await connection.query(`UPDATE ${table} SET status = ? WHERE id = ?`, [decision, requestId]);
 
-        // 1. Update status in the correct Letters table
-        await connection.query(
-            `UPDATE ${updateTable} SET status = ? WHERE id = ?`,
-            [decision, requestId]
-        );
-
-        // 2. Perform action based on type and decision
-        if (type === 'ABSENT') {
-            emailContext.title = `Absent Request on ${formattedDate}`;
-            if (decision === 'Approve') {
-                // Insert into ExcusedScholars table
-                await connection.query(
-                    'INSERT INTO ExcusedScholars (scholar_id, fellowship_id, sem_id) VALUES (?, ?, ?)',
-                    [scholarId, fellowshipId, semId]
-                );
-                successMessage = 'Absent request approved and scholar excused.';
-            } else {
-                successMessage = 'Absent request rejected.';
-            }
-        } else if (type === 'EXIT') {
-            emailContext.title = `Scholar Exit Request`;
-            if (decision === 'Approve') {
-                // Insert into ExitAccounts table
-                await connection.query(
-                    'INSERT INTO ExitAccounts (scholar_id, date_exit, sem_id) VALUES (?, NOW(), ?)',
-                    [scholarId, semId]
-                );
-                
-                // OPTIONAL: Block/Deactivate the User account for the next step.
-                // await connection.query('UPDATE Users SET is_active = 0 WHERE id = (SELECT user_id FROM Scholar WHERE id = ?)', [scholarId]);
-
-                successMessage = 'Exit request approved and scholar recorded as exited.';
-            } else {
-                successMessage = 'Exit request rejected.';
-            }
+        if (type === 'ABSENT' && decision === 'Approve') {
+            await connection.query('INSERT INTO ExcusedScholars (scholar_id, fellowship_id, sem_id) VALUES (?, ?, ?)', [scholarId, fellowshipId, semId]);
         }
-
-        // 3. Send email notification (reusing logic from process-absent-request)
-        if (scholarEmail && typeof transporter !== 'undefined') {
-            const subject = `${type} Request ${decision}d - GRC Scholarship`;
-            const actionText = decision === 'Approve' ? 'has been **APPROVED**' : 'has been **REJECTED**';
-            const adviceText = decision === 'Approve' ? (type === 'EXIT' ? 'Your account will now be processed for exit.' : 'You are now officially excused for this fellowship.') : 'Please contact the Admin if you have any questions.';
-
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: scholarEmail,
-                subject: subject,
-                html: `
-                    <p>Dear ${scholarName},</p>
-                    <p>This is an update regarding your ${type} Request.</p>
-                    <p style="padding: 10px; background-color: ${decision === 'Approve' ? '#d4edda' : '#f8d7da'}; color: ${decision === 'Approve' ? '#155724' : '#721c24'}; border: 1px solid ${decision === 'Approve' ? '#c3e6cb' : '#f5c6cb'}; border-radius: 5px;">
-                        Your request ${actionText}.
-                    </p>
-                    <p><strong>Reason Submitted:</strong> ${reason}</p>
-                    <p>${adviceText}</p>
-                    <p>Thank you,</p>
-                    <p>GRC Scholarship Department</p>
-                `
-            };
-
-            await transporter.sendMail(mailOptions);
-            console.log(`✅ ${type} request ${decision} email sent to ${scholarEmail}`);
-        } else {
-            console.warn(`⚠️ Cannot send ${decision} email: Scholar email missing or transporter undefined.`);
+        if (type === 'EXIT' && decision === 'Approve') {
+            await connection.query('INSERT INTO ExitAccounts (scholar_id, date_exit, sem_id) VALUES (?, NOW(), ?)', [scholarId, semId]);
         }
 
         await connection.commit();
-        res.json({ message: successMessage });
+
+        if (scholarEmail) {
+            const subject = `${type} Request ${decision} - GRC Scholarship`;
+            const color = decision === 'Approve' ? '#155724' : '#721c24';
+            const bg = decision === 'Approve' ? '#d4edda' : '#f8d7da';
+
+            const html = `
+                <p>Dear ${scholarName},</p>
+                <p>Your <strong>${type}</strong> request has been <strong>${decision}</strong>.</p>
+                <div style="padding:10px;background:${bg};color:${color};border-radius:5px;">
+                    Reason Submitted: ${reason}
+                </div>
+                <p>${decision === 'Approve' ? 'Thank you for complying with the scholarship policies.' : 'If you believe this was an error, contact the Scholarship Office.'}</p>
+                <p>GRC Scholarship Department</p>
+            `;
+            await sendEmail(scholarEmail, subject, html);
+        }
+
+        res.json({ message: `${type} request ${decision} successfully.` });
 
     } catch (error) {
-        if (connection) {
-            await connection.rollback();
-        }
-        console.error(`❌ Error processing ${type} request (${decision}):`, error);
-        res.status(500).json({ message: 'Failed to process request. Database or server error occurred.' });
+        if (connection) await connection.rollback();
+        console.error(`❌ Error processing ${type} request:`, error);
+        res.status(500).json({ message: 'Failed to process request.' });
     } finally {
-        if (connection) {
-            connection.release();
-        }
+        if (connection) connection.release();
     }
 });
+
 
 // =====================================================================
 // === GLOBAL VARIABLES & INITIALIZATION ===
@@ -5595,16 +5352,17 @@ app.post('/fellowship-record-attendance', async (req, res) => {
         ]);
 
         // 4. Send Email Notification
-        if (scholarEmail && typeof transporter !== 'undefined') {
+        if (scholarEmail) {
             const subject = `Attendance Recorded: ${typeOfAttendance}`;
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: scholarEmail,
-                subject: subject,
-                html: `<p>Dear ${scholarFullName},</p><p>Your attendance for today's **${typeOfAttendance}** on <strong>${currentDate}</strong> has been successfully recorded as **Present**.</p><p>GRC Scholarship Department</p>`
-            };
-            await transporter.sendMail(mailOptions);
+            const html = `
+                <p>Dear ${scholarFullName},</p>
+                <p>Your attendance for today's <strong>${typeOfAttendance}</strong> on <strong>${currentDate}</strong> 
+                has been successfully recorded as <strong>Present</strong>.</p>
+                <p>GRC Scholarship Department</p>
+            `;
+            await sendEmail(scholarEmail, subject, html);
         }
+
 
         await connection.commit();
         res.json({ message: `Attendance for ${scholarFullName} recorded successfully as Present.` });
@@ -5727,16 +5485,18 @@ cron.schedule('30 23 * * *', async () => {
                     ]);
 
                     // Send Email Notification
-                    if (scholarEmail && typeof transporter !== 'undefined') {
+                    // Send Email Notification
+                    if (scholarEmail) {
                         const subject = `Attendance Status: Excused - ${typeOfAttendance}`;
-                        const mailOptions = {
-                            from: 'grc.scholarship.dept@gmail.com',
-                            to: scholarEmail,
-                            subject: subject,
-                            html: `<p>Dear ${scholarFullName},</p><p>Your attendance for the **${typeOfAttendance}** on <strong>${dateToProcess}</strong> has been automatically recorded as **Excused**.</p><p>GRC Scholarship Department</p>`
-                        };
-                        await transporter.sendMail(mailOptions);
+                        const html = `
+                            <p>Dear ${scholarFullName},</p>
+                            <p>Your attendance for the <strong>${typeOfAttendance}</strong> on <strong>${dateToProcess}</strong> 
+                            has been automatically recorded as <strong>Excused</strong>.</p>
+                            <p>GRC Scholarship Department</p>
+                        `;
+                        await sendEmail(scholarEmail, subject, html);
                     }
+
                     await connection.commit();
 
                 } else {
@@ -5769,21 +5529,23 @@ cron.schedule('30 23 * * *', async () => {
                     ]);
 
                     // Send Email Notification
-                    if (scholarEmail && typeof transporter !== 'undefined') {
+                    // Send Email Notification
+                    if (scholarEmail) {
                         const subject = `Attendance Status: Absent - ${typeOfAttendance}`;
-                        const mailOptions = {
-                            from: 'grc.scholarship.dept@gmail.com',
-                            to: scholarEmail,
-                            subject: subject,
-                            html: `
-                                <p>Dear ${scholarFullName},</p>
-                                <p>Your attendance for the **${typeOfAttendance}** on <strong>${dateToProcess}</strong> has been automatically recorded as **Absent**.</p>
-                                ${sServiceIncrement > 0 ? `<p style="color:red; font-weight:bold;">A penalty has been applied: ${sServiceIncrement} Sunday Service penalty added.</p>` : ''}
-                                <p>GRC Scholarship Department</p>
-                            `
-                        };
-                        await transporter.sendMail(mailOptions);
+                        const penaltyText = sServiceIncrement > 0 
+                            ? `<p style="color:red; font-weight:bold;">A penalty has been applied: ${sServiceIncrement} Sunday Service penalty added.</p>` 
+                            : '';
+
+                        const html = `
+                            <p>Dear ${scholarFullName},</p>
+                            <p>Your attendance for the <strong>${typeOfAttendance}</strong> on <strong>${dateToProcess}</strong> 
+                            has been automatically recorded as <strong>Absent</strong>.</p>
+                            ${penaltyText}
+                            <p>GRC Scholarship Department</p>
+                        `;
+                        await sendEmail(scholarEmail, subject, html);
                     }
+
                     await connection.commit();
                 }
             }
@@ -6432,26 +6194,23 @@ app.post('/api/admin/events/post', uploadEventImage.single('eventImage'), async 
             [semId]
         );
         
-        // 3. Email all scholars (using a similar structure as the existing email logic)
-        if (scholars.length > 0 && typeof transporter !== 'undefined') {
+        // 3. Email all scholars (using sendEmail helper)
+        if (scholars.length > 0) {
             const subject = `🎉 New Scholarship Event: ${eventTitle}`;
-            
             for (const scholar of scholars) {
-                const mailOptions = {
-                    from: 'grc.scholarship.dept@gmail.com',
-                    to: scholar.email,
-                    subject: subject,
-                    html: `<p>Dear ${scholar.firstname} ${scholar.surname},</p>
-                           <p>We have posted a new event: <strong>${eventTitle}</strong>.</p>
-                           <p>Date: ${new Date(eventDate).toDateString()}</p>
-                           <p>Description: ${eventDescription}</p>
-                           <p>Check the link for more details: <a href="${eventLink}">${eventLink}</a></p>
-                           <p>Visit the Mainpage to see the announcement!</p>
-                           <p>GRC Scholarship Department</p>`
-                };
-                await transporter.sendMail(mailOptions);
+                const html = `
+                    <p>Dear ${scholar.firstname} ${scholar.surname},</p>
+                    <p>We have posted a new event: <strong>${eventTitle}</strong>.</p>
+                    <p>Date: ${new Date(eventDate).toDateString()}</p>
+                    <p>Description: ${eventDescription}</p>
+                    <p>Check the link for more details: <a href="${eventLink}">${eventLink}</a></p>
+                    <p>Visit the Mainpage to see the announcement!</p>
+                    <p>GRC Scholarship Department</p>
+                `;
+                await sendEmail(scholar.email, subject, html);
             }
         }
+
         
         await connection.commit();
         res.json({ message: `Event "${eventTitle}" posted successfully and emailed to ${scholars.length} scholars.` });
@@ -6645,22 +6404,19 @@ app.post('/api/admin/events/apply-price', async (req, res) => {
             'INSERT INTO EventPriceRecipient (date_receive, scholar_id, event_id, sem_id) VALUES (CURDATE(), ?, ?, ?)',
             [scholarId, eventId, semId]
         );
-
         // 5. Email the scholar
-        if (email && typeof transporter !== 'undefined') {
+        if (email) {
             const subject = `🥳 Congratulations! Duty Hours Awarded!`;
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: email,
-                subject: subject,
-                html: `<p>Dear ${fullName},</p>
-                       <p>Congratulations! You have been awarded ${price} hours which has been added to your Total Time Duty in your Gratis Logs.</p>
-                       <p>This is a reward for your participation in the recent event.</p>
-                       <p>Thank you for your commitment!</p>
-                       <p>GRC Scholarship Department</p>`
-            };
-            await transporter.sendMail(mailOptions);
+            const html = `
+                <p>Dear ${fullName},</p>
+                <p>Congratulations! You have been awarded ${price} hours which has been added to your Total Time Duty in your Gratis Logs.</p>
+                <p>This is a reward for your participation in the recent event.</p>
+                <p>Thank you for your commitment!</p>
+                <p>GRC Scholarship Department</p>
+            `;
+            await sendEmail(email, subject, html);
         }
+
 
         await connection.commit();
         res.json({ message: `${price} hours successfully awarded to ${fullName}. Email notification sent.` });
@@ -6991,19 +6747,15 @@ app.post('/receive-certificate', async (req, res) => {
         let renewValue = 0;
         const lastSemId = currentSemId - 1; // currentSem-1
 
-        if (lastSemId >= 1) { // Check if a last semester exists conceptually
+        if (lastSemId >= 1) {
             const [lastSemRecipient] = await connection.query(
                 'SELECT renew FROM CertificateRecipient WHERE sch_id = ? AND sem_id = ?',
                 [scholarLoginId, lastSemId]
             );
 
-            if (lastSemRecipient.length > 0) {
-                // If found, increment last semester's renew value
-                renewValue = lastSemRecipient[0].renew + 1;
-            } else {
-                // If not found, renew is 0 for the current semester
-                renewValue = 0;
-            }
+            renewValue = lastSemRecipient.length > 0
+                ? lastSemRecipient[0].renew + 1
+                : 0;
         }
         
         // 4. Create row in CertificateRecipient table
@@ -7021,26 +6773,21 @@ app.post('/receive-certificate', async (req, res) => {
             renewValue, 
             currentSemId
         ]);
-        
-        //console.log(`✅ Created row in CertificateRecipient for ${scholarFullName} (Renew: ${renewValue}).`);
 
-        // 5. Email the scholar
-        if (scholar.email && typeof transporter !== 'undefined') {
+        // 5. Email the scholar using sendEmail()
+        if (scholar.email) {
             const subject = `🎉 Congratulations! Your Certificate of Completion is Ready!`;
-            const mailOptions = {
-                from: 'grc.scholarship.dept@gmail.com',
-                to: scholar.email,
-                subject: subject,
-                html: `<p>Dear ${scholarFullName},</p>
-                       <p>We are delighted to inform you that you have successfully met all the requirements for the GRC-MLALAF Scholarship program this semester and have been awarded the Certificate of Completion.</p>
-                       <p>Please check your scholar dashboard to view and download your certificate.</p>
-                       <p>Congratulations on your hard work and dedication!</p>
-                       <p>GRC Scholarship Department</p>`
-            };
-            await transporter.sendMail(mailOptions);
+            const html = `
+                <p>Dear ${scholarFullName},</p>
+                <p>We are delighted to inform you that you have successfully met all the requirements for the GRC-MLALAF Scholarship program this semester and have been awarded the Certificate of Completion.</p>
+                <p>Please check your scholar dashboard to view and download your certificate.</p>
+                <p>Congratulations on your hard work and dedication!</p>
+                <p>GRC Scholarship Department</p>
+            `;
+            await sendEmail(scholar.email, subject, html);
             console.log(`✅ Certificate notification email sent to ${scholar.email}.`);
         } else {
-            console.warn(`⚠️ Could not send email for certificate to ${scholar.email}. Transporter not defined or email missing.`);
+            console.warn(`⚠️ Cannot send email: Scholar email missing.`);
         }
 
         await connection.commit();
@@ -7484,40 +7231,42 @@ async function getUserDetails(user, currentSemId) {
     let email = null;
     let table = null;
 
-    // Check if it's a ScholarAdmin (Role ID 1 is not in the Users table)
+    // Role 1: ScholarAdmin (special case)
     if (user.role_id === 1) {
-        // Assuming user object here is from ScholarAdmin table query result
         name = `${user.firstname} ${user.surname}`;
         email = user.email;
         return { user_id: user.id, name, email, role_id: 1 };
     }
 
-    // Map other role IDs to their respective tables
+    // Map roles to their corresponding tables
     switch (user.role_id) {
-        case 2: table = 'Scholar'; break; // Scholar
-        case 3: table = 'ChurchPersonnel'; break; // Church Personnel
-        case 4: table = 'SchoPersonnel'; break; // Scho Personnel
-        case 5: table = 'MonitoringInfo'; break; // Monitoring Personnel
-        case 6: table = 'ValidatorInfo'; break; // Validator
-        default: return null; // Unhandled role
+        case 2: table = 'Scholar'; break;
+        case 3: table = 'ChurchPersonnel'; break;
+        case 4: table = 'SchoPersonnel'; break;
+        case 5: table = 'MonitoringInfo'; break;
+        case 6: table = 'ValidatorInfo'; break;
+        case 7: table = 'RegistrarHead'; break; // ✅ NEW
+        default: return null;
     }
 
-    // Query the corresponding info table for the name and email
-    const [infoResults] = await db.query(
-        `SELECT firstname, surname, email FROM ${table} WHERE user_id = ? AND sem_id = ?`,
-        [user.id, currentSemId]
-    );
+    // RegistrarHead doesn’t use sem_id
+    const query = user.role_id === 7
+        ? `SELECT firstname, surname, email FROM ${table} WHERE user_id = ?`
+        : `SELECT firstname, surname, email FROM ${table} WHERE user_id = ? AND sem_id = ?`;
+
+    const params = user.role_id === 7 ? [user.id] : [user.id, currentSemId];
+    const [infoResults] = await db.query(query, params);
 
     if (infoResults.length > 0) {
         const info = infoResults[0];
         name = `${info.firstname} ${info.surname}`;
         email = info.email;
-        // Important: Use the Users.id as the final selection ID (user_id)
         return { user_id: user.id, name, email, role_id: user.role_id };
     }
-    
+
     return null;
 }
+
 
 // ======================================
 // 🔑 FORGOT PASSWORD: STEP 1 - FIND ACCOUNT(S)
@@ -7582,19 +7331,13 @@ app.post('/forgot-password-find', async (req, res) => {
     }
 });
 
-// ======================================
-// 🔑 FORGOT PASSWORD: STEP 2 - SEND PASSWORD
-// ======================================
 app.post('/forgot-password-send', async (req, res) => {
-    // Note: The userId passed here is the ID used in the login process:
-    // - ScholarAdmin.id for Role 1
-    // - Users.id for Roles 2-6
     const { userId } = req.body;
-    
+
     if (!userId) {
         return res.status(400).json({ message: 'Missing user ID.' });
     }
-    
+
     const currentSemId = currentSem ? currentSem.id : null;
     if (!currentSemId) {
         return res.status(503).json({ message: 'System error: Current active semester is not yet loaded or set.' });
@@ -7607,7 +7350,7 @@ app.post('/forgot-password-send', async (req, res) => {
     let roleId = null;
 
     try {
-        // 1. Check ScholarAdmin (Role ID 1)
+        // 1️⃣ Check ScholarAdmin (role_id = 1)
         const [adminResults] = await db.query(
             'SELECT password, firstname, surname, email, role_id FROM ScholarAdmin WHERE id = ?',
             [userId]
@@ -7617,10 +7360,11 @@ app.post('/forgot-password-send', async (req, res) => {
             const admin = adminResults[0];
             accountName = `${admin.firstname} ${admin.surname}`;
             accountEmail = admin.email;
-            accountPassword = admin.password; // Hashed password
+            accountPassword = admin.password;
             roleId = admin.role_id;
-        } else {
-            // 2. Check other Users (Roles 2-6)
+        } 
+        else {
+            // 2️⃣ Check other Users table (roles 2–7)
             const [userResults] = await db.query(
                 'SELECT id, password, role_id FROM Users WHERE id = ? AND sem_id = ?',
                 [userId, currentSemId]
@@ -7628,77 +7372,79 @@ app.post('/forgot-password-send', async (req, res) => {
 
             if (userResults.length > 0) {
                 const user = userResults[0];
-                accountPassword = user.password; // Hashed password
+                accountPassword = user.password;
                 roleId = user.role_id;
-                
-                // Get details from the linked table
                 userDetails = await getUserDetails(user, currentSemId);
-                
+
                 if (userDetails) {
                     accountName = userDetails.name;
                     accountEmail = userDetails.email;
                 }
+            } 
+            else if (!accountEmail) {
+                // 3️⃣ Check RegistrarHead table directly (doesn't depend on semester)
+                const [regResults] = await db.query(
+                    'SELECT id, firstname, surname, email, password, role_id FROM RegistrarHead WHERE id = ?',
+                    [userId]
+                );
+
+                if (regResults.length > 0) {
+                    const reg = regResults[0];
+                    accountName = `${reg.firstname} ${reg.surname}`;
+                    accountEmail = reg.email;
+                    accountPassword = reg.password;
+                    roleId = reg.role_id;
+                }
             }
         }
-        
-        
+
         if (!accountEmail || !accountPassword) {
             return res.status(404).json({ message: 'Account not found or missing email address.' });
         }
-        
-        
-        const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit number
+
+        // Generate new OTP password
+        const otp = Math.floor(100000 + Math.random() * 900000);
         const newHashedPassword = await bcrypt.hash(otp.toString(), 10);
-        
+
+        // Update password + otp
         if (roleId === 1) {
-            // Update ScholarAdmin table
             await db.query('UPDATE ScholarAdmin SET password = ?, otp = ? WHERE id = ?', [newHashedPassword, otp, userId]);
-        } else if (roleId >= 2 && roleId <= 6) {
-            // Update Users table
+        } 
+        else if (roleId >= 2 && roleId <= 6) {
             await db.query('UPDATE Users SET password = ?, otp = ? WHERE id = ?', [newHashedPassword, otp, userId]);
-        } else {
-             return res.status(400).json({ message: 'Invalid role for password reset.' });
+        } 
+        else if (roleId === 7) { // ✅ RegistrarHead
+            await db.query('UPDATE RegistrarHead SET password = ?, otp = ? WHERE id = ?', [newHashedPassword, otp, userId]);
+        } 
+        else {
+            return res.status(400).json({ message: 'Invalid role for password reset.' });
         }
 
-        // Send Email with the OTP
-        if (typeof transporter !== 'undefined') {
-            const subject = `Password Reset Request - One-Time Password (OTP)`;
-            const mailOptions = {
-                from: 'your.application.email@gmail.com', // Change this!
-                to: accountEmail,
-                subject: subject,
-                html: `
-                    <p>Dear ${accountName},</p>
-                    <p>You requested a password reset for your account.</p>
-                    <p>Please use the **One-Time Password (OTP)** below to log in:</p>
-                    <div style="padding: 15px; background-color: #f1f1f1; border-left: 5px solid var(--primary-color); margin: 20px 0; font-size: 1.5rem; font-weight: 600;">
-                        ${otp}
-                    </div>
-                    <p>This OTP has replaced your old password. Please use it to log in and then **immediately change your password** once you access your dashboard.</p>
-                    <p>If you did not request a password reset, you can safely ignore this email. Your new password is now the OTP above.</p>
-                    <p>Thank you,</p>
-                    <p>System Administration</p>
-                `
-            };
+        // Send OTP Email using sendEmail()
+        const subject = `Password Reset Request - One-Time Password (OTP)`;
+        const html = `
+            <p>Dear ${accountName},</p>
+            <p>You requested a password reset for your account.</p>
+            <p>Please use the following <strong>One-Time Password (OTP)</strong> to log in:</p>
+            <div style="padding: 15px; background-color: #f1f1f1; border-left: 5px solid #007bff; margin: 20px 0; font-size: 1.5rem; font-weight: 600;">
+                ${otp}
+            </div>
+            <p>This OTP has replaced your old password. Please use it to log in and then <strong>immediately change your password</strong> once you access your dashboard.</p>
+            <p>If you did not request this, please ignore this email.</p>
+            <p>Thank you,</p>
+            <p>System Administration</p>
+        `;
+        await sendEmail(accountEmail, subject, html);
 
-            await transporter.sendMail(mailOptions);
-            console.log(`✅ Password reset (OTP) email sent to ${accountEmail} for user ID ${userId}.`);
-            
-            // Adjust the success message for the user.
-            return res.json({ message: 'A One-Time Password (OTP) has been sent to your registered email. Please use it to log in and change your password immediately.' });
+        console.log(`✅ Password reset OTP sent to ${accountEmail} (User ID: ${userId}, Role: ${roleId})`);
+        res.json({ message: 'A One-Time Password (OTP) has been sent to your registered email. Please use it to log in and change your password immediately.' });
 
-        } else {
-            // If transporter is not set up, revert the password change
-            // (You'd need to save the old password before hashing the new one, or simply alert the admin)
-            console.error('⚠️ Email transporter not configured. Cannot send password reset email.');
-            return res.status(500).json({ message: 'Email service is unavailable. Please contact the administrator.' });
-        }
-        
     } catch (err) {
         console.error('Error in forgot password send:', err);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 //registrar
 // --- 1. SEND ADMIN ACTION OTP ---
