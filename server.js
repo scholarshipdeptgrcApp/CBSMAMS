@@ -1917,7 +1917,7 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         const scholar = scholarResult[0];
 
         // ✅ Generate new random password using your helper
-        const plainPassword = generateRandomPassword(); // Plain password to send in email
+        const plainPassword = generateRandomPasswordPart(); // Plain password to send in email
         const hashedPassword = await bcrypt.hash(plainPassword, 10); // Hash for DB
 
         // ✅ Update user's password (hash) and sem_id
