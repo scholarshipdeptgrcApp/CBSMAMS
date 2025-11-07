@@ -1916,9 +1916,9 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         const [scholarResult] = await conn.query('SELECT * FROM Scholar WHERE id = ?', [recipient.sch_id]);
         const scholar = scholarResult[0];
 
-        // ✅ Generate new random password
-        const plainPassword = crypto.randomBytes(6).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
-        const hashedPassword = await bcrypt.hash(plainPassword, 10);
+        // ✅ Generate new random password using your helper
+        const plainPassword = generateRandomPassword(); // Plain password to send in email
+        const hashedPassword = await bcrypt.hash(plainPassword, 10); // Hash for DB
 
         // ✅ Update user's password (hash) and sem_id
         await conn.query('UPDATE Users SET password = ?, sem_id = ? WHERE id = ?', [
