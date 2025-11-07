@@ -1916,18 +1916,43 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         const [scholarResult] = await conn.query('SELECT * FROM Scholar WHERE id = ?', [recipient.sch_id]);
         const scholar = scholarResult[0];
 
-        await conn.query('UPDATE Users SET sem_id = ? WHERE id = ?', [currentSemId, user.id]);
+        // ✅ Generate new random password
+        const plainPassword = crypto.randomBytes(6).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+        // ✅ Update user's password (hash) and sem_id
+        await conn.query('UPDATE Users SET password = ?, sem_id = ? WHERE id = ?', [
+            hashedPassword,
+            currentSemId,
+            user.id
+        ]);
+
+        // ✅ Create new scholar record
         await conn.query(
             `INSERT INTO Scholar (surname, firstname, email, profile, user_id, sem_id, status, schoLevel, yearLevel, course)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [applicant.surname, applicant.firstname, applicant.email, scholar.profile, user.id, currentSemId, 'active', scholar.schoLevel, applicant.yearLevel, applicant.course]
+            [
+                applicant.surname,
+                applicant.firstname,
+                applicant.email,
+                scholar.profile,
+                user.id,
+                currentSemId,
+                'active',
+                scholar.schoLevel,
+                applicant.yearLevel,
+                applicant.course
+            ]
         );
+
         await conn.query('UPDATE RenewalInfo SET status = ? WHERE id = ?', ['validated', applicantId]);
-        await conn.query('UPDATE ScholarSlotLimit SET avl_slot = IFNULL(avl_slot, 0) + 1 WHERE sem_id = ?', [currentSemId]);
+        await conn.query('UPDATE ScholarSlotLimit SET avl_slot = IFNULL(avl_slot, 0) + 1 WHERE sem_id = ?', [
+            currentSemId
+        ]);
 
         await conn.commit();
 
-        // ✅ Send acceptance email via Brevo
+        // ✅ Send acceptance email with plain password
         await sendEmail(
             applicant.email,
             'Scholarship Renewal Application Accepted',
@@ -1937,7 +1962,7 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
             <p>Please proceed to the Scholarship Department in the GRC Building and submit your hardcopy documents next week.</p>
             <p>You can now log in to your account with the following credentials:</p>
             <p><strong>Username:</strong> ${user.username}</p>
-            <p><strong>Password:</strong> ${user.password}</p>
+            <p><strong>Password:</strong> ${plainPassword}</p>
             <p>Best regards,<br>The Scholarship Team</p>
             `
         );
@@ -1945,7 +1970,6 @@ app.post('/api/accept-renewal/:id', async (req, res) => {
         res.status(200).json({
             message: 'Renewal accepted successfully. A new scholar record has been created and an email has been sent.'
         });
-
     } catch (error) {
         await conn.rollback();
         console.error('Error during renewal acceptance transaction:', error);
